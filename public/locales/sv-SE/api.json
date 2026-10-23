@@ -90,6 +90,7 @@
     "rate_limited": "För många uppladdningar på kort tid, vänta en minut",
     "uploaded": "{{name}} bifogad",
     "upload_failed": "Filen kunde inte sparas",
-    "deleted": "Dokumentet togs bort"
+    "deleted": "Dokumentet togs bort",
+    "file_missing": "Filen finns inte längre i fillagringen. En redigerare kan ta bort dokumentet från listan."
   }
 }

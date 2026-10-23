@@ -1,5 +1,5 @@
 import "server-only";
-import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectsCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 /*
@@ -106,6 +106,28 @@ export async function deleteStoredObjects(keys: string[]): Promise<void> {
     }
   } catch (error) {
     console.error("Failed to delete stored attachments", { keys, error });
+  }
+}
+
+/**
+ * Whether the file behind `key` is still in the bucket. Files can disappear behind the
+ * app's back (someone tidying the bucket in the provider's console), and the download
+ * link should say so rather than hand out a link to an error page. On any failure other
+ * than a plain "not found" the file is assumed present, so an outage doesn't read as loss.
+ */
+export async function storedObjectExists(key: string): Promise<boolean> {
+  const store = storage();
+  if (!store) throw new Error("Object storage is not configured");
+  try {
+    await store.client.send(new HeadObjectCommand({ Bucket: store.bucket, Key: key }));
+    return true;
+  } catch (error) {
+    const status = typeof error === "object" && error && "$metadata" in error
+      ? (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
+      : undefined;
+    if (status === 404 || (error instanceof Error && error.name === "NotFound")) return false;
+    console.error("Failed to check a stored attachment", { key, error });
+    return true;
   }
 }
 

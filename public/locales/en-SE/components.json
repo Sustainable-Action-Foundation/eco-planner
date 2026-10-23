@@ -27,10 +27,8 @@
     "count_one": "One document",
     "count_other": "{{count}} documents",
     "count_zero": "No documents",
-    "choose_files": "Attach a report or other document",
     "allowed_hint": "PDF, Office documents, text, images and zip archives, up to {{maxSize}} each.",
     "full": "This post already carries the maximum of {{max}} documents.",
-    "upload": "Upload",
     "uploading": "Uploading {{name}}…",
     "upload_failed": "Could not upload {{name}}: {{details}}",
     "too_large": "{{name}} is larger than {{maxSize}}.",
@@ -40,7 +38,10 @@
     "delete_failed": "Could not remove {{name}}: {{details}}",
     "empty": "No documents attached yet.",
     "deleted_user": "Deleted user",
-    "relative_time": "{{date, timeAgo}}"
+    "relative_time": "{{date, timeAgo}}",
+    "download_failed": "{{name}} could not be fetched: {{details}}",
+    "attach": "Attach documents",
+    "drop_hint": "Drop files here or pick them with the button."
   },
   "confirm_delete": {
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",

@@ -27,14 +27,14 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
 
   const sorted = [...attachments].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   const full = attachments.length >= MaxAttachmentsPerObject;
 
-  async function upload(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const files = chosenFiles(fileInput.current?.files);
-    if (files.length === 0 || pending) return;
+  /** Sends the chosen or dropped files straight away; there is no separate "commit" step */
+  async function upload(files: File[]) {
+    if (files.length === 0 || pending || full) return;
 
     // The same guards as the API, so a refusal shows before the upload starts
     const notify = { t, language: i18n.language, addToast };
@@ -46,6 +46,29 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
     setPending(null);
     if (fileInput.current) fileInput.current.value = "";
     router.refresh();
+  }
+
+  /**
+   * The link is a plain link (it works without JavaScript and for "save as"), but a click
+   * first asks the API whether the file is there: a redirect means yes and the browser is
+   * sent on to it, anything else is a message worth a toast rather than the bucket's error page.
+   */
+  async function download(event: React.MouseEvent<HTMLAnchorElement>, attachment: AttachmentEntry) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const href = attachmentDownloadPath(attachment.id);
+    try {
+      const response = await fetch(href, { redirect: "manual" });
+      if (response.type === "opaqueredirect" || response.ok) {
+        window.location.assign(href);
+        return;
+      }
+      const data: unknown = await response.json().catch(() => null);
+      const message = isStandardObject(data) && "message" in data && typeof data.message === "string" ? data.message : `${response.status}`;
+      addToast(t("components:attachments.download_failed", { name: attachment.name, details: message }), "error", false);
+    } catch (error) {
+      addToast(t("components:attachments.download_failed", { name: attachment.name, details: error instanceof Error ? error.message : String(error) }), "error", false);
+    }
   }
 
   async function remove(attachment: AttachmentEntry) {
@@ -74,29 +97,45 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
       <h2>{t("components:attachments.count", { count: attachments.length })}</h2>
 
       {canEdit ?
-        <form onSubmit={event => void upload(event)} className={`${styles.uploadForm} margin-bottom-100`}>
-          <label className="flex-grow-100">
-            <span className="block font-weight-500 margin-bottom-25">{t("components:attachments.choose_files")}</span>
-            <input
-              ref={fileInput}
-              type="file"
-              name="file"
-              multiple={true}
-              accept={allowedAttachmentAccept}
-              disabled={!!pending || full}
-              data-testid="attachment-input"
-            />
-            <small className="block margin-top-25" style={{ color: 'gray' }}>
-              {full
-                ? t("components:attachments.full", { max: MaxAttachmentsPerObject })
-                : t("components:attachments.allowed_hint", { maxSize: formatFileSize(MaxAttachmentBytes, i18n.language) })}
-            </small>
-          </label>
-          <button type="submit" className={`${styles.uploadButton} flex align-items-center gap-25`} disabled={!!pending || full} data-testid="attachment-upload">
+        <div
+          className={`${styles.dropZone} margin-bottom-100`}
+          data-dragging={dragging}
+          data-testid="attachment-dropzone"
+          onDragOver={event => { event.preventDefault(); if (!pending && !full) setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={event => { event.preventDefault(); setDragging(false); void upload(chosenFiles(event.dataTransfer.files)); }}
+        >
+          {/* The input stays hidden: the button opens it, the box takes drops, and either choice uploads at once */}
+          <input
+            ref={fileInput}
+            type="file"
+            name="file"
+            multiple={true}
+            accept={allowedAttachmentAccept}
+            className="display-none"
+            data-testid="attachment-input"
+            onChange={event => {
+              void upload(chosenFiles(event.target.files));
+              // Same files chosen twice in a row should still fire a change
+              event.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            className={`${styles.uploadButton} flex align-items-center gap-25`}
+            disabled={!!pending || full}
+            data-testid="attachment-upload"
+            onClick={() => fileInput.current?.click()}
+          >
             <IconUpload aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
-            {pending ? t("components:attachments.uploading", { name: pending }) : t("components:attachments.upload")}
+            {pending ? t("components:attachments.uploading", { name: pending }) : t("components:attachments.attach")}
           </button>
-        </form>
+          <small className={styles.dropHint}>
+            {full
+              ? t("components:attachments.full", { max: MaxAttachmentsPerObject })
+              : `${t("components:attachments.drop_hint")} ${t("components:attachments.allowed_hint", { maxSize: formatFileSize(MaxAttachmentBytes, i18n.language) })}`}
+          </small>
+        </div>
         : null}
 
       {sorted.length === 0 ?
@@ -107,7 +146,7 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
             <li key={attachment.id} className={styles.row} data-testid="attachment-row">
               <FileIcon contentType={attachment.content_type} />
               <div className={styles.details}>
-                <Link href={attachmentDownloadPath(attachment.id)} className={styles.name} prefetch={false}>
+                <Link href={attachmentDownloadPath(attachment.id)} className={styles.name} prefetch={false} onClick={event => void download(event, attachment)}>
                   {attachment.name}
                 </Link>
                 <span className={styles.meta}>

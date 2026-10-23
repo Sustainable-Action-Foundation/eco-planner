@@ -68,10 +68,10 @@ test.describe("Attachments", () => {
     await expect(rows(page)).toHaveCount(0);
     await expect(section(page)).toContainText("attachments.empty");
 
-    await section(page).getByTestId("attachment-input").setInputFiles(textFile(name, content));
+    // Choosing files is the upload; the visible button only opens the (hidden) picker
     const [uploadResponse] = await Promise.all([
       page.waitForResponse(response => new URL(response.url()).pathname === "/api/attachment" && response.request().method() === "POST"),
-      section(page).getByTestId("attachment-upload").click(),
+      section(page).getByTestId("attachment-input").setInputFiles(textFile(name, content)),
     ]);
     expect(uploadResponse.status()).toBe(200);
 

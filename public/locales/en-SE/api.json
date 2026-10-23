@@ -90,6 +90,7 @@
     "rate_limited": "Too many uploads in a short time, please wait a minute",
     "uploaded": "{{name}} attached",
     "upload_failed": "The file could not be stored",
-    "deleted": "Document removed"
+    "deleted": "Document removed",
+    "file_missing": "The file is no longer in storage. An editor can remove the document from the list."
   }
 }
