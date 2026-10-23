@@ -297,6 +297,12 @@ export const allowedDomains = [
   // "ydre.se",
   // "ystad.se",
 
+  /** 
+   * Municipal companies
+   */
+  "bodenbo.se",
+  "bodenbusinessagency.com",
+  "restprodukter.se",
 
   /*
    * Regions
