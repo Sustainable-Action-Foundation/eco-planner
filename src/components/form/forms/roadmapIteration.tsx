@@ -264,6 +264,16 @@ export default function RoadmapIterationForm({
         </fieldset>
       </fieldset>
 
+      {/* Documents to attach, create only: an existing version attaches from its page, where the list lives */}
+      {!currentIteration ?
+        <CreateAttachmentsFieldset
+          name={RoadmapIterationFormName.Attachments}
+          position={positionIndex++}
+          description={t("forms:roadmap_iteration.attachments_description")}
+          testId="roadmap-iteration-attachment"
+        />
+        : null}
+
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
           data-position={positionIndex++}
@@ -289,17 +299,6 @@ export default function RoadmapIterationForm({
           </div>
         </label>
       </fieldset>
-
-      {/* Documents to attach, create only: an existing version attaches from its page, where the list lives */}
-      {/* Last section, so the position isn't advanced further */}
-      {!currentIteration ?
-        <CreateAttachmentsFieldset
-          name={RoadmapIterationFormName.Attachments}
-          position={positionIndex}
-          description={t("forms:roadmap_iteration.attachments_description")}
-          testId="roadmap-iteration-attachment"
-        />
-        : null}
 
       {/* Access control lives on the parent roadmap; sharing is edited in the roadmap form */}
 

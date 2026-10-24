@@ -344,6 +344,16 @@ export default function ActionForm({
         </div>
       </fieldset>
 
+      {/* Documents to attach, create only: an existing action attaches from its page, where the list lives */}
+      {!currentAction ?
+        <CreateAttachmentsFieldset
+          name={ActionFormName.Attachments}
+          position={positionIndex++}
+          description={t("forms:action.attachments_description")}
+          testId="action-attachment"
+        />
+        : null}
+
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
           data-position={positionIndex++}
@@ -577,17 +587,6 @@ export default function ActionForm({
           </fieldset>
           : null
       }
-
-      {/* Documents to attach, create only: an existing action attaches from its page, where the list lives */}
-      {/* Last section, so the position isn't advanced further */}
-      {!currentAction ?
-        <CreateAttachmentsFieldset
-          name={ActionFormName.Attachments}
-          position={positionIndex}
-          description={t("forms:action.attachments_description")}
-          testId="action-attachment"
-        />
-        : null}
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
         <button

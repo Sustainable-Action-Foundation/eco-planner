@@ -502,6 +502,16 @@ export default function GoalForm({
         </fieldset>
       </fieldset>
 
+      {/* Documents to attach, create only: an existing goal attaches from its page, where the list lives */}
+      {!currentGoal ?
+        <CreateAttachmentsFieldset
+          name={GoalFormName.Attachments}
+          position={positionIndex++}
+          description={t("forms:goal.attachments_description")}
+          testId="goal-attachment"
+        />
+        : null}
+
       {/* Goal series input section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
@@ -638,17 +648,6 @@ export default function GoalForm({
         />
       </fieldset>
       */}
-
-      {/* Documents to attach, create only: an existing goal attaches from its page, where the list lives */}
-      {/* Last section, so the position isn't advanced further */}
-      {!currentGoal ?
-        <CreateAttachmentsFieldset
-          name={GoalFormName.Attachments}
-          position={positionIndex}
-          description={t("forms:goal.attachments_description")}
-          testId="goal-attachment"
-        />
-        : null}
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
