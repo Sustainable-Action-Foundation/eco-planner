@@ -495,16 +495,15 @@ model Orgs {
 /// request replaces the old one, and redeeming deletes the row (single use).
 model LoginTokens {
   token_hash String   @id
-  /// Normalized (see normalizeEmail); the user may not exist yet (first login creates the account)
-  email      String
+  /// Normalized (see normalizeEmail); the user may not exist yet (first login creates the account).
+  /// One pending link per address: a new request replaces the old one (upsert, see /api/login-link)
+  email      String   @unique
   created_at DateTime @default(now())
   expires_at DateTime
   /// Whether the session minted on redemption should be persistent ("remember me")
   remember   Boolean  @default(false)
   /// Same-site path to send the user to after login, sanitized at request time
   redirect   String?
-
-  @@index([email])
 }
 
 model GuestInvites {

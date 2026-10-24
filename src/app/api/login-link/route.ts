@@ -96,13 +96,15 @@ export async function POST(request: NextRequest) {
         return;
       }
 
-      // One pending link per address; a new request replaces the old one
-      await prisma.$transaction([
-        prisma.loginTokens.deleteMany({ where: { email } }),
-        prisma.loginTokens.create({
-          data: { token_hash: hash, email, expires_at: new Date(Date.now() + loginTokenTtlMs), remember, redirect },
-        }),
-      ]);
+      // One pending link per address; a new request replaces the old one. A single upsert
+      // on the unique address: the delete-then-insert transaction this used to be deadlocked
+      // when several addresses asked at once (InnoDB gap locks from the deletes)
+      const expiresAt = new Date(Date.now() + loginTokenTtlMs);
+      await prisma.loginTokens.upsert({
+        where: { email },
+        create: { token_hash: hash, email, expires_at: expiresAt, remember, redirect },
+        update: { token_hash: hash, created_at: new Date(), expires_at: expiresAt, remember, redirect },
+      });
 
       await mailClient.sendMail(mails[template]);
     }
