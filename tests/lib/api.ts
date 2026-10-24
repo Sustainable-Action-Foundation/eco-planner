@@ -12,18 +12,18 @@ import { memberSlug } from "../../scripts/prisma/seed/places";
 /** The iron-session cookie set at login */
 export const SESSION_COOKIE = "eco_planner";
 
-/** Seeded fixtures the specs may rely on (scripts/prisma/seed/*) */
+/** Seeded fixtures the specs may rely on (scripts/prisma/seed/*). `name` is what pages show for the person (displayName) */
 export const Seed = {
   /** Super admin, manager of "Sustainable Action" */
-  admin: { username: "admin" },
+  admin: { username: "admin", name: "Ada Administratör" },
   /** Plain verified member of "Sustainable Action", in the group */
-  anita: { username: "anita" },
+  anita: { username: "anita", name: "Anita Andersson" },
   /** Member never verified (a legacy state; a login link would verify) */
-  anton: { username: "anton" },
+  anton: { username: "anton", name: "Anton Antonsson" },
   /** GUEST in the org and group; guests are disabled so she sees only public content */
-  greta: { username: "greta" },
+  greta: { username: "greta", name: "Greta Gran" },
   /** Verified, no org memberships */
-  orgless: { username: "orgless" },
+  orgless: { username: "orgless", name: "Olle Orglös" },
   /** The org owning the fixtures; admin manages it, anita/anton members, greta guest */
   orgName: "Sustainable Action",
   /** Group of anita, anton and greta with an RW grant on the national roadmap and RO on the regional one */

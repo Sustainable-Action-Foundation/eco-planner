@@ -2,7 +2,7 @@ import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
 import { expect, test } from "../lib/fixtures";
-import { createGoal, createIteration, createRoadmap, deleteRoadmap } from "../lib/api";
+import { createGoal, createIteration, createRoadmap, deleteRoadmap, Seed } from "../lib/api";
 import { openCreate, pickIterationInActionForm, reloadUntil, submitForm, visible } from "../lib/forms";
 
 /*
@@ -87,7 +87,7 @@ test.describe("Attachments", () => {
     const row = rows(page).first();
     await expect(rows(page)).toHaveCount(1);
     await expect(row).toContainText(name);
-    await expect(row).toContainText("admin");
+    await expect(row).toContainText(Seed.admin.name);
 
     // The link redirects to a short-lived file link; the page's request context carries the session
     const href = await row.getByRole("link", { name }).getAttribute("href");
