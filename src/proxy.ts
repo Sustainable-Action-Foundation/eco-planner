@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSession, readSession, SessionCookieName } from '@/lib/session';
+import { isSessionCurrentForProxy, readSession, SessionCookieName } from '@/lib/session';
 import { cookies } from 'next/headers';
 
 /**
@@ -20,13 +20,14 @@ export async function proxy(req: NextRequest) {
   const isAuthPage = (pathname.startsWith('/login') && !pathname.startsWith('/login/link')) || pathname.startsWith('/signup');
 
   // Unchecked read on every request. Only the pages whose redirects depend on the login
-  // also check the cookie against the database (one indexed lookup): a cookie whose user is
+  // also check the cookie against the database (one indexed lookup, memoized for a minute
+  // since production prefetches every create/edit link on a page): a cookie whose user is
   // gone, or whose session was revoked, would otherwise pass here while every page treats
   // the visitor as anonymous — create pages render empty, /login bounces back to /.
-  const cookieStore = await cookies();
-  const claimsLogin = (await readSession(cookieStore)).user?.isLoggedIn === true;
+  const { user } = await readSession(await cookies());
+  const claimsLogin = user?.isLoggedIn === true;
   const isLoggedIn = claimsLogin && (isCreateOrEdit || isAuthPage)
-    ? (await getSession(cookieStore)).user?.isLoggedIn === true
+    ? await isSessionCurrentForProxy(user.id, user.sessionVersion ?? 0)
     : claimsLogin;
   const staleCookie = claimsLogin && !isLoggedIn;
 

@@ -1,4 +1,4 @@
-import { getSession, readSession } from "@/lib/session";
+import { forgetProxySession, getSession, readSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ message: "No such user" }, { status: 404 });
     }
     await prisma.users.update({ where: { id: userId }, data: { session_version: { increment: 1 } } });
+    forgetProxySession(userId);
     return Response.json({ message: "Logged the user out everywhere" }, { status: 200 });
   }
 
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
   if (everywhere && session.user?.isLoggedIn) {
     // The row may be gone for a stale session of a deleted user; logging out still succeeds
     await prisma.users.update({ where: { id: session.user.id }, data: { session_version: { increment: 1 } } }).catch(() => null);
+    forgetProxySession(session.user.id);
   }
 
   // Remove session to log out

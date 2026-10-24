@@ -60,6 +60,47 @@ const isSessionCurrent = cache(async (userId: string, sessionVersion: number): P
   return user !== null && user.session_version === sessionVersion;
 });
 
+/** How long the proxy trusts a verified cookie before asking the database again */
+const proxyMemoMs = 60 * 1000;
+type ProxyMemo = Map<string, { sessionVersion: number, until: number }>;
+// On globalThis: the proxy is its own bundle, so a module-level map there would not be
+// the one the logout route clears
+const globalForSession = globalThis as unknown as { safProxySessionMemo?: ProxyMemo };
+function proxyMemo(): ProxyMemo {
+  globalForSession.safProxySessionMemo ??= new Map();
+  return globalForSession.safProxySessionMemo;
+}
+
+/**
+ * The proxy's version of {@link getSession}'s check, memoized across requests. The
+ * proxy runs for every request, and a production page prefetches each create/edit
+ * link it shows: without this, one page view cost one `session_version` lookup per
+ * such link (the db-budget canary caught 4–8 extra statements per page). A verified
+ * cookie is trusted for a minute; a revocation in this process clears the memo at
+ * once ({@link forgetProxySession}), so "log out everywhere" still bites immediately.
+ * Pages keep using the exact per-request check. Single-instance, like the API throttles.
+ */
+export async function isSessionCurrentForProxy(userId: string, sessionVersion: number): Promise<boolean> {
+  const memo = proxyMemo();
+  const known = memo.get(userId);
+  if (known?.sessionVersion === sessionVersion && known.until > Date.now()) {
+    return true;
+  }
+  const current = await isSessionCurrent(userId, sessionVersion);
+  if (current) {
+    memo.set(userId, { sessionVersion, until: Date.now() + proxyMemoMs });
+  }
+  else {
+    memo.delete(userId);
+  }
+  return current;
+}
+
+/** Drops the proxy's memo of a user's cookie; called wherever `session_version` is bumped */
+export function forgetProxySession(userId: string): void {
+  proxyMemo().delete(userId);
+}
+
 /**
  * Reads login data from cookies and checks it against the database. The cookie is
  * stateless (iron-session), so "log out everywhere" works by bumping
