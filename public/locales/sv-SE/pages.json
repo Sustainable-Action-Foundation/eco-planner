@@ -239,7 +239,9 @@
     "submit": "Logga in",
     "missing": "Den här sidan behöver öppnas via länken i mejlet.",
     "invalid": "Länken är ogiltig eller har gått ut. Begär en ny inloggningslänk.",
-    "back_to_login": "Till inloggningen"
+    "back_to_login": "Till inloggningen",
+    "welcome_toast": "Välkommen in! 🎉",
+    "welcome_back_toast": "Välkommen tillbaka, {{name}}! 🎉"
   },
   "profile": {
     "my_posts": "Mina inlägg",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { safeRedirectPath } from "@/functions/safeRedirectPath";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 
 type State = { kind: "loading" } | { kind: "ready", token: string } | { kind: "missing" } | { kind: "submitting", token: string } | { kind: "failed" };
 
@@ -15,6 +16,7 @@ type State = { kind: "loading" } | { kind: "ready", token: string } | { kind: "m
 export default function LoginLinkButton() {
   const { t } = useTranslation("pages");
   const router = useRouter();
+  const { addToast } = useToast();
   const [state, setState] = useState<State>({ kind: "loading" });
 
   useEffect(() => {
@@ -41,7 +43,9 @@ export default function LoginLinkButton() {
       if (!res.ok) {
         throw new Error(await res.text());
       }
-      const data = await res.json() as { redirect?: string };
+      const data = await res.json() as { redirect?: string, name?: string | null };
+      // The toast list lives in the root layout, so it outlives the navigation
+      addToast(data.name ? t("pages:login_link.welcome_back_toast", { name: data.name }) : t("pages:login_link.welcome_toast"), "success");
       router.push(safeRedirectPath(data.redirect));
       router.refresh();
     }).catch(() => {

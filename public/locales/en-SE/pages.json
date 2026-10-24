@@ -239,7 +239,9 @@
     "submit": "Sign in",
     "missing": "This page has to be opened through the link in the email.",
     "invalid": "The link is invalid or has expired. Request a new login link.",
-    "back_to_login": "Back to login"
+    "back_to_login": "Back to login",
+    "welcome_toast": "Welcome aboard! 🎉",
+    "welcome_back_toast": "Welcome back, {{name}}! 🎉"
   },
   "profile": {
     "my_posts": "My posts",

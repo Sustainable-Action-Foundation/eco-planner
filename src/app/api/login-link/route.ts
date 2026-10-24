@@ -11,6 +11,7 @@ import { safeRedirectPath } from "@/functions/safeRedirectPath";
 import mailClient, { type MailOptions } from "@/mailClient";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
+import { displayName } from "@/functions/personName";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { JSONValue } from "@/types";
 
@@ -177,8 +178,13 @@ export async function PATCH(request: NextRequest) {
 
   // Onboarding: whoever has not given their name yet is asked for it first, then continues
   const destination = safeRedirectPath(redirect);
-  const target = user.first_name && user.last_name ? destination : `/welcome?from=${encodeURIComponent(destination)}`;
-  return Response.json({ message: "Login successful", redirect: target }, { status: 200, headers: { Location: target } });
+  const onboarded = Boolean(user.first_name && user.last_name);
+  const target = onboarded ? destination : `/welcome?from=${encodeURIComponent(destination)}`;
+  // `name` lets the client greet a returning user by name; null until onboarding has happened
+  return Response.json(
+    { message: "Login successful", redirect: target, name: onboarded ? displayName(user) : null },
+    { status: 200, headers: { Location: target } },
+  );
 }
 
 /** `base`, or `base-2`, `base-3`, … until one is not taken (case-insensitively). */

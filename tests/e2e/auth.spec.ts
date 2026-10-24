@@ -1,5 +1,5 @@
 import { expect, test as base } from "playwright/test";
-import type { APIRequestContext, Page } from "playwright/test";
+import type { APIRequestContext, Locator, Page } from "playwright/test";
 import { loginAs, Seed, SESSION_COOKIE } from "../lib/api";
 import { linkLogin, linkPlace, newLinkUser, outbox, requestLink, tokenIn, uniqueEmail, uniqueIp } from "../lib/login-link";
 import { visible } from "../lib/forms";
@@ -77,6 +77,11 @@ async function mailedToken(request: APIRequestContext, email: string, after?: st
 }
 
 /** Opens the mailed link and clicks through the interstitial; resolves with the PATCH status. */
+/** The success toast shown after a redeemed link (the toast list sits in the root layout) */
+function successToast(page: Page): Locator {
+  return page.getByTestId("toast-list").locator('dialog[role="status"]');
+}
+
 async function redeemInBrowser(page: Page, token: string): Promise<number> {
   await page.goto(`/login/link#t=${token}`);
   const button = page.getByRole("button", { name: "login_link.submit" }).filter({ visible: true });
@@ -157,7 +162,8 @@ test.describe.serial("An account through a link", () => {
     expect(subject).toContain("welcome.subject");
 
     expect(await redeemInBrowser(page, token)).toBe(200);
-    // Onboarding first: the name is asked once, then the login continues to its target
+    // A newcomer is greeted without a name; onboarding first, then the login continues to its target
+    await expect(successToast(page)).toContainText("login_link.welcome_toast");
     await expect(page).toHaveURL("/welcome?from=%2F");
     await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
     await visible(page, "#firstName").fill("Elin");
@@ -197,7 +203,8 @@ test.describe.serial("An account through a link", () => {
     expect(subject, "an existing user gets the login mail").toContain("login.subject");
 
     expect(await redeemInBrowser(page, token)).toBe(200);
-    // Onboarded already: straight to the target
+    // Onboarded already: greeted by name and straight to the target
+    await expect(successToast(page)).toContainText("login_link.welcome_back_toast");
     await expect(page).toHaveURL("/roadmap/create");
     await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
     // Remembered: the cookie lasts a year
