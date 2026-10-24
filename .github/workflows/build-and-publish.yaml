@@ -79,24 +79,25 @@ jobs:
           ORG: ${{ github.repository_owner }}
           ACTOR: ${{ github.actor }}
           TRIGGERING_ACTOR: ${{ github.triggering_actor }}
-          RUNNER_OWNER: VenaStrom
-          RUNNER_NAME: gh-runner-205
+          # Not RUNNER_*: the runner injects its own RUNNER_NAME etc. and those win over step env
+          SELF_HOSTED_OWNER: VenaStrom
+          SELF_HOSTED_RUNNER: gh-runner-205
         run: |
           RUNS_ON='"ubuntu-latest"'
           REASON="github-hosted"
 
-          if [[ "$ACTOR" != "$RUNNER_OWNER" || "$TRIGGERING_ACTOR" != "$RUNNER_OWNER" ]]; then
-            REASON="not triggered by $RUNNER_OWNER"
+          if [[ "$ACTOR" != "$SELF_HOSTED_OWNER" || "$TRIGGERING_ACTOR" != "$SELF_HOSTED_OWNER" ]]; then
+            REASON="not triggered by $SELF_HOSTED_OWNER"
           elif [[ -z "$GH_TOKEN" ]]; then
             REASON="RUNNER_STATUS_TOKEN not set"
           else
             STATUS=$(gh api "orgs/$ORG/actions/runners" \
-              --jq ".runners[] | select(.name == \"$RUNNER_NAME\") | .status" 2>/dev/null || true)
+              --jq ".runners[] | select(.name == \"$SELF_HOSTED_RUNNER\") | .status" 2>/dev/null || true)
             if [[ "$STATUS" == "online" ]]; then
               RUNS_ON='["self-hosted", "proxmox"]'
-              REASON="$RUNNER_NAME is online"
+              REASON="$SELF_HOSTED_RUNNER is online"
             else
-              REASON="$RUNNER_NAME status: ${STATUS:-unknown}"
+              REASON="$SELF_HOSTED_RUNNER status: ${STATUS:-unknown}"
             fi
           fi
 
