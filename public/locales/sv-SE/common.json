@@ -52,7 +52,7 @@
   "historical_data": "historisk data",
   "layout": {
     "app_name": "Verktyget Färdplanen",
-    "app_name_compact": "Färdplanen",
+    "app_name_compact": "Verktyget",
     "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
     "og_locale": "sv_SE"
   },

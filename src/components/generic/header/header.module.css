@@ -73,20 +73,6 @@
   text-decoration: underline;
 }
 
-.app-name-compact {
-  display: none;
-}
-
-@media (max-width: 1250px) {
-  .app-name-full {
-    display: none;
-  }
-
-  .app-name-compact {
-    display: inline;
-  }
-}
-
 /* The narrow (icon only) rail has no room for a name */
 .sidebar:not(:has(.sidebar-toggle:checked)) .app-name {
   @media (min-width: 1251px) {
