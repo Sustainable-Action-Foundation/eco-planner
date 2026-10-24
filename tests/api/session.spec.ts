@@ -144,12 +144,19 @@ test.describe("session revocation elsewhere", () => {
   });
 
   test("a stale cookie is sent to login from create pages, dropped, and can reach the login page", async ({ playwright, baseURL }, testInfo) => {
+    // Two link mails only: the address allows a burst of three before it is throttled
     const { email, request: laptop } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "stale");
     const phone = await freshContext(playwright, baseURL, testInfo.workerIndex);
+    let tablet: APIRequestContext | null = null;
     try {
       // Logged in: the login page bounces to the start page
       const whileLoggedIn = await laptop.get("/login", { maxRedirects: 0 });
       expect(whileLoggedIn.status(), "logged in: /login redirects").toBe(307);
+
+      const stale = await sessionCookie(laptop);
+      expect(stale, "the laptop has a session cookie").toBeTruthy();
+      // The same stale cookie in a second jar, for the login page below
+      tablet = await playwright.request.newContext({ baseURL, extraHTTPHeaders: { "cookie": `${SESSION_COOKIE}=${stale?.value}` } });
 
       await linkLogin(phone, email);
       expect((await phone.post("/api/logout", { data: { everywhere: true } })).status()).toBe(200);
@@ -162,22 +169,12 @@ test.describe("session revocation elsewhere", () => {
       expect(await sessionCookie(laptop), "and gone from the jar").toBeFalsy();
 
       // A stale cookie must not lock the visitor out of the login page
-      await linkLogin(phone, email);
-      await phone.post("/api/logout", { data: { everywhere: true } });
-      const tablet = await freshContext(playwright, baseURL, testInfo.workerIndex);
-      try {
-        await linkLogin(tablet, email);
-        await phone.post("/api/logout", { data: { everywhere: true } });
-        const login = await tablet.get("/login", { maxRedirects: 0 });
-        expect(login.status(), "stale: /login renders").toBe(200);
-        expect(await sessionCookie(tablet), "and the stale cookie is dropped").toBeFalsy();
-      }
-      finally {
-        await tablet.dispose();
-      }
+      const login = await tablet.get("/login", { maxRedirects: 0 });
+      expect(login.status(), "stale: /login renders").toBe(200);
+      expect(login.headers()["set-cookie"] ?? "", "and the stale cookie is dropped").toContain(`${SESSION_COOKIE}=;`);
     }
     finally {
-      await Promise.all([laptop.dispose(), phone.dispose()]);
+      await Promise.all([laptop.dispose(), phone.dispose(), tablet?.dispose()]);
     }
   });
 });
