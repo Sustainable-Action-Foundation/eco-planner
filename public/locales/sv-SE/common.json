@@ -67,7 +67,6 @@
   "placeholder": {
     "email": "namn@example.com",
     "name": "Användarnamn",
-    "password": "Lösenord",
     "username": "Användarnamn"
   },
   "roadmap_definite_one": "färdplanen",
@@ -132,8 +131,6 @@
     "write": "Skriv något",
     "yes": "Ja",
     "move_up": "Flytta upp",
-    "move_down": "Flytta ner",
-    "hide_password": "Dölj lösenord",
-    "show_password": "Visa lösenord"
+    "move_down": "Flytta ner"
   }
 }

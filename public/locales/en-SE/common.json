@@ -67,7 +67,6 @@
   "placeholder": {
     "email": "name@example.com",
     "name": "Username",
-    "password": "Password",
     "username": "Username"
   },
   "roadmap_definite_one": "the roadmap",
@@ -132,8 +131,6 @@
     "write": "Write something",
     "yes": "Yes",
     "move_up": "Move up",
-    "move_down": "Move down",
-    "hide_password": "Hide password",
-    "show_password": "Show password"
+    "move_down": "Move down"
   }
 }

@@ -142,6 +142,8 @@ export type LoginData = {
     username: string;
     isLoggedIn?: boolean;
     isSuperAdmin?: boolean;
+    /** `Users.session_version` when this session was issued; a mismatch means the user logged out everywhere since. Absent on sessions issued before the field existed (treated as 0). */
+    sessionVersion?: number;
   };
 };
 

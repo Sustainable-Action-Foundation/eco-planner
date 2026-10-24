@@ -1,6 +1,7 @@
 'use client';
 
 import { useToast } from "@/components/generic/toast/toastContext.use";
+import { displayName } from "@/functions/personName";
 import { allowedAttachmentAccept, attachmentDownloadPath, formatFileSize, MaxAttachmentBytes, MaxAttachmentsPerObject } from "@/functions/attachments";
 import type { Attachments as AttachmentModel } from "@/lib/prisma/generated";
 import { isStandardObject } from "@/types/typeguards";
@@ -13,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import styles from "./attachments.module.css";
 
 export type AttachmentEntry = Pick<AttachmentModel, "id" | "name" | "size" | "content_type" | "created_at"> & {
-  author: { id: string, username: string } | null;
+  author: { id: string, username: string, first_name?: string | null, last_name?: string | null } | null;
 };
 
 /**
@@ -152,7 +153,7 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
                 <span className={styles.meta}>
                   <span>{formatFileSize(attachment.size, i18n.language)}</span>
                   {attachment.author ?
-                    <Link className="discrete-link" href={`/@${attachment.author.username}`}>{attachment.author.username}</Link>
+                    <Link className="discrete-link" href={`/@${attachment.author.username}`}>{displayName(attachment.author)}</Link>
                     : <span>{t("components:attachments.deleted_user")}</span>}
                   <span title={new Date(attachment.created_at).toLocaleString()}>
                     {t("components:attachments.relative_time", { date: new Date(attachment.created_at) })}

@@ -4,12 +4,6 @@
     "short_title": "Färdplanen",
     "description": "Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner."
   },
-  "verify_confirm": {
-    "description": "Verifiera din e‑postadress"
-  },
-  "password_reset": {
-    "description": "Uppdatera lösenord"
-  },
   "signup": {
     "title": "Skapa konto",
     "description": "Skapa ett konto hos Färdplanen"
@@ -17,6 +11,9 @@
   "login": {
     "title": "Logga in",
     "description": "Logga in till Färdplanen"
+  },
+  "login_link": {
+    "description": "Logga in med en länk från mejlet"
   },
   "roadmap_iteration_edit": {
     "title": "Redigera färdplan:"
@@ -66,5 +63,8 @@
   },
   "org_historical_data": {
     "title": "Historisk data: {{name}}"
+  },
+  "welcome": {
+    "description": "Fyll i ditt namn"
   }
 }

@@ -5,7 +5,7 @@ import { expect, test } from "../lib/fixtures";
 import { createGoal, createIteration, createRoadmap, deleteRoadmap, memberContext, orgIdByName, putJson, Seed, uniqueLabel } from "../lib/api";
 import { pickSingleSearchOption, visible } from "../lib/forms";
 import { withLock } from "../lib/lock";
-import { memberSlug, seedPlaces } from "../../scripts/prisma/seed/places";
+import { seedPlaces } from "../../scripts/prisma/seed/places";
 
 /*
  * The org landing page per role, and org administration on the groups page.
@@ -206,13 +206,13 @@ test.describe("Org administration (Malmö stad)", () => {
     return orgId;
   }
 
-  /** Picks members in a SelectMultipleSearch by username; clicking a picked one again unpicks it */
-  async function toggleMembers(page: Page, combobox: Locator, usernames: string[]) {
+  /** Picks members in a SelectMultipleSearch by their display name; clicking a picked one again unpicks it */
+  async function toggleMembers(page: Page, combobox: Locator, names: string[]) {
     await combobox.click();
     const dialog = visible(page, '[id$="-dialog"]').filter({ has: page.locator('[id$="-dialog-listbox"]') });
-    for (const username of usernames) {
-      await dialog.locator('input[type="text"]').fill(username);
-      await dialog.locator('[id$="-dialog-listbox"] li').filter({ hasText: username }).first().click();
+    for (const name of names) {
+      await dialog.locator('input[type="text"]').fill(name);
+      await dialog.locator('[id$="-dialog-listbox"] li').filter({ hasText: name }).first().click();
     }
     await page.keyboard.press("Escape");
   }
@@ -233,8 +233,6 @@ test.describe("Org administration (Malmö stad)", () => {
   test("a manager creates, renames, re-members and deletes a group", async ({ playwright, baseURL }, testInfo) => {
     const name = `Group ${uniqueLabel(testInfo)}`;
     const renamed = `${name} renamed`;
-    const managerSlug = memberSlug(malmoManager);
-    const memberSlugName = memberSlug(malmoMember);
     const api = await playwright.request.newContext({ baseURL, storageState: await manager.storageState() });
     let groupId: string | null = null;
     const page = await manager.newPage();
@@ -244,15 +242,15 @@ test.describe("Org administration (Malmö stad)", () => {
 
         // Create with both members
         await visible(page, '[data-testid="create-group-name"]').fill(name);
-        await toggleMembers(page, visible(page, "#create-group-members"), [managerSlug, memberSlugName]);
+        await toggleMembers(page, visible(page, "#create-group-members"), [malmoManager, malmoMember]);
         expect(await groupRequest(page, "POST", () => page.getByTestId("create-group-submit").filter({ visible: true }).click())).toBe(201);
         const row = page.getByTestId("group-row").filter({ visible: true }).filter({ hasText: name });
         // The list comes back through router.refresh(); like the switcher it may need a second render
         await expectAfterReload(page, page.url(), async () => {
           await expect(row).toBeVisible({ timeout: 10_000 });
         });
-        await expect(row).toContainText(managerSlug);
-        await expect(row).toContainText(memberSlugName);
+        await expect(row).toContainText(malmoManager);
+        await expect(row).toContainText(malmoMember);
         const item = page.locator("li[data-group-id]").filter({ visible: true }).filter({ has: row });
         groupId = await item.getAttribute("data-group-id");
         expect(groupId).toBeTruthy();
@@ -267,16 +265,16 @@ test.describe("Org administration (Malmö stad)", () => {
         const group = page.locator(`li[data-group-id="${groupId}"]`).filter({ visible: true });
         await group.getByTestId("group-edit").click();
         await expect(group.getByTestId("group-editor")).toBeVisible();
-        await toggleMembers(page, group.locator('button[role="combobox"]'), [managerSlug]);
+        await toggleMembers(page, group.locator('button[role="combobox"]'), [malmoManager]);
         await group.getByTestId("group-name").fill(renamed);
         expect(await groupRequest(page, "PUT", () => group.getByTestId("group-save").click())).toBe(200);
         await expect(group.getByTestId("group-name")).toHaveValue(renamed);
-        await expect(group.locator('button[role="combobox"]')).toContainText(memberSlugName);
-        await expect(group.locator('button[role="combobox"]')).not.toContainText(managerSlug);
+        await expect(group.locator('button[role="combobox"]')).toContainText(malmoMember);
+        await expect(group.locator('button[role="combobox"]')).not.toContainText(malmoManager);
 
         await group.getByTestId("group-cancel").click();
         await expect(group.getByTestId("group-row")).toContainText(renamed);
-        await expect(group.getByTestId("group-row")).not.toContainText(managerSlug);
+        await expect(group.getByTestId("group-row")).not.toContainText(malmoManager);
 
         // Deleting takes two clicks: the first only arms the button
         await group.getByTestId("group-edit").click();

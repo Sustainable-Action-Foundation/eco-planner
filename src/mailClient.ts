@@ -47,15 +47,19 @@ async function getAccessToken() {
 
 /**
  * The test stack has no outbound mail: under TEST_ENVIRONMENT=testing nothing is
- * sent and the mailbox check passes, so signup/verify/reset flows complete without
- * Graph credentials. Tests read the emailed token back through /api/test/mail-token.
+ * sent and the mailbox check passes, so the login-link flow completes without Graph
+ * credentials. Tests read the mail back through /api/test/outbox.
  */
 const isTestEnvironment = process.env.TEST_ENVIRONMENT === "testing";
+
+/** Test-only: the last mail per (lowercased) recipient, read back through /api/test/outbox. Empty outside TEST_ENVIRONMENT. */
+export const testOutbox = new Map<string, { to: string, subject: string, text: string, sentAt: string }>();
 
 const mailClient = {
   async sendMail(options: MailOptions) {
     if (isTestEnvironment) {
       console.info(`[mail stub] not sending "${options.subject}" to ${options.to}`);
+      testOutbox.set(options.to.toLowerCase(), { to: options.to, subject: options.subject, text: options.html ?? options.text ?? "", sentAt: new Date().toISOString() });
       return;
     }
     const token = await getAccessToken();

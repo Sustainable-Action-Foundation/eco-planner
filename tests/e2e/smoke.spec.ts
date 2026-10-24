@@ -70,10 +70,9 @@ const routes: Route[] = [
   { name: "/info", url: () => "/info", anonymous: { kind: "ok", landmark: "h1" }, anita: { kind: "ok", landmark: "h1" }, admin: { kind: "ok", landmark: "h1" } },
   { name: "/login", url: () => "/login", anonymous: ok, anita: home, admin: home },
   { name: "/signup", url: () => "/signup", anonymous: ok, anita: home, admin: home },
-  { name: "/verify", url: () => "/verify", anonymous: ok, anita: ok, admin: ok },
-  { name: "/verify/confirm", url: () => "/verify/confirm", anonymous: ok, anita: ok, admin: ok },
-  { name: "/password", url: () => "/password", anonymous: ok, anita: ok, admin: ok },
-  { name: "/password/reset", url: () => "/password/reset", anonymous: ok, anita: ok, admin: ok },
+  // The link interstitial is exempt from the logged-in redirect: redeeming a link is how you switch accounts
+  { name: "/login/link", url: () => "/login/link", anonymous: ok, anita: ok, admin: ok },
+  { name: "/welcome", url: () => "/welcome", anonymous: login, anita: ok, admin: ok },
   { name: "/user/<username>", url: () => `/user/${Seed.admin.username}`, anonymous: ok, anita: ok, admin: ok },
   { name: "/@<username>", url: () => `/@${Seed.anita.username}`, anonymous: ok, anita: ok, admin: ok },
   { name: "/actions", url: () => "/actions", anonymous: ok, anita: ok, admin: ok },
@@ -119,7 +118,7 @@ async function expectOutcome(page: Page, outcome: Outcome, f: Fixtures) {
     }
     case "login": {
       await expect(page).toHaveURL(/\/login\?from=/, { timeout: 30_000 });
-      await expect(page.locator("#username")).toBeVisible();
+      await expect(page.locator("#email")).toBeVisible();
       break;
     }
     case "home": {
@@ -159,7 +158,7 @@ let createdRoadmapId: string | null = null;
 test.beforeAll(async ({ playwright, baseURL }, testInfo) => {
   // Streamed pages (orgIdByName reads the start page) are slow on a loaded shared server
   admin = await playwright.request.newContext({ baseURL, timeout: 60_000 });
-  await loginAs(admin, Seed.admin.username, Seed.admin.password);
+  await loginAs(admin, Seed.admin.username);
   const label = uniqueLabel(testInfo, "smoke");
   const orgId = await orgIdByName(admin, Seed.orgName);
   const placeOrgId = await withLock(placeOrgRenameLock, () => orgIdByName(admin, placeOrg?.name ?? ""));

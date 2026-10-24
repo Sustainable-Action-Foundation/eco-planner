@@ -32,9 +32,9 @@ const test = base.extend<{ users: Users }>({
   users: async ({ playwright, baseURL }, use) => {
     const [anonymous, orgless, greta, anita] = await Promise.all([
       requestAs(playwright, baseURL),
-      requestAs(playwright, baseURL, Seed.orgless.username, Seed.orgless.password),
-      requestAs(playwright, baseURL, Seed.greta.username, Seed.greta.password),
-      requestAs(playwright, baseURL, Seed.anita.username, Seed.anita.password),
+      requestAs(playwright, baseURL, Seed.orgless.username),
+      requestAs(playwright, baseURL, Seed.greta.username),
+      requestAs(playwright, baseURL, Seed.anita.username),
     ]);
     await use({ anonymous, orgless, greta, anita });
     await Promise.all([anonymous, orgless, greta, anita].map(request => request.dispose()));

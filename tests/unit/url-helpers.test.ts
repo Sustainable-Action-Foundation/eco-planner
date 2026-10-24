@@ -124,7 +124,7 @@ test.describe("Safe redirect paths", () => {
   });
 
   test("falls back for anything that could leave the origin", () => {
-    for (const path of [null, undefined, "", "https://evil.com", "evil.com", "//evil.com", "/\\evil.com", "/\t/evil.com", "javascript:alert(1)"]) {
+    for (const path of [null, undefined, "", "https://evil.com", "evil.com", "//evil.com", "/\\evil.com", "\\\\evil.com", "/\t/evil.com", "/\n//evil.com", "http:/evil.com", "javascript:alert(1)"]) {
       expect(safeRedirectPath(path), JSON.stringify(path)).toBe("/");
     }
     expect(safeRedirectPath("//evil.com", "/home")).toBe("/home");

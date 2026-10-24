@@ -27,7 +27,10 @@ services:
     networks:
       - default
     ports:
-      - "8081:8081"
+      # Loopback only: the host nginx terminates TLS and proxies to 127.0.0.1:8081. Published
+      # on 0.0.0.0 the app answered plain http straight from the internet, bypassing the proxy
+      # (and letting clients spoof X-Forwarded-For, which the login-link throttle keys on).
+      - "127.0.0.1:8081:8081"
     # External statistics ('use cache: upstream') are cached on disk in /app/.next/cache/upstream
     # (SAF_CACHE_DIR), which already survives `docker restart`. To keep it when the container is
     # recreated with the same image too, mount a named volume there (and declare `upstream-cache:`

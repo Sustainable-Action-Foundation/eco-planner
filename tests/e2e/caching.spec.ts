@@ -193,7 +193,7 @@ test.describe("Tag revalidation reaches other pages over client navigation", () 
     test.slow();
     // Its own API context for the restore: the fixture's is disposed if the test times out mid-way
     const restorer = await playwright.request.newContext({ baseURL, timeout: 60_000 });
-    await loginAs(restorer, Seed.admin.username, Seed.admin.password);
+    await loginAs(restorer, Seed.admin.username);
     await withLock("org-rename-uppsala", async () => {
       // Visit the start page in the browser first, so its cached org list predates the rename
       await page.goto("/");
@@ -251,7 +251,7 @@ test.describe("Concurrent-edit guard", () => {
   // the foreground the whole time still submits its original timestamp and is rejected.
   test("A never re-shown goal form is rejected as stale after another save", async ({ page, browser, admin, fixtures }) => {
     test.slow();
-    const contextB = await loginContext(browser, Seed.admin.username, Seed.admin.password);
+    const contextB = await loginContext(browser, Seed.admin.username);
     const pageB = await contextB.newPage();
     try {
       const dialogsA = recordDialogs(page);

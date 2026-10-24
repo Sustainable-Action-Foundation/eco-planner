@@ -102,7 +102,7 @@ test.describe("Copying a goal into a roadmap", () => {
     // The scenario's version page is slow to render on the seeded DB
     test.setTimeout(600_000);
     const admin = await playwright.request.newContext({ baseURL });
-    await loginAs(admin, Seed.admin.username, Seed.admin.password);
+    await loginAs(admin, Seed.admin.username);
     goalId = await publicGoalId(admin, Seed.leapScenario, leafAsIs);
     await admin.dispose();
   });
@@ -190,7 +190,7 @@ test.describe("Copying a goal into a roadmap", () => {
   });
 
   test("a member whose org has no area is not offered the preview", async ({ browser }) => {
-    const context = await loginContext(browser, Seed.anita.username, Seed.anita.password);
+    const context = await loginContext(browser, Seed.anita.username);
     try {
       const page = await context.newPage();
       await page.goto(`/goal/${goalId}`);
