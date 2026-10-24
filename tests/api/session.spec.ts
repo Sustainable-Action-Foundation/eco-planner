@@ -142,4 +142,42 @@ test.describe("session revocation elsewhere", () => {
       await Promise.all([laptop.dispose(), phone.dispose()]);
     }
   });
+
+  test("a stale cookie is sent to login from create pages, dropped, and can reach the login page", async ({ playwright, baseURL }, testInfo) => {
+    const { email, request: laptop } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "stale");
+    const phone = await freshContext(playwright, baseURL, testInfo.workerIndex);
+    try {
+      // Logged in: the login page bounces to the start page
+      const whileLoggedIn = await laptop.get("/login", { maxRedirects: 0 });
+      expect(whileLoggedIn.status(), "logged in: /login redirects").toBe(307);
+
+      await linkLogin(phone, email);
+      expect((await phone.post("/api/logout", { data: { everywhere: true } })).status()).toBe(200);
+
+      // The proxy's unchecked read still sees a login, so create pages must verify it
+      const create = await laptop.get("/goal/create", { maxRedirects: 0 });
+      expect(create.status(), "stale: /goal/create redirects").toBe(307);
+      expect(create.headers()["location"]).toContain("/login?from=%2Fgoal%2Fcreate");
+      expect(create.headers()["set-cookie"] ?? "", "the stale cookie is cleared on the way").toContain(`${SESSION_COOKIE}=;`);
+      expect(await sessionCookie(laptop), "and gone from the jar").toBeFalsy();
+
+      // A stale cookie must not lock the visitor out of the login page
+      await linkLogin(phone, email);
+      await phone.post("/api/logout", { data: { everywhere: true } });
+      const tablet = await freshContext(playwright, baseURL, testInfo.workerIndex);
+      try {
+        await linkLogin(tablet, email);
+        await phone.post("/api/logout", { data: { everywhere: true } });
+        const login = await tablet.get("/login", { maxRedirects: 0 });
+        expect(login.status(), "stale: /login renders").toBe(200);
+        expect(await sessionCookie(tablet), "and the stale cookie is dropped").toBeFalsy();
+      }
+      finally {
+        await tablet.dispose();
+      }
+    }
+    finally {
+      await Promise.all([laptop.dispose(), phone.dispose()]);
+    }
+  });
 });

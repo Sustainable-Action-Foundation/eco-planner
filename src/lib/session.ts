@@ -6,6 +6,8 @@ import type { LoginData } from "@/types";
 import { prisma } from "@/lib/prisma";
 
 
+/** Name of the session cookie */
+export const SessionCookieName = "eco_planner";
 /** How long a login lasts by default, in seconds: 30 days. */
 export const sessionLifetimeSeconds = 30 * 24 * 60 * 60;
 /** How long a login lasts with "remember me", in seconds: a year. */
@@ -21,7 +23,7 @@ function optionsWithLifetime(seconds: number): SessionOptions {
     // Compilation works fine without the password environment variable, but it will crash at runtime if it's not set.
     // This is intentional to allow building the project without the password, and then setting it when deploying/running.
     password: process.env.IRON_SESSION_PASSWORD ?? "",
-    cookieName: "eco_planner",
+    cookieName: SessionCookieName,
     ttl: seconds,
     cookieOptions: {
       maxAge: seconds,
