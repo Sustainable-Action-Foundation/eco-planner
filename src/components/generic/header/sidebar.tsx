@@ -35,6 +35,10 @@ export default async function Sidebar() {
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked={true} />
           <IconMenu2 aria-hidden="true" />
         </label>
+        <Link href="/" className={`${styles['app-name']} color-pureblack font-weight-600`}>
+          <span className={styles['app-name-full']}>{t("common:layout.app_name")}</span>
+          <span className={styles['app-name-compact']}>{t("common:layout.app_name_compact")}</span>
+        </Link>
       </header>
 
       <div className={`${styles['sidebar-menu']} flex-grow-100 flex flex-direction-column`}>
@@ -127,7 +131,7 @@ export default async function Sidebar() {
             {t("components:sidebar.about")}
           </Link>
         </nav>
-        <div className="margin-top-300 font-size-smaller">
+        <div className="font-size-smaller">
           <PopoverButton
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
