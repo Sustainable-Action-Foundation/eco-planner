@@ -1,17 +1,17 @@
 {
   "common": {
-    "from": "$t(common:layout.app_name_compact) {{emailServer}}"
+    "from": "$t(common:layout.app_name) {{emailServer}}"
   },
   "invite": {
-    "subject": "Du har blivit inbjuden till {{orgName}} på $t(common:layout.app_name_compact)",
-    "body": "Hej! Du har blivit inbjuden att gå med i {{orgName}} som gäst på $t(common:layout.app_name_compact). Följ länken för att tacka ja:\n{{baseUrl}}/invite/{{token}}\n\nOm du inte har något konto ännu kan du registrera dig med den här e-postadressen så godkänns inbjudan automatiskt."
+    "subject": "Du har blivit inbjuden till {{orgName}} på $t(common:layout.app_name)",
+    "body": "Hej! Du har blivit inbjuden att gå med i {{orgName}} som gäst på $t(common:layout.app_name). Följ länken för att tacka ja:\n{{baseUrl}}/invite/{{token}}\n\nOm du inte har något konto ännu kan du registrera dig med den här e-postadressen så godkänns inbjudan automatiskt."
   },
   "login": {
-    "subject": "Din inloggningslänk till $t(common:layout.app_name_compact)",
-    "body": "Hej! Klicka på länken för att logga in på $t(common:layout.app_name_compact). Den gäller i 15 minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
+    "subject": "Din inloggningslänk till $t(common:layout.app_name)",
+    "body": "Hej! Klicka på länken för att logga in på $t(common:layout.app_name). Den gäller i 15 minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
   },
   "welcome": {
-    "subject": "Välkommen till $t(common:layout.app_name_compact)",
-    "body": "Välkommen till $t(common:layout.app_name_compact)! Ett konto för {{email}} skapas när du loggar in första gången. Klicka på länken för att logga in. Den gäller i 15 minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
+    "subject": "Välkommen till $t(common:layout.app_name)",
+    "body": "Välkommen till $t(common:layout.app_name)! Ett konto för {{email}} skapas när du loggar in första gången. Klicka på länken för att logga in. Den gäller i 15 minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
   }
 }
