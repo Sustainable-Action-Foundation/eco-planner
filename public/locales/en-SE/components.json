@@ -404,6 +404,7 @@
     "create": "Create",
     "create_account": "Create account",
     "create_needs_org": "You need to be a member of an organization to create content.",
+    "create_needs_login": "Log in to create content.",
     "home": "$t(common:tsx.home)",
     "language": "Language",
     "language_alt": "Select language",
