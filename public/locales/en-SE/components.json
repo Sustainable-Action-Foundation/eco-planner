@@ -22,6 +22,27 @@
     "send": "Submit",
     "deleted_user": "Deleted user"
   },
+  "attachments": {
+    "count": "{{count}} document",
+    "count_one": "One document",
+    "count_other": "{{count}} documents",
+    "count_zero": "No documents",
+    "allowed_hint": "PDF, Office documents, text, images and zip archives, up to {{maxSize}} each.",
+    "full": "This post already carries the maximum of {{max}} documents.",
+    "uploading": "Uploading {{name}}…",
+    "upload_failed": "Could not upload {{name}}: {{details}}",
+    "too_large": "{{name}} is larger than {{maxSize}}.",
+    "type_not_allowed": "{{name}} is not a file type that can be attached.",
+    "delete": "Remove {{name}}",
+    "confirm_delete": "Remove {{name}}? This cannot be undone.",
+    "delete_failed": "Could not remove {{name}}: {{details}}",
+    "empty": "No documents attached yet.",
+    "deleted_user": "Deleted user",
+    "relative_time": "{{date, timeAgo}}",
+    "download_failed": "{{name}} could not be fetched: {{details}}",
+    "attach": "Attach documents",
+    "drop_hint": "Drop files here or pick them with the button."
+  },
   "confirm_delete": {
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
     "delete_post": "Delete post",

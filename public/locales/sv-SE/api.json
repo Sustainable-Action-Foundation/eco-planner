@@ -80,5 +80,17 @@
     "liked": "Målbanan gillad",
     "not_found": "Målbanan finns inte eller så saknar du åtkomst till den",
     "unliked": "Gilla-markeringen borttagen"
+  },
+  "attachment": {
+    "not_found": "Inlägget finns inte eller så saknar du behörighet att ändra dess dokument",
+    "storage_unavailable": "Fillagringen är inte tillgänglig just nu",
+    "too_large": "Filen är större än gränsen på {{maxSize}} MB",
+    "type_not_allowed": "Den filtypen kan inte bifogas",
+    "too_many": "Ett inlägg kan ha högst {{max}} dokument",
+    "rate_limited": "För många uppladdningar på kort tid, vänta en minut",
+    "uploaded": "{{name}} bifogad",
+    "upload_failed": "Filen kunde inte sparas",
+    "deleted": "Dokumentet togs bort",
+    "file_missing": "Filen finns inte längre i fillagringen. En redigerare kan ta bort dokumentet från listan."
   }
 }

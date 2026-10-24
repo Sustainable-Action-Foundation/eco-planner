@@ -10,6 +10,8 @@ import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
 import { isGoalListing } from "@/types/typeguards";
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconStar } from "@tabler/icons-react";
+import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
+import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
 import Link from "next/link";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -57,7 +59,7 @@ export default function GoalForm({
   /** What to start the goal from (see `getGoalPrefill`); ignored when editing, where the goal's own data wins. */
   prefill?: GoalPrefill;
 }) {
-  const { t } = useTranslation(["forms", "graphs", "common"]);
+  const { t, i18n } = useTranslation(["forms", "graphs", "common", "components"]);
 
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
 
@@ -216,7 +218,7 @@ export default function GoalForm({
 
     const formData = new FormData(event.target);
     // List of inputs expecting a file
-    const fileInputKeys: string[] = [];
+    const fileInputKeys: string[] = [GoalFormName.Attachments];
 
     // Basic validation to ensure no unexpected File objects are present
     // Allows us to safely cast all formData values to (string | null) later
@@ -271,6 +273,17 @@ export default function GoalForm({
 
     const listingValue = formData.get(GoalFormName.Listing);
     const listing: GoalListing = isGoalListing(listingValue) ? listingValue : GoalListing.LISTED;
+
+    // Documents chosen while creating are attached once the goal exists. Refusals
+    // stop the submit here, so a goal isn't created with a file silently dropped.
+    const notify = { t, language: i18n.language, addToast };
+    const files = currentGoal ? [] : chosenFiles(formData.getAll(GoalFormName.Attachments));
+    const attachments = acceptableFiles(files, 0, notify);
+    if (attachments?.length !== files.length) {
+      event.target.reportValidity();
+      setIsSubmitting(false);
+      return;
+    }
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
@@ -347,7 +360,16 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    if (attachments.length === 0) {
+      formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
+      return;
+    }
+
+    // With documents to attach, the goal page is only shown once they have been sent;
+    // the button stays busy until then (the replacement handler skips the setter)
+    formSubmitter('/api/goal', formJSON, 'POST', t, setIsSubmitting, undefined,
+      thenAttach(attachments, notify, (url) => router.push(url), (id) => id ? `/goal/${id}` : "../", () => setIsSubmitting(false)),
+      undefined, addToast);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
@@ -545,8 +567,6 @@ export default function GoalForm({
       {/* Historical series input section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
-          // Technically incrementing here is unused but if you add another entry after this one it will be correct
-          // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
@@ -618,6 +638,17 @@ export default function GoalForm({
         />
       </fieldset>
       */}
+
+      {/* Documents to attach, create only: an existing goal attaches from its page, where the list lives */}
+      {/* Last section, so the position isn't advanced further */}
+      {!currentGoal ?
+        <CreateAttachmentsFieldset
+          name={GoalFormName.Attachments}
+          position={positionIndex}
+          description={t("forms:goal.attachments_description")}
+          testId="goal-attachment"
+        />
+        : null}
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>

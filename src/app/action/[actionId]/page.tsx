@@ -9,6 +9,7 @@ import { IconWorld } from "@tabler/icons-react";
 import { notFound } from "next/navigation";
 import { AccessLevel } from "@/types/enums";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import Attachments from "@/components/attachments/attachments";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects";
 import ActionNeighbours from "@/components/actions/actionNeighbours";
@@ -144,6 +145,11 @@ export default async function Page(props: { params: Promise<{ actionId: string }
           <EffectTable object={action} accessLevel={accessLevel} />
         </section>
       </main>
+
+      {/* Reports and other documents backing the action */}
+      <section className="margin-block-500">
+        <Attachments attachments={action.attachments} objectId={action.id} canEdit={hasEditAccess(accessLevel)} />
+      </section>
 
       <section className="margin-block-500">
         <Comments comments={action.comments} objectId={action.id} />

@@ -39,5 +39,11 @@ export default defineConfig({
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },
+    {
+      name: "Attachment unit tests",
+      testMatch: ["unit/attachments.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
   ],
 });
