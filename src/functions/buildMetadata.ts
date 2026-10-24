@@ -50,7 +50,7 @@ export async function buildMetadata(
       }],
       type: "website",
       url: og_url || '/',
-      siteName: "Eco - Planner",
+      siteName: "Färdplanen",
       locale: locale, 
     },
   };

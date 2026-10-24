@@ -1,7 +1,7 @@
 {
   "default": {
-    "title": "Eco - planner",
-    "short_title": "Eco - planner",
+    "title": "Verktyget Färdplanen",
+    "short_title": "Färdplanen",
     "description": "A tool that supports Sweden's climate transition through local action plans, a shared measures database, and collaboration on roadmaps."
   },
   "verify_confirm": {
@@ -12,11 +12,11 @@
   },
   "signup": {
     "title": "Create account",
-    "description": "Create an Eco - planner account"
+    "description": "Create a Färdplanen account"
   },
   "login": {
     "title": "Log in",
-    "description": "Log in to Eco - planner"
+    "description": "Log in to Färdplanen"
   },
   "roadmap_iteration_edit": {
     "title": "Edit roadmap:"

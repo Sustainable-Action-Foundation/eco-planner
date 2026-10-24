@@ -16,7 +16,7 @@ const sampleContent: TipTapDoc = {
     {
       type: "paragraph",
       content: [
-        { type: "text", text: "Eco Planner TipTap test bed. " },
+        { type: "text", text: "Verktyget Färdplanen TipTap test bed. " },
         {
           type: "text",
           text: "Bold",
