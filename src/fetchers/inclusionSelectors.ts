@@ -123,6 +123,11 @@ export const roadmapIterationInclusionSelection = {
       author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
+  attachments: {
+    include: {
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
+    },
+  },
   author: { select: { id: true, username: true, first_name: true, last_name: true } },
 } satisfies Prisma.RoadmapIterationsInclude;
 
@@ -275,6 +280,11 @@ export const goalInclusionSelection = {
       author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
+  attachments: {
+    include: {
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
+    },
+  },
   author: { select: { id: true, username: true, first_name: true, last_name: true } },
 } satisfies Prisma.GoalsInclude;
 
@@ -368,6 +378,7 @@ export const actionInclusionSelection = {
     },
   },
   comments: { include: { author: { select: { id: true, username: true, first_name: true, last_name: true } } } },
+  attachments: { include: { author: { select: { id: true, username: true, first_name: true, last_name: true } } } },
   author: { select: { id: true, username: true, first_name: true, last_name: true } },
   fields: { orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsInclude;

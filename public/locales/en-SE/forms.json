@@ -65,7 +65,8 @@
     "origin_description": "Is this action a copy of another organization's action, such as the municipality's? Link it to the original so the copies can find each other and be synced.",
     "origin_label": "Original action",
     "origin_placeholder": "Choose an original (optional)",
-    "origin_unlink": "Unlink from the original"
+    "origin_unlink": "Unlink from the original",
+    "attachments_description": "They are uploaded once $t(common:action_definite_one) exists; more can be attached from its page."
   },
   "combobox": {
     "default_autocomplete_placeholder": "Type to view suggestions",
@@ -231,6 +232,7 @@
     "listing": "Listing",
     "listing_listed_description": "Shown in listings and in the $t(common:roadmap_version_one).",
     "listing_unlisted_description": "Only listed for users with edit access, but still opens from a direct link.",
+    "attachments_description": "They are uploaded once $t(common:goal_definite_one) exists; more can be attached from its page.",
     "listing_featured_description": "Highlighted at the top of the $t(common:roadmap_version_one)."
   },
   "roadmap": {
@@ -284,7 +286,8 @@
     "status_draft": "Draft",
     "status_draft_description": "Only people who can edit the roadmap can see it.",
     "status_published": "Published",
-    "status_published_description": "Readable and listed for everyone who can see the roadmap."
+    "status_published_description": "Readable and listed for everyone who can see the roadmap.",
+    "attachments_description": "They are uploaded once $t(common:roadmap_version_definite_one) exists; more can be attached from its page."
   },
   "text_editor_menu": {
     "bold": "Bold",
@@ -321,5 +324,10 @@
     "superscript": "Superscript",
     "underline": "Underline",
     "undo": "Undo"
+  },
+  "attachments": {
+    "legend": "Supporting documents",
+    "label": "Attach reports or other supporting documents",
+    "limits": "PDF, Office documents, text, images and zip archives, at most {{maxSize}} per file and {{max}} files."
   }
 }

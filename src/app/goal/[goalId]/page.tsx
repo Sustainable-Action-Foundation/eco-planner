@@ -1,5 +1,6 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RecalculateDataSeriesButton from "@/components/buttons/recalculateDataSeries";
+import Attachments from "@/components/attachments/attachments";
 import Comments from "@/components/comments/comments";
 import ActionGraph from "@/components/graph/graphs/actionTimeline";
 import GoalActionEffectList from "@/components/pages/sections/goalActionEffects";
@@ -336,6 +337,11 @@ export default async function Page(
         </section>
 
       </main>
+
+      {/* Reports and other documents backing the goal */}
+      <section className="margin-block-500">
+        <Attachments attachments={goal.attachments} objectId={goal.id} canEdit={hasEditAccess(accessLevel)} />
+      </section>
 
       <section className="margin-block-500">
         <Comments comments={goal.comments} objectId={goal.id} />

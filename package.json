@@ -1,6 +1,6 @@
 {
   "name": "eco-planner",
-  "version": "0.17.17",
+  "version": "0.17.18",
   "license": "AGPL-3.0-only",
   "private": true,
   "description": "A tool intended to help planning actions to achieve local environmental goals",
@@ -65,6 +65,8 @@
   ],
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1143.0",
+    "@aws-sdk/s3-request-presigner": "^3.1143.0",
     "@formatjs/intl-localematcher": "^0.8.13",
     "@prisma/adapter-mariadb": "^7.9.1",
     "@prisma/client": "^7.9.1",

@@ -134,7 +134,7 @@ model Roadmaps {
   child_roadmaps    Roadmaps[]          @relation("roadmap_tree")
 
   // Comments related to this roadmap
-  comments Comments[] @relation("roadmap_comments")
+  comments    Comments[]    @relation("roadmap_comments")
 
   // Author of this roadmap, used for visual purposes only, not for access control
   author_id String?
@@ -168,9 +168,10 @@ model RoadmapIterations {
   // When the version first left the draft state; informational only, the gate is `status`
   published_at   DateTime?
 
-  comments Comments[] @relation("roadmap_iteration_comments")
-  goals    Goals[]    @relation("roadmap_iteration_goals")
-  actions  Actions[]  @relation("roadmap_iteration_actions")
+  comments    Comments[]    @relation("roadmap_iteration_comments")
+  attachments Attachments[] @relation("roadmap_iteration_attachments")
+  goals       Goals[]       @relation("roadmap_iteration_goals")
+  actions     Actions[]     @relation("roadmap_iteration_actions")
 
   // Author of this iteration, used for visual purposes only, not for access control
   author_id String?
@@ -214,12 +215,14 @@ model Goals {
   recipe_suggestions Recipes[] @relation("inheritance_suggestions")
 
   // Comments related to this goal
-  comments Comments[]  @relation("goal_comments")
+  comments    Comments[]    @relation("goal_comments")
+  // Documents attached to this goal
+  attachments Attachments[] @relation("goal_attachments")
   // Users who liked this goal, see GoalLikes
-  likes    GoalLikes[] @relation("goal_likes")
+  likes       GoalLikes[]   @relation("goal_likes")
   // Tags for this goal
   // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
-  tags     GoalTags[]  @relation("goal_tags")
+  tags        GoalTags[]    @relation("goal_tags")
 
   // Author of this goal, used for visual purposes only, not for access control
   author_id String?
@@ -347,7 +350,9 @@ model Actions {
   derived_actions  Actions[] @relation("action_origin")
 
   // Comments related to this action
-  comments Comments[] @relation("action_comments")
+  comments    Comments[]    @relation("action_comments")
+  // Documents attached to this action
+  attachments Attachments[] @relation("action_attachments")
 
   // The user who created this action, used for visual purposes only, not for access control
   author_id String?
@@ -427,6 +432,38 @@ model Comments {
   // Any roadmap this comment is related to
   roadmap_id           String?
   roadmap              Roadmaps?          @relation("roadmap_comments", fields: [roadmap_id], references: [id], onDelete: Cascade)
+}
+
+model Attachments {
+  // UUID of the attachment
+  id         String   @id @default(uuid())
+  // Timestamp of when the file was uploaded
+  created_at DateTime @default(now())
+  // Timestamp of when the attachment was last updated
+  updated_at DateTime @updatedAt
+
+  // Original file name, shown to users and used as the download name
+  name         String
+  // Object key in the bucket; the file itself lives in S3-compatible object storage, never in the database
+  storage_key  String @unique
+  // Size in bytes, as uploaded
+  size         Int
+  // MIME type, as declared by the upload and checked against the allowlist
+  content_type String
+
+  // The user who uploaded this file
+  author_id String?
+  author    Users?  @relation("attachment_author", fields: [author_id], references: [id], onDelete: SetNull)
+
+  // An attachment belongs to exactly one of an action, a goal, or a roadmap iteration (not the roadmap
+  // itself, which has no page people should linger on). Enforced in code (see the attachment API), as
+  // prisma cannot express the XOR constraint.
+  action_id            String?
+  action               Actions?           @relation("action_attachments", fields: [action_id], references: [id], onDelete: Cascade)
+  goal_id              String?
+  goal                 Goals?             @relation("goal_attachments", fields: [goal_id], references: [id], onDelete: Cascade)
+  roadmap_iteration_id String?
+  roadmap_iteration    RoadmapIterations? @relation("roadmap_iteration_attachments", fields: [roadmap_iteration_id], references: [id], onDelete: Cascade)
 }
 
 model Orgs {
@@ -599,6 +636,7 @@ model Users {
   authored_roadmaps           Roadmaps[]          @relation("roadmap_author")
   authored_data_series        DataSeries[]        @relation("data_series_author")
   authored_comments           Comments[]          @relation("comment_author")
+  authored_attachments        Attachments[]       @relation("attachment_author")
 
   goal_likes GoalLikes[] @relation("user_goal_likes")
 

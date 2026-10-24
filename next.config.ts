@@ -42,6 +42,11 @@ const nextConfig: NextConfig = {
     // `'use cache: upstream'`: external statistics persisted on disk across restarts (SAF_CACHE_DIR)
     upstream: path.resolve("src/lib/cache/upstreamCacheHandler.mjs"),
   },
+  experimental: {
+    // The proxy buffers request bodies and silently truncates them past this; must stay
+    // above MaxAttachmentBytes (src/functions/attachments.ts) plus multipart overhead
+    proxyClientMaxBodySize: "27mb",
+  },
 };
 
 export default nextConfig;
