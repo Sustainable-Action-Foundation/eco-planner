@@ -1,16 +1,16 @@
 {
   "default": {
-    "title": "Eco - planner",
-    "short_title": "Eco - planner",
+    "title": "Färdplanen",
+    "short_title": "Färdplanen",
     "description": "Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner."
   },
   "signup": {
     "title": "Skapa konto",
-    "description": "Skapa ett konto hos Eco - planner"
+    "description": "Skapa ett konto hos Färdplanen"
   },
   "login": {
     "title": "Logga in",
-    "description": "Logga in till Eco - planner"
+    "description": "Logga in till Färdplanen"
   },
   "login_link": {
     "description": "Logga in med en länk från mejlet"
