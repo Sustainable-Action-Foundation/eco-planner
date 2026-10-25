@@ -10,12 +10,12 @@ import { anonymousRequest, Seed, userRequest } from "./api";
  */
 export const test = base.extend<{ anita: APIRequestContext, orgless: APIRequestContext, anon: APIRequestContext }>({
   anita: async ({ playwright, baseURL }, use) => {
-    const request = await userRequest(playwright, baseURL, Seed.anita.username, Seed.anita.password);
+    const request = await userRequest(playwright, baseURL, Seed.anita.username);
     await use(request);
     await request.dispose();
   },
   orgless: async ({ playwright, baseURL }, use) => {
-    const request = await userRequest(playwright, baseURL, Seed.orgless.username, Seed.orgless.password);
+    const request = await userRequest(playwright, baseURL, Seed.orgless.username);
     await use(request);
     await request.dispose();
   },

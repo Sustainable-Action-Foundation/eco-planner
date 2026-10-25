@@ -15,6 +15,9 @@ import { IterationStatus } from "@/lib/prisma/generated";
 import { isIterationStatus } from "@/types/typeguards";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
+import { RoadmapIterationFormName } from "@/types/form-names";
+import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
+import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
@@ -35,7 +38,7 @@ export default function RoadmapIterationForm({
   currentIteration?: RoadmapIteration,
   defaultRoadmapId?: string,
 }) {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t, i18n } = useTranslation(["forms", "common", "components"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -82,6 +85,13 @@ export default function RoadmapIterationForm({
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!roadmapId && !currentIteration) { return; }
+
+    // Documents chosen while creating are attached once the version exists. Refusals
+    // stop the submit here, so a version isn't created with a file silently dropped.
+    const notify = { t, language: i18n.language, addToast };
+    const files = currentIteration ? [] : chosenFiles(new FormData(event.target).getAll(RoadmapIterationFormName.Attachments));
+    const attachments = acceptableFiles(files, 0, notify);
+    if (attachments?.length !== files.length) return;
 
     setIsLoading(true);
 
@@ -133,7 +143,15 @@ export default function RoadmapIterationForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/roadmap-iteration', formJSON, currentIteration ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    if (attachments.length === 0) {
+      formSubmitter('/api/roadmap-iteration', formJSON, currentIteration ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, (url) => router.push(url));
+      return;
+    }
+
+    // With documents to attach, the version page is only shown once they have been sent
+    formSubmitter('/api/roadmap-iteration', formJSON, 'POST', t, setIsLoading, undefined,
+      thenAttach(attachments, notify, (url) => router.push(url), () => "../", () => setIsLoading(false)),
+      undefined, addToast);
   }
 
   // Indexes for the data-position attribute in the legend elements
@@ -246,10 +264,18 @@ export default function RoadmapIterationForm({
         </fieldset>
       </fieldset>
 
+      {/* Documents to attach, create only: an existing version attaches from its page, where the list lives */}
+      {!currentIteration ?
+        <CreateAttachmentsFieldset
+          name={RoadmapIterationFormName.Attachments}
+          position={positionIndex++}
+          description={t("forms:roadmap_iteration.attachments_description")}
+          testId="roadmap-iteration-attachment"
+        />
+        : null}
+
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
-          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-          // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
         >{t("forms:roadmap_iteration.upload_goals")}</legend>

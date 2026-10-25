@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
+import Attachments from "@/components/attachments/attachments";
 import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types/enums";
 import { GoalListing, RoadmapType } from "@/lib/prisma/generated";
@@ -216,6 +217,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
         <ActionTable actions={iteration.actions} accessLevel={accessLevel} iterationId={iteration.id} />
       </section>
     </main>
+
+    {/* Reports and other documents backing this version */}
+    <section className="margin-block-500">
+      <Attachments attachments={iteration.attachments} objectId={iteration.id} canEdit={hasEditAccess(accessLevel)} />
+    </section>
 
     <section className="margin-block-500">
       <Comments comments={iteration.comments} objectId={iteration.id} />

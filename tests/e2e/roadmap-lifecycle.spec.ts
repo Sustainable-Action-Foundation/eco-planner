@@ -64,7 +64,7 @@ async function fillRoadmapForm(page: Page, name: string, description: string, al
 /** Deletes the roadmap through the API unless the UI already did; tolerates a missing roadmap */
 async function cleanupRoadmap(request: APIRequestContext, id: string) {
   if (!id) return;
-  await loginAs(request, Seed.admin.username, Seed.admin.password);
+  await loginAs(request, Seed.admin.username);
   const response = await request.delete("/api/roadmap", { data: { id } });
   expect([200, 404], `cleanup of roadmap ${id}: ${await response.text()}`).toContain(response.status());
 }
@@ -223,7 +223,7 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
   });
 
   test("a plain member sees the published version but not the draft; latest resolves to the published one", async ({ browser }) => {
-    const context = await loginContext(browser, Seed.anita.username, Seed.anita.password);
+    const context = await loginContext(browser, Seed.anita.username);
     try {
       expect(await pageStatus(context.request, `/roadmap/${roadmapId}/v1`)).toBe(200);
       expect(await pageStatus(context.request, `/roadmap/${roadmapId}/v2`)).toBe(404);

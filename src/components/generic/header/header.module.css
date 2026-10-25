@@ -50,9 +50,34 @@
   }
 }
 
-/* Sidebar header (toggle open/closed) */
+/* Sidebar header (toggle open/closed, app name) */
 .sidebar > header:first-of-type {
+  display: flex;
+  align-items: center;
+  gap: var(--sidebar-menu-child-element-gap);
   padding: var(--sidebar-child-element-padding);
+}
+
+.app-name {
+  white-space: nowrap;
+  text-decoration: none;
+  line-height: 1;
+
+  @media (max-width: 1250px) {
+    position: relative;
+    z-index: 10; /* Stays above the open drawer, like the toggle */
+  }
+}
+
+.app-name:hover {
+  text-decoration: underline;
+}
+
+/* The narrow (icon only) rail has no room for a name */
+.sidebar:not(:has(.sidebar-toggle:checked)) .app-name {
+  @media (min-width: 1251px) {
+    display: none;
+  }
 }
 
 .sidebar > header:first-of-type label { 

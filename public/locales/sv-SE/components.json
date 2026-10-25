@@ -22,6 +22,27 @@
     "send": "Skicka",
     "deleted_user": "Raderad användare"
   },
+  "attachments": {
+    "count": "{{count}} dokument",
+    "count_one": "Ett dokument",
+    "count_other": "{{count}} dokument",
+    "count_zero": "Inga dokument",
+    "allowed_hint": "PDF, Office-dokument, text, bilder och zip-arkiv, högst {{maxSize}} per fil.",
+    "full": "Inlägget har redan det högsta antalet dokument ({{max}}).",
+    "uploading": "Laddar upp {{name}}…",
+    "upload_failed": "Kunde inte ladda upp {{name}}: {{details}}",
+    "too_large": "{{name}} är större än {{maxSize}}.",
+    "type_not_allowed": "{{name}} är inte en filtyp som kan bifogas.",
+    "delete": "Ta bort {{name}}",
+    "confirm_delete": "Ta bort {{name}}? Det går inte att ångra.",
+    "delete_failed": "Kunde inte ta bort {{name}}: {{details}}",
+    "empty": "Inga dokument är bifogade ännu.",
+    "deleted_user": "Raderad användare",
+    "relative_time": "{{date, timeAgo}}",
+    "download_failed": "{{name}} kunde inte hämtas: {{details}}",
+    "attach": "Bifoga dokument",
+    "drop_hint": "Släpp filer här eller välj dem med knappen."
+  },
   "confirm_delete": {
     "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
     "delete_post": "Radera inlägg",
@@ -91,14 +112,16 @@
   },
   "login": {
     "create_account": "Skapa konto",
-    "forgot_password": "Glömt lösenordet?",
-    "invalid_credentials": "Inloggningen misslyckades. Kontrollera dina uppgifter och att din e-post är verifierad.",
-    "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
+    "description": "Ange din e‑postadress så skickar vi en inloggningslänk. Inget lösenord behövs.",
+    "email": "E‑postadress",
+    "invalid_email": "Det där ser inte ut som en e‑postadress. Kontrollera adressen och försök igen.",
+    "link_sent": "En inloggningslänk har skickats till <strong>{{email}}</strong>. Den är giltig i 15 minuter.",
+    "link_sent_hint": "Inget mejl? Kolla skräpposten, eller begär en ny länk om det dröjer.",
+    "login_failed": "Länken kunde inte skickas. Försök igen.",
     "no_account": "Har du inget konto?",
-    "password": "Lösenord",
+    "other_address": "Använd en annan adress",
     "remember_me": "Kom ihåg mig",
-    "username": "Användarnamn",
-    "verify_account": "Verifiera mitt konto"
+    "send_link": "Skicka inloggningslänk"
   },
   "logout_button": {
     "failed": "Utloggningen misslyckades"
@@ -381,6 +404,7 @@
     "create": "Skapa",
     "create_account": "Skapa konto",
     "create_needs_org": "Du behöver vara medlem i en organisation för att skapa innehåll.",
+    "create_needs_login": "Logga in för att skapa innehåll.",
     "home": "$t(common:tsx.home)",
     "language": "Språk",
     "language_alt": "Välj språk",
@@ -390,13 +414,8 @@
   "signup": {
     "already_have_account": "Har du redan ett konto?",
     "create_account": "Skapa konto",
-    "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta",
-    "email": "E‑postadress",
-    "password": "Lösenord",
-    "signup_failed": "Registreringen misslyckades. Försök igen.",
-    "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",
-    "username": "Användarnamn",
-    "username_requirements": "{{min}}-{{max}} tecken: bokstäver, siffror, punkter, understreck eller bindestreck"
+    "description": "Ange e‑postadressen du har hos din organisation. Vi skickar en inloggningslänk, och kontot skapas när du loggar in första gången. Konton kan bara skapas med adresser från deltagande organisationer.",
+    "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta"
   },
   "table_menu": {
     "add_effect_from_existing_action": "Lägg till $t(common:effect_one)",
@@ -478,5 +497,21 @@
     "failed": "Kunde inte spara gilla-markeringen: {{details}}",
     "like": "Gilla målbanan",
     "unlike": "Ta bort din gilla-markering"
+  },
+  "logout_everywhere": {
+    "title": "Logga ut överallt",
+    "button_self": "Logga ut överallt",
+    "button_other": "Logga ut {{name}} överallt",
+    "confirm_self": "Alla dina enheter loggas ut, även den här. Vill du fortsätta?",
+    "confirm_other": "{{name}} loggas ut från alla enheter. Vill du fortsätta?",
+    "done": "{{name}} är utloggad överallt.",
+    "failed": "Det gick inte att logga ut överallt. Försök igen."
+  },
+  "name_form": {
+    "first_name": "Förnamn",
+    "last_name": "Efternamn",
+    "continue": "Fortsätt",
+    "saved": "Namnet är sparat.",
+    "failed": "Namnet kunde inte sparas. Kontrollera fälten och försök igen."
   }
 }

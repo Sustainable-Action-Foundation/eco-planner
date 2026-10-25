@@ -13,7 +13,7 @@ const token = "00000000-0000-0000-0000-000000000000";
 test("all methods are a 404 for anonymous visitors, members and managers", async ({ admin, playwright, baseURL }) => {
   const orgId = await orgIdByName(admin, Seed.orgName);
   const anonymous = await requestAs(playwright, baseURL);
-  const anita = await requestAs(playwright, baseURL, Seed.anita.username, Seed.anita.password);
+  const anita = await requestAs(playwright, baseURL, Seed.anita.username);
   try {
     const actors = { anonymous, member: anita, manager: admin };
     for (const [who, request] of Object.entries(actors)) {

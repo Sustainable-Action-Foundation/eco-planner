@@ -1,0 +1,89 @@
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  padding: 1.25rem 1rem;
+  border: 2px dashed var(--gray-70);
+  border-radius: .5rem;
+  text-align: center;
+  transition: border-color .2s, background-color .2s;
+}
+
+.dropZone[data-dragging="true"] {
+  border-color: var(--darkblue-30);
+  background-color: var(--gray-90);
+}
+
+.dropHint {
+  color: gray;
+  font-size: .75rem;
+}
+
+.uploadButton {
+  border: none;
+  padding: .5rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: var(--darkblue-30);
+  color: white;
+  transition: background-color .2s;
+}
+
+.uploadButton:disabled {
+  background-color: var(--gray-70);
+  cursor: default;
+}
+
+.uploadButton:not(:disabled):hover {
+  background-color: var(--darkblue-20);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--gray-90);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex-grow: 1;
+}
+
+.name {
+  font-weight: 600;
+  color: black;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.meta {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  font-size: .75rem;
+  color: gray;
+}
+
+.removeButton {
+  color: var(--gray-40);
+}
+
+.removeButton:not(:disabled):hover {
+  color: var(--red, #c00);
+}

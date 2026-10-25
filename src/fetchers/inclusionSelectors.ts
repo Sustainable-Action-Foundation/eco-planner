@@ -73,7 +73,7 @@ export const roadmapInclusionSelection = {
     include: {
       // Displayed counts exclude unlisted goals
       _count: { select: { goals: { where: { listing: { not: GoalListing.UNLISTED } } } } },
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
   child_roadmaps: {
@@ -84,10 +84,10 @@ export const roadmapInclusionSelection = {
   },
   comments: {
     include: {
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
-  author: { select: { id: true, username: true } },
+  author: { select: { id: true, username: true, first_name: true, last_name: true } },
   access_control: { select: accessControlSelection },
 } satisfies Prisma.RoadmapsInclude;
 
@@ -108,22 +108,27 @@ export const roadmapIterationInclusionSelection = {
       _count: { select: { effects: true } },
       data_series: { include: dataSeriesInclusionSelection },
       historical: { include: dataSeriesInclusionSelection },
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
       recipe_suggestions: true,
     },
   },
   actions: {
     include: {
       _count: { select: { effects: true } },
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
   comments: {
     include: {
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
-  author: { select: { id: true, username: true } },
+  attachments: {
+    include: {
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
+    },
+  },
+  author: { select: { id: true, username: true, first_name: true, last_name: true } },
 } satisfies Prisma.RoadmapIterationsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
@@ -208,7 +213,7 @@ export const multiRoadmapInclusionSelection = {
       access_control: { select: accessControlSelection },
     },
   },
-  author: { select: { id: true, username: true } },
+  author: { select: { id: true, username: true, first_name: true, last_name: true } },
 } satisfies Prisma.RoadmapIterationsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
@@ -250,7 +255,7 @@ export const goalInclusionSelection = {
       action: {
         include: {
           roadmap_iteration: { select: { id: true } },
-          author: { select: { id: true, username: true } },
+          author: { select: { id: true, username: true, first_name: true, last_name: true } },
         },
       },
     },
@@ -272,10 +277,15 @@ export const goalInclusionSelection = {
   },
   comments: {
     include: {
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
     },
   },
-  author: { select: { id: true, username: true } },
+  attachments: {
+    include: {
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
+    },
+  },
+  author: { select: { id: true, username: true, first_name: true, last_name: true } },
 } satisfies Prisma.GoalsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
@@ -345,7 +355,7 @@ export const actionInclusionSelection = {
       goal: {
         include: {
           roadmap_iteration: { select: { id: true } },
-          author: { select: { id: true, username: true } },
+          author: { select: { id: true, username: true, first_name: true, last_name: true } },
         },
       },
     },
@@ -357,7 +367,7 @@ export const actionInclusionSelection = {
       version: true,
       roadmap_id: true,
       status: true,
-      author: { select: { id: true, username: true } },
+      author: { select: { id: true, username: true, first_name: true, last_name: true } },
       roadmap: {
         select: {
           id: true,
@@ -367,8 +377,9 @@ export const actionInclusionSelection = {
       },
     },
   },
-  comments: { include: { author: { select: { id: true, username: true } } } },
-  author: { select: { id: true, username: true } },
+  comments: { include: { author: { select: { id: true, username: true, first_name: true, last_name: true } } } },
+  attachments: { include: { author: { select: { id: true, username: true, first_name: true, last_name: true } } } },
+  author: { select: { id: true, username: true, first_name: true, last_name: true } },
   fields: { orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsInclude;
 
@@ -379,7 +390,7 @@ export const actionSummarySelection = {
   start_year: true,
   end_year: true,
   origin_action_id: true,
-  author: { select: { username: true } },
+  author: { select: { username: true, first_name: true, last_name: true } },
   fields: { select: { header: true, value: true, type: true }, orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsSelect;
 
@@ -436,6 +447,8 @@ export const effectInclusionSelection = {
 export const userInfoSelector = {
   id: true,
   username: true,
+  first_name: true,
+  last_name: true,
   authored_roadmaps: {
     // TODO: Select/include less data to lighten load on database
     include: roadmapInclusionSelection,

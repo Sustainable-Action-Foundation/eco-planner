@@ -1,56 +1,47 @@
-// Seeds the users and orgs. The three users and their credentials are relied
-// upon by the e2e test suite:
-//   admin/admin  -> super admin + org manager, verified
-//   anita/anita  -> regular org member, verified
-//   anton/anton  -> regular org member, NOT verified (cannot log in)
-//   greta/greta  -> GUEST in the org AND in the granted group: guests are disabled,
-//                   so she must see/edit NOTHING beyond public content (canary for
-//                   the guest-disabled invariants, see tests/e2e/guest-disabled.spec.ts)
-//   orgless/orgless -> verified but with NO org memberships: sees only public
-//                   content, cannot create anything (disabled create button)
+// Seeds the users and orgs. The suite relies on these users (there are no
+// passwords: login is by email link, and the tests start sessions through the
+// test-only /api/test/login by username):
+//   admin   -> super admin + org manager, verified
+//   anita   -> regular org member, verified
+//   anton   -> regular org member, NOT verified (a legacy state; a login link verifies)
+//   greta   -> GUEST in the org AND in the granted group: guests are disabled,
+//              so she must see/edit NOTHING beyond public content (canary for
+//              the guest-disabled invariants, see tests/e2e/guest-disabled.spec.ts)
+//   orgless -> verified but with NO org memberships: sees only public
+//              content, cannot create anything (disabled create button)
 //
 // Besides Sustainable Action (the org owning the test fixtures and the national
 // scenario) every org is a real place with its geo area code (see places.ts),
-// with a few members of its own (first.last@<domain>, password "password").
+// with a few members of its own (first.last@<domain>).
 // admin manages one of them and is a plain member of two more, so the start
 // page switcher holds more orgs than its chip limit and renders as a select;
 // the rest are only reachable through the super-admin override.
 
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { SeededUsers } from "./helpers.ts";
 import { memberSlug, seedPlaces } from "./places.ts";
 
 export async function seedUsers(): Promise<SeededUsers> {
-  const [adminPassword, anitaPassword, antonPassword, gretaPassword, orglessPassword, memberPassword] = await Promise.all([
-    bcrypt.hash("admin", 10),
-    bcrypt.hash("anita", 10),
-    bcrypt.hash("anton", 10),
-    bcrypt.hash("greta", 10),
-    bcrypt.hash("orgless", 10),
-    bcrypt.hash("password", 10),
-  ]);
-
-  /** A super admin, username and password 'admin'. */
+  /** A super admin, username 'admin'. */
   const admin = await prisma.users.create({
-    data: { username: "admin", password_hash: adminPassword, is_super_admin: true, is_verified: true, email: "admin@sustainable-action.ngo" },
+    data: { username: "admin", username_lower: "admin".toLowerCase(), first_name: "Ada", last_name: "Administratör", is_super_admin: true, is_verified: true, email: "admin@sustainable-action.ngo" },
   });
   /** Anita is a regular, verified user. */
   const anita = await prisma.users.create({
-    data: { username: "Anita", password_hash: anitaPassword, is_super_admin: false, is_verified: true, email: "anita@sustainable-action.ngo" },
+    data: { username: "Anita", username_lower: "Anita".toLowerCase(), first_name: "Anita", last_name: "Andersson", is_super_admin: false, is_verified: true, email: "anita@sustainable-action.ngo" },
   });
   /** Anton is a regular user who's been too lazy to verify their email. */
   const anton = await prisma.users.create({
-    data: { username: "Anton", password_hash: antonPassword, is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
+    data: { username: "Anton", username_lower: "Anton".toLowerCase(), first_name: "Anton", last_name: "Antonsson", is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
   });
   /** Greta is a GUEST: while guests are disabled her memberships must grant nothing. */
   const greta = await prisma.users.create({
-    data: { username: "Greta", password_hash: gretaPassword, is_super_admin: false, is_verified: true, email: "greta@example.com" },
+    data: { username: "Greta", username_lower: "Greta".toLowerCase(), first_name: "Greta", last_name: "Gran", is_super_admin: false, is_verified: true, email: "greta@example.com" },
   });
   /** Poor little Orgless has no org memberships at all: sees only public content and cannot create anything. */
   await prisma.users.create({
-    data: { username: "orgless", password_hash: orglessPassword, is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
+    data: { username: "orgless", username_lower: "orgless".toLowerCase(), first_name: "Olle", last_name: "Orglös", is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
   });
 
   // The org that owns the test fixtures and the national scenario; its domain matches the users' emails so signup auto-joins.
@@ -105,10 +96,15 @@ export async function seedUsers(): Promise<SeededUsers> {
     const members = [];
     for (const name of place.members) {
       const slug = memberSlug(name);
+      // Roster names are "First Last"
+      const [firstName, ...rest] = name.split(" ");
       members.push(await prisma.users.create({
         data: {
           username: slug,
-          password_hash: memberPassword,
+          username_lower: slug.toLowerCase(),
+          first_name: firstName,
+          last_name: rest.join(" "),
+         
           is_super_admin: false,
           is_verified: true,
           email: `${slug}@${place.domain}`,

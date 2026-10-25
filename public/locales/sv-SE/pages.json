@@ -233,19 +233,15 @@
   "login": {
     "breadcrumb": "$t(common:tsx.login)"
   },
-  "password": {
-    "breadcrumb": "Återställ lösenord",
-    "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
-    "input_label": "E-post",
-    "submit": "Skicka",
-    "title": "Återställ lösenord"
-  },
-  "password_reset": {
-    "breadcrumb": "Uppdatera lösenord",
-    "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
-    "password": "Nytt lösenord",
-    "submit": "Byt lösenord",
-    "title": "Uppdatera lösenord"
+  "login_link": {
+    "title": "Logga in med länk",
+    "description": "Klicka på knappen för att logga in.",
+    "submit": "Logga in",
+    "missing": "Den här sidan behöver öppnas via länken i mejlet.",
+    "invalid": "Länken är ogiltig eller har gått ut. Begär en ny inloggningslänk.",
+    "back_to_login": "Till inloggningen",
+    "welcome_toast": "Välkommen in! 🎉",
+    "welcome_back_toast": "Välkommen tillbaka, {{name}}! 🎉"
   },
   "profile": {
     "my_posts": "Mina inlägg",
@@ -253,7 +249,12 @@
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
     "version_count_one": "{{count}} version",
-    "version_count_other": "{{count}} versioner"
+    "version_count_other": "{{count}} versioner",
+    "sessions": "Inloggningar",
+    "sessions_description_self": "Du förblir inloggad i 30 dagar efter varje inloggning, eller ett år om du valde \"Kom ihåg mig\". Har du loggat in på en delad eller borttappad dator kan du logga ut överallt: alla enheter loggas ut, även den här, och nästa inloggningslänk fungerar som vanligt.",
+    "sessions_description_other": "Som administratör kan du logga ut {{name}} från alla enheter. Användaren kan logga in igen med en ny inloggningslänk.",
+    "name": "Ditt namn",
+    "name_description": "Visas där du nämns, till exempel som författare till åtgärder och kommentarer."
   },
   "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",
@@ -288,19 +289,6 @@
   },
   "signup": {
     "breadcrumb": "Skapa konto"
-  },
-  "verify": {
-    "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
-    "input_label": "E-post",
-    "submit_resend": "Skicka nytt mail",
-    "title": "Verifiera din e‑postadress",
-    "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
-    "troubleshooting_title": "Har du inte fått något meddelande?"
-  },
-  "verify_confirm": {
-    "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
-    "submit": "Verifiera min e‑postadress",
-    "title": "Verifiera din e‑postadress"
   },
   "org_groups": {
     "title": "Hantera organisation",
@@ -362,5 +350,9 @@
     "use_description": "Skapa en ny målbana i någon av organisationens färdplaner utifrån den här serien. Den blir målbanans historiska data och utgångspunkten för målbanans egna värden; urvalet och allt annat går att justera innan du sparar.",
     "use_heading": "Använd dessa uppgifter",
     "values": "Värden"
+  },
+  "welcome": {
+    "title": "Välkommen!",
+    "description": "Du är inloggad. Berätta vad du heter så att dina kollegor ser vem som skrivit vad. Det här frågar vi bara en gång; inloggningen är alltid bara din e‑postadress."
   }
 }

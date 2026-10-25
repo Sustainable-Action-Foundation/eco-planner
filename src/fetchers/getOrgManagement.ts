@@ -2,6 +2,7 @@ import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
+import { displayName } from "@/functions/personName";
 
 export type OrgManagement = {
   org: { id: string, name: string, /** SCB code of the area the org is placed in */ geoAreaCode: string | null },
@@ -12,6 +13,8 @@ export type OrgManagement = {
     role: OrgRole,
     /** Orgs (other than this one) where the user is a proper non-guest member; annotates where guests come from */
     homeOrgs: string[],
+    /** What to show: "First Last", or the username until the person has filled in their name */
+    name: string,
   }[],
   groups: { id: string, name: string, memberIds: string[] }[],
   /** Pending guest invites (they are deleted when accepted, so all rows are pending) */
@@ -49,6 +52,8 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
               select: {
                 id: true,
                 username: true,
+                first_name: true,
+                last_name: true,
                 // The user's proper memberships elsewhere, to show where guests come from
                 memberships: {
                   where: { role: { not: OrgRole.GUEST }, org_id: { not: orgId } },
@@ -82,6 +87,7 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         username: membership.user.username,
         role: membership.role,
         homeOrgs: membership.user.memberships.map(homeMembership => homeMembership.org.name),
+        name: displayName(membership.user),
       })),
       groups: org.groups.map(group => ({
         id: group.id,

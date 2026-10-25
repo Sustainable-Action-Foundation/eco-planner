@@ -233,19 +233,15 @@
   "login": {
     "breadcrumb": "Log in"
   },
-  "password": {
-    "breadcrumb": "Reset password",
-    "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
-    "input_label": "E-post",
-    "submit": "Submit",
-    "title": "Reset password"
-  },
-  "password_reset": {
-    "breadcrumb": "Update password",
-    "description": "Enter your new password below and submit to update your password.",
-    "password": "New password",
-    "submit": "Change password",
-    "title": "Update password"
+  "login_link": {
+    "title": "Sign in with link",
+    "description": "Click the button to sign in.",
+    "submit": "Sign in",
+    "missing": "This page has to be opened through the link in the email.",
+    "invalid": "The link is invalid or has expired. Request a new login link.",
+    "back_to_login": "Back to login",
+    "welcome_toast": "Welcome aboard! 🎉",
+    "welcome_back_toast": "Welcome back, {{name}}! 🎉"
   },
   "profile": {
     "my_posts": "My posts",
@@ -253,7 +249,12 @@
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} posts",
     "version_count_one": "{{count}} version",
-    "version_count_other": "{{count}} versions"
+    "version_count_other": "{{count}} versions",
+    "sessions": "Logins",
+    "sessions_description_self": "You stay signed in for 30 days after each login, or a year if you chose \"Remember me\". If you signed in on a shared or lost computer you can log out everywhere: every device is signed out, including this one, and the next login link works as usual.",
+    "sessions_description_other": "As an administrator you can sign {{name}} out of every device. They can sign in again with a new login link.",
+    "name": "Your name",
+    "name_description": "Shown wherever you are named, for example as the author of actions and comments."
   },
   "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",
@@ -288,19 +289,6 @@
   },
   "signup": {
     "breadcrumb": "Create account"
-  },
-  "verify": {
-    "description": "An email has been sent to your email address. Verify your email by following the instructions in the email.",
-    "input_label": "Email",
-    "submit_resend": "Resend email",
-    "title": "Verify your email",
-    "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
-    "troubleshooting_title": "Haven't received an email?"
-  },
-  "verify_confirm": {
-    "description": "Verify your email by clicking the button below.",
-    "submit": "Verify my email",
-    "title": "Verify your email"
   },
   "org_groups": {
     "title": "Manage organization",
@@ -362,5 +350,9 @@
     "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
     "values": "Values"
+  },
+  "welcome": {
+    "title": "Welcome!",
+    "description": "You are signed in. Tell us your name so your colleagues can see who wrote what. We only ask this once; signing in is always just your email address."
   }
 }

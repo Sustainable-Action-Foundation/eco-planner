@@ -51,8 +51,8 @@
   "baseline_other": "baselines",
   "historical_data": "historical data",
   "layout": {
-    "app_name": "Eco - Planner",
-    "app_name_compact": "Eco Planner",
+    "app_name": "Verktyget Färdplanen",
+    "app_name_compact": "Verktyget",
     "meta_description": "A tool that aims to contribute to Sweden's climate transition. In the tool, national users can be inspired by each other's actions, creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
     "og_locale": "en_SE"
   },
@@ -67,7 +67,6 @@
   "placeholder": {
     "email": "name@example.com",
     "name": "Username",
-    "password": "Password",
     "username": "Username"
   },
   "roadmap_definite_one": "the roadmap",
@@ -132,8 +131,6 @@
     "write": "Write something",
     "yes": "Yes",
     "move_up": "Move up",
-    "move_down": "Move down",
-    "hide_password": "Hide password",
-    "show_password": "Show password"
+    "move_down": "Move down"
   }
 }

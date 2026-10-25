@@ -9,23 +9,21 @@ import { memberSlug } from "../../scripts/prisma/seed/places";
  * include the response body so a contract change is readable in the report.
  */
 
-/** The iron-session cookie set by `/api/login` */
+/** The iron-session cookie set at login */
 export const SESSION_COOKIE = "eco_planner";
 
-/** Seeded fixtures the specs may rely on (scripts/prisma/seed/*) */
+/** Seeded fixtures the specs may rely on (scripts/prisma/seed/*). `name` is what pages show for the person (displayName) */
 export const Seed = {
   /** Super admin, manager of "Sustainable Action" */
-  admin: { username: "admin", password: "admin" },
+  admin: { username: "admin", name: "Ada Administratör" },
   /** Plain verified member of "Sustainable Action", in the group */
-  anita: { username: "anita", password: "anita" },
-  /** Unverified member: cannot log in */
-  anton: { username: "anton", password: "anton" },
+  anita: { username: "anita", name: "Anita Andersson" },
+  /** Member never verified (a legacy state; a login link would verify) */
+  anton: { username: "anton", name: "Anton Antonsson" },
   /** GUEST in the org and group; guests are disabled so she sees only public content */
-  greta: { username: "greta", password: "greta" },
+  greta: { username: "greta", name: "Greta Gran" },
   /** Verified, no org memberships */
-  orgless: { username: "orgless", password: "orgless" },
-  /** Password of every seeded place member ("First Last" → memberSlug) */
-  memberPassword: "password",
+  orgless: { username: "orgless", name: "Olle Orglös" },
   /** The org owning the fixtures; admin manages it, anita/anton members, greta guest */
   orgName: "Sustainable Action",
   /** Group of anita, anton and greta with an RW grant on the national roadmap and RO on the regional one */
@@ -42,24 +40,29 @@ export const Seed = {
   scalarPresetId: "scalar-recipe-dummy-uuid",
 } as const;
 
-/** Logs the request context in through `/api/login`; the session cookie sticks to the context. */
-export async function loginAs(request: APIRequestContext, username: string, password?: string): Promise<void> {
-  const send = () => request.post("/api/login", { data: { username, password: password ?? username } });
+/**
+ * Logs the request context in as a seeded user through the test-only `/api/test/login`
+ * (TEST_ENVIRONMENT=testing); the session cookie sticks to the context. There are no
+ * passwords: real logins go through mailed links (tests/lib/login-link.ts), whose
+ * per-address throttle a suite logging in hundreds of times could never stay under.
+ */
+export async function loginAs(request: APIRequestContext, username: string): Promise<void> {
+  const send = () => request.post("/api/test/login", { data: { username } });
   // A loaded server occasionally drops the socket ("socket hang up"); a login is safe to resend
   const response = await send().catch(async () => send());
   expect(response.status(), `login of ${username}: ${await response.text()}`).toBe(200);
 }
 
 /** A fresh browser context (no stored state) signed in as `username` through the API. */
-export async function loginContext(browser: Browser, username: string, password?: string): Promise<BrowserContext> {
+export async function loginContext(browser: Browser, username: string): Promise<BrowserContext> {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
-  await loginAs(context.request, username, password);
+  await loginAs(context.request, username);
   return context;
 }
 
 /** A context signed in as a seeded place member by display name, e.g. "Maja Sandberg" (Bodens kommun). */
 export async function memberContext(browser: Browser, name: string): Promise<BrowserContext> {
-  return loginContext(browser, memberSlug(name), Seed.memberPassword);
+  return loginContext(browser, memberSlug(name));
 }
 
 /** A unique label per project, retry and run, for names and indicator parameters */
@@ -268,15 +271,15 @@ export async function pageStatus(request: APIRequestContext, url: string): Promi
 
 /**
  * A standalone request context (no browser, no stored state), optionally signed
- * in through `/api/login`. For API specs that need several users side by side:
+ * in through `/api/test/login`. For API specs that need several users side by side:
  * `requestAs(playwright, baseURL)` is anonymous, `requestAs(playwright, baseURL, "anita")`
  * is anita. Dispose it when done.
  */
-export async function requestAs(playwright: PlaywrightWorkerArgs["playwright"], baseURL: string | undefined, username?: string, password?: string): Promise<APIRequestContext> {
+export async function requestAs(playwright: PlaywrightWorkerArgs["playwright"], baseURL: string | undefined, username?: string): Promise<APIRequestContext> {
   // The test server is shared with browser runs; give slow streamed pages room
   const request = await playwright.request.newContext({ baseURL, timeout: 60_000 });
   if (username) {
-    await loginAs(request, username, password);
+    await loginAs(request, username);
   }
   return request;
 }
@@ -322,24 +325,12 @@ export async function membershipRole(request: APIRequestContext, orgId: string, 
   return role ?? "";
 }
 
-/**
- * The token the verification / password-reset mail would carry for `email`,
- * from the test-only `/api/test/mail-token` route (TEST_ENVIRONMENT=testing;
- * mail itself is stubbed there, see `@/mailClient`).
- */
-export async function mailToken(request: APIRequestContext, email: string): Promise<string> {
-  const response = await request.get(`/api/test/mail-token?email=${encodeURIComponent(email)}`);
-  expect(response.status(), `mail token for ${email}: ${await response.text()}`).toBe(200);
-  const body = await response.json() as { hash: string };
-  return body.hash;
-}
-
 // ── Additional helpers for the API contract specs (tests/api/*) ─────────────
 
 /** A fresh API-only request context signed in as `username` (no browser; dispose it when done). */
-export async function userRequest(playwright: { request: { newContext: (options?: { baseURL?: string }) => Promise<APIRequestContext> } }, baseURL: string | undefined, username: string, password?: string): Promise<APIRequestContext> {
+export async function userRequest(playwright: { request: { newContext: (options?: { baseURL?: string }) => Promise<APIRequestContext> } }, baseURL: string | undefined, username: string): Promise<APIRequestContext> {
   const request = await playwright.request.newContext({ baseURL });
-  await loginAs(request, username, password);
+  await loginAs(request, username);
   return request;
 }
 

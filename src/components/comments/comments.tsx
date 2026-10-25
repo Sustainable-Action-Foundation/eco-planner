@@ -8,8 +8,9 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import formSubmitter from "@/functions/formSubmitter";
+import { displayName } from "@/functions/personName";
 
-export default function Comments({ comments, objectId }: { comments?: (CommentModel & { author: { id: string, username: string } | null })[], objectId: string }) {
+export default function Comments({ comments, objectId }: { comments?: (CommentModel & { author: { id: string, username: string, first_name?: string | null, last_name?: string | null } | null })[], objectId: string }) {
   const { t } = useTranslation(["components", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -88,7 +89,7 @@ export default function Comments({ comments, objectId }: { comments?: (CommentMo
           <div key={comment.id}>
             <div className="flex align-items-center gap-50 margin-top-200">
               {comment.author ? (
-                <Link className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</Link>
+                <Link className={styles.commentAuthor} href={`/@${comment.author.username}`}>{displayName(comment.author)}</Link>
               ) : (
                 // Authors are nullable (deleted users)
                 <span className={styles.commentAuthor}>{t("components:comments.deleted_user")}</span>

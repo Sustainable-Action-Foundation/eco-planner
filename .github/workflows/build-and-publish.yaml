@@ -39,6 +39,7 @@ jobs:
     outputs:
       should_skip: ${{ steps.decision.outputs.should_skip }}
       reason: ${{ steps.decision.outputs.reason }}
+      runs_on: ${{ steps.runner.outputs.runs_on }}
     steps:
       - name: Decide whether this run is a duplicate PR run
         id: decision
@@ -65,10 +66,48 @@ jobs:
           echo "reason=$REASON" >> "$GITHUB_OUTPUT"
           echo "de-duplication: should_skip=$SHOULD_SKIP reason=$REASON"
 
+      - name: Pick the runner for build-and-publish
+        id: runner
+        # Routes the runner owner's own runs to the self-hosted runner (homelab Proxmox VM) when it is
+        # online, and everything else to GitHub-hosted: other contributors, re-runs by someone else,
+        # runner offline, or no status token. The health check matters because a job targeting
+        # self-hosted with no online runner just queues (for up to 24h) instead of falling back.
+        # RUNNER_STATUS_TOKEN is a fine-grained PAT with org permission "Self-hosted runners: read";
+        # GITHUB_TOKEN cannot list runners. Without it, every run stays on GitHub-hosted.
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_STATUS_TOKEN }}
+          ORG: ${{ github.repository_owner }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          # Not RUNNER_*: the runner injects its own RUNNER_NAME etc. and those win over step env
+          SELF_HOSTED_OWNER: VenaStrom
+          SELF_HOSTED_RUNNER: gh-runner-205
+        run: |
+          RUNS_ON='"ubuntu-latest"'
+          REASON="github-hosted"
+
+          if [[ "$ACTOR" != "$SELF_HOSTED_OWNER" || "$TRIGGERING_ACTOR" != "$SELF_HOSTED_OWNER" ]]; then
+            REASON="not triggered by $SELF_HOSTED_OWNER"
+          elif [[ -z "$GH_TOKEN" ]]; then
+            REASON="RUNNER_STATUS_TOKEN not set"
+          else
+            STATUS=$(gh api "orgs/$ORG/actions/runners" \
+              --jq ".runners[] | select(.name == \"$SELF_HOSTED_RUNNER\") | .status" 2>/dev/null || true)
+            if [[ "$STATUS" == "online" ]]; then
+              RUNS_ON='["self-hosted", "proxmox"]'
+              REASON="$SELF_HOSTED_RUNNER is online"
+            else
+              REASON="$SELF_HOSTED_RUNNER status: ${STATUS:-unknown}"
+            fi
+          fi
+
+          echo "runs_on=$RUNS_ON" >> "$GITHUB_OUTPUT"
+          echo "pick-runner: runs_on=$RUNS_ON reason=$REASON"
+
   build-and-publish:
     needs: de-duplication
     if: ${{ needs.de-duplication.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.de-duplication.outputs.runs_on) }}
     permissions:
       contents: read
       packages: write
@@ -112,8 +151,9 @@ jobs:
           yarn install --immutable
           # Prisma client (src modules imported by tests reach the generated client)
           yarn prisma generate
-          # Playwright browsers
-          yarn playwright install --with-deps
+          # Playwright browsers. The self-hosted runner has the system deps preinstalled and no sudo,
+          # so --with-deps (which calls sudo apt-get) only runs on GitHub-hosted.
+          yarn playwright install ${{ runner.environment == 'github-hosted' && '--with-deps' || '' }}
 
       - name: Run tests
         id: run-tests
@@ -192,8 +232,10 @@ jobs:
             COMMIT_SHA=${{ github.sha }}
             BUILD_ID=${{ github.run_id }}
             COMMITS_AHEAD=${{ steps.commits-ahead.outputs.count }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Self-hosted: local layer cache on the runner's disk (the GHA cache backend is the slow part
+          # there); written to a -new dir and rotated in below so a failed build can't corrupt it.
+          cache-from: ${{ runner.environment == 'self-hosted' && 'type=local,src=/home/runner/buildx-cache/app' || 'type=gha' }}
+          cache-to: ${{ runner.environment == 'self-hosted' && 'type=local,dest=/home/runner/buildx-cache/app-new,mode=max' || 'type=gha,mode=max' }}
 
       - name: Build and push seed image
         uses: docker/build-push-action@v7
@@ -203,8 +245,18 @@ jobs:
           push: ${{ steps.run-tests.outcome != 'failed' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
           tags: ${{ steps.seed-metadata.outputs.tags }}
           labels: ${{ steps.seed-metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: ${{ runner.environment == 'self-hosted' && 'type=local,src=/home/runner/buildx-cache/seed' || 'type=gha' }}
+          cache-to: ${{ runner.environment == 'self-hosted' && 'type=local,dest=/home/runner/buildx-cache/seed-new,mode=max' || 'type=gha,mode=max' }}
+
+      - name: Rotate local buildx cache
+        if: ${{ runner.environment == 'self-hosted' && !cancelled() }}
+        run: |
+          for c in app seed; do
+            if [[ -d "/home/runner/buildx-cache/$c-new" ]]; then
+              rm -rf "/home/runner/buildx-cache/$c"
+              mv "/home/runner/buildx-cache/$c-new" "/home/runner/buildx-cache/$c"
+            fi
+          done
 
   deploy-staging:
     needs: build-and-publish
@@ -247,6 +299,11 @@ jobs:
           MAIL_CLIENT_ID: ${{ vars.MAIL_CLIENT_ID }}
           MAIL_USER: ${{ vars.MAIL_USER }}
           BASE_URL: ${{ vars.BASE_URL }}
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
         run: |
           {
             printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG"
@@ -259,6 +316,11 @@ jobs:
             printf 'MAIL_CLIENT_SECRET=%s\n' "$MAIL_CLIENT_SECRET"
             printf 'MAIL_USER=%s\n' "$MAIL_USER"
             printf 'BASE_URL=%s\n' "$BASE_URL"
+            printf 'S3_ENDPOINT=%s\n' "$S3_ENDPOINT"
+            printf 'S3_REGION=%s\n' "$S3_REGION"
+            printf 'S3_BUCKET=%s\n' "$S3_BUCKET"
+            printf 'S3_ACCESS_KEY_ID=%s\n' "$S3_ACCESS_KEY_ID"
+            printf 'S3_SECRET_ACCESS_KEY=%s\n' "$S3_SECRET_ACCESS_KEY"
           } > deploy.env
 
       - name: Deploy
@@ -313,6 +375,11 @@ jobs:
           MAIL_CLIENT_ID: ${{ vars.MAIL_CLIENT_ID }}
           MAIL_USER: ${{ vars.MAIL_USER }}
           BASE_URL: ${{ vars.BASE_URL }}
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
         run: |
           {
             printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG"
@@ -323,6 +390,11 @@ jobs:
             printf 'MAIL_CLIENT_SECRET=%s\n' "$MAIL_CLIENT_SECRET"
             printf 'MAIL_USER=%s\n' "$MAIL_USER"
             printf 'BASE_URL=%s\n' "$BASE_URL"
+            printf 'S3_ENDPOINT=%s\n' "$S3_ENDPOINT"
+            printf 'S3_REGION=%s\n' "$S3_REGION"
+            printf 'S3_BUCKET=%s\n' "$S3_BUCKET"
+            printf 'S3_ACCESS_KEY_ID=%s\n' "$S3_ACCESS_KEY_ID"
+            printf 'S3_SECRET_ACCESS_KEY=%s\n' "$S3_SECRET_ACCESS_KEY"
           } > deploy.env
 
       - name: Deploy

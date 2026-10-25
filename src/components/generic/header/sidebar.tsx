@@ -18,13 +18,11 @@ export default async function Sidebar() {
     getSession(await cookies()),
   ]);
 
-  // Logged-in users can create content only with a non-guest org membership
-  // (or as super admin); logged-out visitors keep the menu since its links
-  // redirect to the login page. Guests never reach the context's memberships
-  // (see getUserAccessContext), so any membership here counts.
+  // Only logged-in users with a non-guest org membership (or super admins) can create
+  // content; everyone else gets the greyed-out button that explains why. Guests never
+  // reach the context's memberships (see getUserAccessContext), so any membership here counts.
   const accessContext = user?.isLoggedIn ? await getUserAccessContext() : null;
-  const canCreate = !user?.isLoggedIn
-    || !!accessContext?.isSuperAdmin
+  const canCreate = !!accessContext?.isSuperAdmin
     || (accessContext?.memberships.some(membership => membership.role !== OrgRole.GUEST) ?? false);
 
   return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
@@ -35,6 +33,9 @@ export default async function Sidebar() {
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked={true} />
           <IconMenu2 aria-hidden="true" />
         </label>
+        <Link href="/" className={`${styles['app-name']} color-pureblack font-weight-600`}>
+          {t("common:layout.app_name_compact")}
+        </Link>
       </header>
 
       <div className={`${styles['sidebar-menu']} flex-grow-100 flex flex-direction-column`}>
@@ -73,7 +74,7 @@ export default async function Sidebar() {
             :
             <DisabledCreateButton
               label={t("components:sidebar.create")}
-              hint={t("components:sidebar.create_needs_org")}
+              hint={user?.isLoggedIn ? t("components:sidebar.create_needs_org") : t("components:sidebar.create_needs_login")}
             />
           }
           {canCreate ? <Popover
@@ -127,7 +128,7 @@ export default async function Sidebar() {
             {t("components:sidebar.about")}
           </Link>
         </nav>
-        <div className="margin-top-300 font-size-smaller">
+        <div className="font-size-smaller">
           <PopoverButton
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
