@@ -324,6 +324,7 @@
     "filter_groups": "Search groups or members",
     "filter_members": "Search members",
     "no_matches": "Nothing matches the search.",
+    "no_group_members": "The group has no members yet.",
     "home_org": "from {{orgs}}",
     "home_org_none": "no organization of their own"
   },

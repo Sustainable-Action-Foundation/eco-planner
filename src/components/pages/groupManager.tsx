@@ -15,6 +15,10 @@ import type { OrgManagement } from "@/fetchers/getOrgManagement";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { TFunction } from "i18next";
 
+/** Section headings stay in view while their long lists scroll by */
+const headingClass = "font-size-125 position-sticky padding-block-50 margin-bottom-0 neutral-background";
+const headingStyle: React.CSSProperties = { top: 0, zIndex: 1 };
+
 /** The API's error message if there is one (formSubmitter throws 4xx bodies as plain objects, not Errors) */
 function errorMessage(err: unknown, t: TFunction): string {
   if (err instanceof Error) return err.message;
@@ -52,7 +56,7 @@ export default function GroupManager({ management }: { management: OrgManagement
   return (
     <>
         <section className="margin-bottom-300">
-          <h2 className="font-size-125">{t("pages:org_groups.org_heading")}</h2>
+          <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.org_heading")}</h2>
           {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
           <RenameOrg key={management.org.name} org={management.org} />
           {/* Keyed on the area for the same reason */}
@@ -60,7 +64,7 @@ export default function GroupManager({ management }: { management: OrgManagement
         </section>
 
         <section className="margin-bottom-300">
-          <h2 className="font-size-125">{t("pages:org_groups.members_heading")}</h2>
+          <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.members_heading")}</h2>
           <details data-testid="members-details">
             <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
               {t("pages:org_groups.member_count", { count: management.members.length })}
@@ -70,7 +74,7 @@ export default function GroupManager({ management }: { management: OrgManagement
         </section>
 
         <section>
-          <h2 className="font-size-125">{t("pages:org_groups.groups_heading")}</h2>
+          <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.groups_heading")}</h2>
           <GroupList management={management} />
           <CreateGroup orgId={management.org.id} members={management.members} />
         </section>
@@ -183,7 +187,7 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
   );
 }
 
-/** The org's groups as rows (member count + truncated names); one at a time expands into an editor */
+/** The org's groups as one-line rows (name + member count) that unfold their members; one at a time turns into an editor */
 function GroupList({ management }: { management: OrgManagement }) {
   const { t } = useTranslation(["pages", "common"]);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -212,7 +216,7 @@ function GroupList({ management }: { management: OrgManagement }) {
       {shown.length === 0 ? <p className="margin-block-100">{t("pages:org_groups.no_matches")}</p> : null}
       <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
         {shown.map(group => (
-          <li key={group.id} className="margin-bottom-50" data-group-id={group.id}>
+          <li key={group.id} data-group-id={group.id}>
             {group.id === editingGroupId ? (
               // Keyed on content so a router.refresh() after saving remounts with fresh data
               <GroupEditor
@@ -222,17 +226,28 @@ function GroupList({ management }: { management: OrgManagement }) {
                 onClose={() => setEditingGroupId(null)}
               />
             ) : (
-              <div className="flex gap-100 align-items-center padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-row">
-                <div className="flex-grow-100" style={{ minWidth: 0 }}>
-                  <span className="font-weight-500">{group.name}</span>
-                  <p className="margin-0 color-gray white-space-nowrap text-overflow-ellipsis overflow-hidden">
-                    {t("pages:org_groups.member_count", { count: group.memberIds.length })}
-                    {group.memberIds.length > 0
-                      ? ` · ${group.memberIds.map(id => names.get(id)).filter(Boolean).join(", ")}`
-                      : null}
-                  </p>
-                </div>
-                <button type="button" data-testid="group-edit" onClick={() => setEditingGroupId(group.id)}>
+              <div className="flex gap-100 align-items-flex-start padding-block-50" style={{ borderBottom: '1px solid var(--gray-80)' }} data-testid="group-row">
+                {/* One line per group; the members only on demand */}
+                <details className="flex-grow-100" style={{ minWidth: 0 }}>
+                  <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
+                    <span className="font-weight-500">{group.name}</span>
+                    <span className="color-gray"> · {t("pages:org_groups.member_count", { count: group.memberIds.length })}</span>
+                  </summary>
+                  {group.memberIds.length > 0 ? (
+                    <ul
+                      className="grid margin-0 margin-block-50 padding-0 font-size-14px gap-25"
+                      style={{ listStyle: 'none', gridTemplateColumns: 'repeat(auto-fill, minmax(14rem, 1fr))', paddingInlineStart: '1rem' }}
+                      data-testid="group-members"
+                    >
+                      {group.memberIds.map(id => names.get(id)).filter(name => name != null)
+                        .sort((a, b) => a.localeCompare(b, "sv-SE"))
+                        .map((name, index) => <li key={index}>{name}</li>)}
+                    </ul>
+                  ) : (
+                    <p className="margin-0 margin-block-50 font-size-14px color-gray" style={{ paddingInlineStart: '1rem' }}>{t("pages:org_groups.no_group_members")}</p>
+                  )}
+                </details>
+                <button type="button" className="flex-shrink-0" data-testid="group-edit" onClick={() => setEditingGroupId(group.id)}>
                   {t("common:tsx.edit")}
                 </button>
               </div>
@@ -367,7 +382,7 @@ function GroupEditor({
   }
 
   return (
-    <form onSubmit={save} className="margin-bottom-200 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-editor" data-group-id={group.id}>
+    <form onSubmit={save} className="margin-block-100 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-editor" data-group-id={group.id}>
       <label className="font-weight-500">
         {t("pages:org_groups.name_label")}
         <input

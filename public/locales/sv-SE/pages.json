@@ -324,6 +324,7 @@
     "filter_groups": "Sök grupp eller medlem",
     "filter_members": "Sök medlem",
     "no_matches": "Inget matchar sökningen.",
+    "no_group_members": "Gruppen har inga medlemmar ännu.",
     "home_org": "från {{orgs}}",
     "home_org_none": "ingen egen organisation"
   },
