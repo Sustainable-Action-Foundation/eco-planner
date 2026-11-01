@@ -79,7 +79,8 @@
   "goalLike": {
     "liked": "Målbanan gillad",
     "not_found": "Målbanan finns inte eller så saknar du åtkomst till den",
-    "unliked": "Gilla-markeringen borttagen"
+    "unliked": "Gilla-markeringen borttagen",
+    "invalid_aspect": "Okänd typ av rådighet: {{aspect}}"
   },
   "attachment": {
     "not_found": "Inlägget finns inte eller så saknar du behörighet att ändra dess dokument",

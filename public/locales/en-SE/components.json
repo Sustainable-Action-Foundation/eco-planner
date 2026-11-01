@@ -496,7 +496,12 @@
   "like_button": {
     "failed": "Could not save the like: {{details}}",
     "like": "Like this goal",
-    "unlike": "Remove your like"
+    "unlike": "Remove your like",
+    "aspects_show": "Show ability to act",
+    "aspects_hide": "Hide ability to act",
+    "aspects_toggle": "Ability to act",
+    "aspects_toggle_count": "Ability to act ({{count}})",
+    "aspects_label": "Through which kind of ability to act can you affect this goal? Optional."
   },
   "logout_everywhere": {
     "title": "Log out everywhere",

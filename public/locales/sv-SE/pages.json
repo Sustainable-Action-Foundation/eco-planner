@@ -201,7 +201,12 @@
       "title": "Målbanor organisationen vill jobba med",
       "total_likes_one": "{{count}} gilla-markering totalt",
       "total_likes_other": "{{count}} gilla-markeringar totalt",
-      "total_likes_title": "Gilla-markeringar från alla, även andra organisationer"
+      "total_likes_title": "Gilla-markeringar från alla, även andra organisationer",
+      "aspect_filter_label": "Filtrera på rådighet",
+      "aspect_all": "All rådighet",
+      "aspects_label": "Rådighet enligt gilla-markeringarna",
+      "aspect_count": "{{aspect}}: {{count}}",
+      "empty_aspect": "Inga gillade målbanor med rådigheten {{aspect}} än."
     },
     "national_goals": {
       "copy": "Använd i färdplan",

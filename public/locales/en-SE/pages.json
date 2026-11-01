@@ -201,7 +201,12 @@
       "title": "Goals the organization wants to work on",
       "total_likes_one": "{{count}} like in total",
       "total_likes_other": "{{count}} likes in total",
-      "total_likes_title": "Likes from everyone, including other organizations"
+      "total_likes_title": "Likes from everyone, including other organizations",
+      "aspect_filter_label": "Filter by ability to act",
+      "aspect_all": "Any ability to act",
+      "aspects_label": "Ability to act according to the likes",
+      "aspect_count": "{{aspect}}: {{count}}",
+      "empty_aspect": "No liked goals with the ability to act {{aspect}} yet."
     },
     "national_goals": {
       "copy": "Use in roadmap",

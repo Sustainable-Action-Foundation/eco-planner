@@ -115,3 +115,21 @@ export const LikeScope = {
   County: "COUNTY",
 } as const;
 export type LikeScope = (typeof LikeScope)[keyof typeof LikeScope];
+
+/**
+ * The kinds of rådighet (ability to act) a like can be refined with: through
+ * which of these the liker's org can act on the goal. Optional on top of the
+ * like itself. A config list, not a DB enum (GoalLikeAspects.aspect is a
+ * string), so the set can change after review; values no longer listed here
+ * are ignored when read. Order is display order.
+ */
+export const LikeAspect = {
+  OwnOperations: "OWN_OPERATIONS",
+  Ownership: "OWNERSHIP",
+  AuthorityPlanning: "AUTHORITY_PLANNING",
+  MarketPower: "MARKET_POWER",
+  Enabling: "ENABLING",
+  InfluenceLocal: "INFLUENCE_LOCAL",
+  InfluenceUpward: "INFLUENCE_UPWARD",
+} as const;
+export type LikeAspect = (typeof LikeAspect)[keyof typeof LikeAspect];
