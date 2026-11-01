@@ -103,6 +103,17 @@ export default async function LikedGoals({
       </nav>
       : null}
 
+    {/* The likes overview of each area the org belongs to, pooling all its orgs */}
+    {scopes.some(option => option.area) ?
+      <p className="flex gap-50 flex-wrap-wrap margin-top-0 margin-bottom-100 font-size-14px" data-testid="liked-goals-overview">
+        {scopes.flatMap(option => option.area ? [
+          <Link key={option.area.code} href={`/likes/${option.area.code}`} data-area={option.area.code}>
+            {t("pages:home.liked_goals.overview_link", { area: option.area.name })}
+          </Link>,
+        ] : [])}
+      </p>
+      : null}
+
     <LikedGoalList
       goals={goals}
       path="/"

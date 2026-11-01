@@ -206,7 +206,8 @@
       "aspect_all": "Any ability to act",
       "aspects_label": "Ability to act according to the likes",
       "aspect_count": "{{aspect}}: {{count}}",
-      "empty_aspect": "No liked goals with the ability to act {{aspect}} yet."
+      "empty_aspect": "No liked goals with the ability to act {{aspect}} yet.",
+      "overview_link": "Overview for {{area}}"
     },
     "national_goals": {
       "copy": "Use in roadmap",
@@ -359,5 +360,16 @@
   "welcome": {
     "title": "Welcome!",
     "description": "You are signed in. Tell us your name so your colleagues can see who wrote what. We only ask this once; signing in is always just your email address."
+  },
+  "likes_area": {
+    "breadcrumb": "Liked goals",
+    "heading": "Liked goals in {{area}}",
+    "description": "Goals liked by members of the organizations in {{area}}, most liked first, with how many organizations stand behind them and through which ability to act they can affect them.",
+    "description_county": "Goals liked by members of the organizations in {{area}} and the county's municipalities, most liked first, with how many organizations stand behind them and through which ability to act they can affect them.",
+    "orgs_one": "{{count}} organization included",
+    "orgs_other": "{{count}} organizations included",
+    "related": "See also",
+    "county_link": "All of {{area}}",
+    "goals_title": "Most liked goals"
   }
 }

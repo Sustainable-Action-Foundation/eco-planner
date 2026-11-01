@@ -109,6 +109,67 @@ async function getCachedLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
   });
 }
 
+/** A municipality or county whose orgs' likes are pooled on its likes overview, see `getLikeArea` */
+export type LikeArea = {
+  code: string,
+  name: string,
+  type: GeoAreaType,
+  /** The county a municipality lies in */
+  parent: { code: string, name: string } | null,
+  /** The orgs whose members' likes are pooled: placed in the area, or (for a county) in one of its municipalities */
+  orgs: { id: string, name: string, geoAreaCode: string }[],
+  /** For a county, its municipalities that have orgs placed in them */
+  municipalities: { code: string, name: string }[],
+};
+
+/**
+ * A municipality or county with the orgs whose likes it pools, if the viewer
+ * may see its likes overview: signed in and a member (guests included) of one
+ * of those orgs, or a super admin. Null otherwise, and for the nation and
+ * unknown codes, so the page can't tell whether an area exists.
+ */
+export async function getLikeArea(areaCode: string): Promise<LikeArea | null> {
+  const accessContext = await getUserAccessContext();
+  if (!accessContext) return null;
+  const area = await uncachedFallback(() => getCachedLikeArea(areaCode), null, "Error fetching like area:");
+  if (!area) return null;
+  const memberOf = new Set(accessContext.memberships.map(membership => membership.orgId));
+  if (!accessContext.isSuperAdmin && !area.orgs.some(org => memberOf.has(org.id))) return null;
+  return area;
+}
+
+async function getCachedLikeArea(areaCode: string): Promise<LikeArea | null> {
+  'use cache';
+  cacheTag('database', 'org');
+
+  return boundedFill("getCachedLikeArea", async () => {
+    const area = await prisma.geoAreas.findUnique({
+      where: { code: areaCode },
+      select: { code: true, name: true, type: true, parent: { select: { code: true, name: true, type: true } } },
+    });
+    if (!area || area.type === GeoAreaType.NATION) return null;
+
+    const orgs = await prisma.orgs.findMany({
+      where: { geo_area: { OR: [{ code: area.code }, { parent_code: area.code }] } },
+      select: { id: true, name: true, geo_area: { select: { code: true, name: true } } },
+      orderBy: { name: "asc" },
+    });
+    const municipalities = new Map<string, string>();
+    for (const org of orgs) {
+      if (org.geo_area && org.geo_area.code !== area.code) municipalities.set(org.geo_area.code, org.geo_area.name);
+    }
+
+    return {
+      code: area.code,
+      name: area.name,
+      type: area.type,
+      parent: area.parent?.type === GeoAreaType.COUNTY ? { code: area.parent.code, name: area.parent.name } : null,
+      orgs: orgs.flatMap(org => org.geo_area ? [{ id: org.id, name: org.name, geoAreaCode: org.geo_area.code }] : []),
+      municipalities: [...municipalities].map(([code, name]) => ({ code, name })).sort((a, b) => a.name.localeCompare(b.name, "sv")),
+    };
+  });
+}
+
 /**
  * The goals liked within a scope of the org (see `getLikeScopes`; its own
  * members by default), ranked by how many of the members in scope liked them
