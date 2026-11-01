@@ -125,6 +125,8 @@ model Roadmaps {
   geo_area      GeoAreas?   @relation(fields: [geo_area_code], references: [code], onDelete: SetNull)
   // The type of roadmap, for example national, regional, or local
   type          RoadmapType @default(OTHER)
+  // Hidden roadmaps are left out of listings and pickers but stay reachable by URL; never affects access
+  hidden        Boolean     @default(false)
 
   // The different versions of the roadmap
   iterations        RoadmapIterations[] @relation("roadmap_iterations")

@@ -382,6 +382,7 @@
     "name_descending": "Namn (A-Ö)",
     "roadmap_type": "Typ av färdplan",
     "search_roadmaps": "Sök bland $t(common:roadmap_other)",
+    "show_hidden": "Visa dolda färdplaner",
     "sort_by": "Sortera utifrån"
   },
   "roadmap_deleter": {
@@ -453,7 +454,8 @@
     "listing_featured": "Framlyft",
     "status_current": "Status: {{state}}",
     "status_draft": "Utkast",
-    "status_published": "Publicerad"
+    "status_published": "Publicerad",
+    "sharing": "Delning"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",
@@ -482,7 +484,8 @@
   "visibility_badge": {
     "draft": "Utkast",
     "unlisted": "Dold",
-    "featured": "Framlyft"
+    "featured": "Framlyft",
+    "hidden": "Dold"
   },
   "sharing_line": {
     "public": "Synlig för alla",
@@ -513,5 +516,15 @@
     "continue": "Fortsätt",
     "saved": "Namnet är sparat.",
     "failed": "Namnet kunde inte sparas. Kontrollera fälten och försök igen."
+  },
+  "hide_roadmap": {
+    "hide": "Dölj färdplan",
+    "show": "Visa färdplan",
+    "hide_title": "Dölj färdplanen?",
+    "show_title": "Visa färdplanen igen?",
+    "hide_confirm": "{{name}} försvinner från listor, sökningar och väljare. Den går fortfarande att nå via länk med samma behörigheter, och mål i andra färdplaner som räknar på dess målbanor fortsätter att fungera.",
+    "show_confirm": "{{name}} visas igen i listor, sökningar och väljare för alla som har tillgång till den.",
+    "hidden_toast": "{{name}} är nu dold",
+    "shown_toast": "{{name}} visas igen"
   }
 }

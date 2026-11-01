@@ -10,6 +10,7 @@ import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
 import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
+import { HiddenRoadmaps } from "@/types/enums";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { usernameFromParam } from "@/functions/username";
 import LogoutEverywhereButton from "@/components/buttons/logoutEverywhereButton";
@@ -60,8 +61,9 @@ export default async function Page(
 
   // If user is on their own page, also get all roadmaps/iterations they have edit access to
   const [iterations, roadmaps] = await Promise.all([
-    (session.user?.username === username) ? getRoadmapIterations() : [],
-    (session.user?.username === username) ? getRoadmaps() : [],
+    // The user's own workbench: hidden roadmaps they can edit belong here
+    (session.user?.username === username) ? getRoadmapIterations(HiddenRoadmaps.Writable) : [],
+    (session.user?.username === username) ? getRoadmaps(HiddenRoadmaps.Writable) : [],
   ]);
 
   const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, accessContext)));

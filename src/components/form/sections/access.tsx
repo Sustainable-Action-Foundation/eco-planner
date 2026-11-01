@@ -33,6 +33,8 @@ export default function ConfigureAccess({
   onChange,
   positionIndex,
   legend,
+  id,
+  children,
 }: {
   /** The owning org's groups */
   groups: { id: string, name: string }[],
@@ -44,6 +46,10 @@ export default function ConfigureAccess({
   onChange: (access: AccessControlInput) => void,
   positionIndex: number,
   legend: string,
+  /** Anchor for links straight to the sharing settings (e.g. `#sharing`) */
+  id?: string,
+  /** Further visibility settings of the item, shown after the grants */
+  children?: React.ReactNode,
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -77,7 +83,7 @@ export default function ConfigureAccess({
   };
 
   return (
-    <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+    <fieldset id={id} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
       <legend data-position={positionIndex} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
         {legend}
       </legend>
@@ -154,6 +160,7 @@ export default function ConfigureAccess({
           </div>
         )}
       </fieldset>
+      {children}
     </fieldset>
   );
 }

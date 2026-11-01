@@ -7,6 +7,7 @@ import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import SharingLine from "@/components/generic/visibility/sharingLine";
+import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -66,7 +67,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       <main>
         <section className="margin-block-300">
           <span style={{ color: 'gray' }}>{t("pages:roadmap.title_legend")}</span>
-          <h1 className="margin-0">{roadmap.name}</h1>
+          <div className="flex align-items-center gap-50 flex-wrap-wrap">
+            <h1 className="margin-0">{roadmap.name}</h1>
+            <VisibilityBadges hidden={roadmap.hidden} />
+          </div>
           <SharingLine accessControl={roadmap.access_control} className="margin-block-25" />
           <EntityTimestamps createdAt={roadmap.created_at} updatedAt={roadmap.updated_at} className="margin-bottom-50" />
           <small className="block">{t("pages:roadmap.description_legend")}</small>

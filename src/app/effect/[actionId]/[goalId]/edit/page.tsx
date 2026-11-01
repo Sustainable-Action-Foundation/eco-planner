@@ -1,3 +1,4 @@
+import { HiddenRoadmaps } from "@/types/enums";
 import EffectForm from "@/components/form/forms/effect";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
@@ -44,7 +45,8 @@ export default async function Page(props: { params: Promise<{ actionId: string, 
     serveTea("pages"),
     getUserAccessContext(),
     getOneEffect(params.actionId, params.goalId),
-    getRoadmapIterations(),
+    // Writable: the effect's own versions may sit in a hidden roadmap (filtered below)
+    getRoadmapIterations(HiddenRoadmaps.Writable),
   ]);
 
   // Roadmapless actions (the public action database) are editable by the owning org's managers
@@ -73,7 +75,8 @@ export default async function Page(props: { params: Promise<{ actionId: string, 
   }
 
   /** TODO: redundant? the getRoadmapIterations function already does checks? */
-  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
+  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext))
+    && (!iteration.roadmap.hidden || iteration.id === effect.action.roadmap_iteration_id || iteration.id === effect.goal.roadmap_iteration_id));
 
   return (
     <>

@@ -13,7 +13,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import type { AccessControlled, Goal, MultiRoadmapInstance, RelatedGoal, SiblingGoal, UserAccessContext } from "@/types";
-import { AccessLevel } from "@/types/enums";
+import { AccessLevel, HiddenRoadmaps } from "@/types/enums";
 import { IterationStatus, RoadmapType } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -94,7 +94,8 @@ export default async function Page(
       siblingCandidates: goal ? await getGoalSiblings(goal.roadmap_iteration_id, goal.indicator_parameter) : [],
     })),
     typeof searchParams.secondaryGoal === "string" ? getOneGoal(searchParams.secondaryGoal) : null,
-    getRoadmapIterations(),
+    // Include: parent/child goal lookups follow roadmap relations, hidden or not
+    getRoadmapIterations(HiddenRoadmaps.Include),
   ]) satisfies [ // Did this cause of the nested promises so I wanna have some sanity here:3
     TFunction,
     UserAccessContext | null,

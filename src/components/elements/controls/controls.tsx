@@ -9,7 +9,8 @@ import { GoalListing, IterationStatus } from "@/lib/prisma/generated";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconCheck, IconChevronDown, IconDotsVertical, IconEdit, IconEye, IconEyeOff, IconPencil, IconPlus, IconStar, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconCheck, IconChevronDown, IconDotsVertical, IconEdit, IconEye, IconEyeOff, IconPencil, IconPlus, IconStar, IconTrashXFilled, IconUsers, IconX } from "@tabler/icons-react";
+import HideRoadmapButton from './hideRoadmapButton';
 import { hasAdminAccess, hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
 import formSubmitter from '@/functions/formSubmitter';
@@ -39,7 +40,8 @@ type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap
 };
 
 type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
-  roadmap: Pick<Roadmap, "id" | "name">;
+  // `hidden` is optional: rows that carry it get the roadmap's hide and sharing entries (see hideableRoadmap)
+  roadmap: Pick<Roadmap, "id" | "name"> & { hidden?: Roadmap["hidden"] };
   _count?: { goals: number };
   // Read by AdminPanel's status menu; optional so leaner iteration rows still fit the menu shape
   status?: RoadmapIteration["status"];
@@ -47,6 +49,8 @@ type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
 
 type RoadmapMenuEntry = Pick<Roadmap, "id" | "name"> & {
   iterations: Array<Pick<RoadmapIteration, "id" | "version"> & { _count: { goals: number } }>;
+  // Optional: entries that carry it get the hide and sharing entries (see hideableRoadmap)
+  hidden?: Roadmap["hidden"];
 };
 
 export type EffectMenuEntry = Pick<Effect, "action_id" | "goal_id"> & {
@@ -207,6 +211,25 @@ function isIterationEntry(object: ObjectParameter): object is IterationMenuEntry
   return "roadmap" in object && !("iterations" in object);
 }
 
+/**
+ * The roadmap whose listing and sharing an entry's menu can change: the roadmap
+ * itself, or, where a version row stands for its roadmap (`viaIteration`, e.g. the
+ * landing's tree), the version's roadmap. Only entries carrying the hidden flag
+ * qualify, so leaner rows simply lack the entries.
+ */
+function hideableRoadmap(object: ObjectParameter, viaIteration: boolean): { id: string, name: string, hidden: boolean } | null {
+  if ("iterations" in object) {
+    return object.hidden !== undefined ? { id: object.id, name: object.name, hidden: object.hidden } : null;
+  }
+  if (viaIteration && isIterationEntry(object) && object.roadmap.hidden !== undefined) {
+    return { id: object.roadmap.id, name: object.roadmap.name, hidden: object.roadmap.hidden };
+  }
+  return null;
+}
+
+/** Where a roadmap's sharing is configured: the sharing section of its edit form */
+const sharingLink = (roadmapId: string) => `/roadmap/${roadmapId}/edit#sharing`;
+
 const getObjectName = (object: ObjectParameter): string | undefined => {
   if ("indicator_parameter" in object) {
     return object.name || object.indicator_parameter;
@@ -245,12 +268,15 @@ export function ControlsMenu(
     buttonText,
     accessLevel,
     object,
+    rowIsRoadmap = false,
   }: {
     width?: number,
     height?: number,
     buttonText?: string
     accessLevel?: AccessLevel,
     object: ObjectParameter,
+    /** The (version) row stands for its whole roadmap, so the menu offers the roadmap's hide and sharing entries */
+    rowIsRoadmap?: boolean,
   }) {
   const { t } = useTranslation(["components", "common"]);
 
@@ -260,6 +286,8 @@ export function ControlsMenu(
   const links = buildLinks(object, t);
   const objectName = getObjectName(object);
   const roadmapName = getRoadmapName(object);
+  // Hiding and sharing are manager-level, like deleting a roadmap
+  const roadmapSettings = hasAdminAccess(accessLevel ?? AccessLevel.None) ? hideableRoadmap(object, rowIsRoadmap) : null;
 
   const openMenu = () => {
     menu.current?.show();
@@ -284,7 +312,7 @@ export function ControlsMenu(
 
   return (
     <div className={`${styles.actionButton} display-flex`}>
-      <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || roadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
+      <button type="button" onClick={openMenu} className={styles.button} data-testid="controls-menu-button" aria-label={t("components:table_menu.button_aria", { component: objectName || roadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
         {buttonText || null}
         <IconDotsVertical aria-hidden="true" width={width} height={height} />
       </button>
@@ -332,6 +360,19 @@ export function ControlsMenu(
                   <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link> : null
                 }
+                {roadmapSettings ? <>
+                  <Link href={sharingLink(roadmapSettings.id)} className={styles.menuAction} data-testid="roadmap-sharing-link">
+                    <span>{t("components:table_menu.sharing")}</span>
+                    <IconUsers aria-hidden="true" style={{ minWidth: '24px' }} />
+                  </Link>
+                  <HideRoadmapButton
+                    roadmapId={roadmapSettings.id}
+                    roadmapName={roadmapSettings.name}
+                    hidden={roadmapSettings.hidden}
+                    className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50"
+                    style={{ fontSize: '1rem' }}
+                  />
+                </> : null}
                 {
                   mayShowDelete(object, accessLevel ?? AccessLevel.None) && links.deleteLink ? <>
                     <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} data-testid="delete-post" onClick={() => openModal(deletionRef)}>
@@ -629,6 +670,8 @@ export function AdminPanel(
   const objectName = getObjectName(object);
   const roadmapName = getRoadmapName(object);
   const [timestamp] = useState(() => Date.now());
+  // Hiding and sharing are manager-level, like deleting a roadmap
+  const roadmapSettings = hasAdminAccess(accessLevel ?? AccessLevel.None) ? hideableRoadmap(object, false) : null;
 
   // Goals get their own controls (listing select, add/edit menus); the guard also narrows for their payloads
   const goal = isGoalEntry(object) ? object : null;
@@ -666,7 +709,19 @@ export function AdminPanel(
                       <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                     </Link> : null
                     }
+                    {roadmapSettings ? <Link href={sharingLink(roadmapSettings.id)} className={panelItemClass} data-testid="roadmap-sharing-link">
+                      <span>{t("components:table_menu.sharing")}</span>
+                      <IconUsers aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link> : null}
                   </nav>
+                  {roadmapSettings ? <HideRoadmapButton
+                    roadmapId={roadmapSettings.id}
+                    roadmapName={roadmapSettings.name}
+                    hidden={roadmapSettings.hidden}
+                    className={panelItemClass}
+                    style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none' }}
+                    iconSize={20}
+                  /> : null}
                 </>
               )
             ) : null
