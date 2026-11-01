@@ -344,7 +344,8 @@ export default function GoalForm({
         baselineRecipeId: undefined,
         baselineRecipe: baselineRecipe?.serialize() ?? undefined,
 
-        historicalId: undefined,
+        // Selecting "no historical data" on an existing goal drops its current one
+        historicalId: historicalDataType === HistoricalDataType.None ? null : undefined,
         historical: historicalDataSeries,
         historicalRecipeId: undefined,
         historicalRecipe: historicalRecipe?.serialize() ?? undefined,

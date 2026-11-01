@@ -1,7 +1,7 @@
 import { expect, test } from "../lib/users";
 import {
   createAction, createEffect, createGoal, createIteration, createRoadmap, deleteGoal, deleteRoadmap, expectPageStatus, groupIdByName,
-  flightPayload, linkedScalarRecipe, pageEntity, pageEntityWhen, pageStatus, postJson, putJson, scalarRecipe, Seed, seriesValues, yearlyDateValues,
+  flightPayload, linkedScalarRecipe, manualRecipe, pageEntity, pageEntityWhen, pageStatus, postJson, putJson, scalarRecipe, Seed, seriesValues, yearlyDateValues,
 } from "../lib/api";
 
 /*
@@ -149,7 +149,7 @@ test.describe("Sectional writes", () => {
     await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => goal?.baseline_id === null, "the baseline to be dropped");
   });
 
-  test("HISTORICAL: POST with a payload connects a historical series, PUT without one disconnects it", async ({ admin, sandbox }) => {
+  test("HISTORICAL: POST connects a series, a re-save with its recipe updates it in place, an omitted id keeps it, a null id deletes it", async ({ admin, sandbox }) => {
     const goalId = await createGoal(admin, sandbox.iterationId, { name: `Historical ${sandbox.label}` });
 
     await postJson(admin, "/api/goal", {
@@ -158,9 +158,71 @@ test.describe("Sectional writes", () => {
     }, 200);
     const added = await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => typeof goal?.historical_id === "string");
     expect(seriesValues(added?.historical)).toEqual([1, 2]);
+    const seriesId = added?.historical_id as string;
+    const recipeId = (added?.historical as { recipe_used: { id: string } }).recipe_used.id;
 
+    // The edit page re-sends the series' own recipe id with the edited recipe and values (once a P2014 500)
+    const edited = yearlyDateValues([3, 4, 5], 2010);
+    await putJson(admin, "/api/goal", {
+      target: "HISTORICAL", goalId, timestamp: Date.now(),
+      historical: { unit: "kg", dateValues: edited },
+      historicalRecipe: manualRecipe("kg", edited),
+      historicalRecipeId: recipeId,
+    }, 200);
+    type Stored = { unit: string, recipe_used: { id: string, recipe: unknown } };
+    const resaved = await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => seriesValues(goal?.historical).length === 3);
+    expect(resaved?.historical_id, "the same series, updated in place").toBe(seriesId);
+    expect(seriesValues(resaved?.historical)).toEqual([3, 4, 5]);
+    const stored = resaved?.historical as Stored;
+    expect(stored.unit).toBe("kg");
+    expect(stored.recipe_used.id, "the 1:1 recipe is kept").toBe(recipeId);
+    const storedRecipe = (r: unknown) => (typeof r === "string" ? JSON.parse(r) : r) as { unit: string, meta: { isManual: boolean }, variables: { value: Record<string, number> }[] };
+    expect(storedRecipe(stored.recipe_used.recipe)).toMatchObject({ unit: "kg", meta: { isManual: true }, variables: [{ value: edited }] });
+
+    // Values only (no recipe) is manual entry: the recipe is rewritten to match
+    await putJson(admin, "/api/goal", {
+      target: "HISTORICAL", goalId, timestamp: Date.now(),
+      historical: { unit: "kg", dateValues: yearlyDateValues([6, 7], 2010) },
+      historicalRecipeId: recipeId,
+    }, 200);
+    const valuesOnly = await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => seriesValues(goal?.historical).length === 2);
+    expect(valuesOnly?.historical_id).toBe(seriesId);
+    expect(seriesValues(valuesOnly?.historical)).toEqual([6, 7]);
+    expect(storedRecipe((valuesOnly?.historical as Stored).recipe_used.recipe)).toMatchObject({ unit: "kg", meta: { isManual: true }, variables: [{ value: yearlyDateValues([6, 7], 2010) }] });
+
+    // Nothing sent leaves the section alone; an explicit null drops it and deletes the series
     await putJson(admin, "/api/goal", { target: "HISTORICAL", goalId, timestamp: Date.now() }, 200);
-    await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => goal?.historical_id === null, "the historical series to be disconnected");
+    expect((await pageEntity(admin, `/goal/${goalId}`, goalId))?.historical_id).toBe(seriesId);
+    await putJson(admin, "/api/goal", { target: "HISTORICAL", goalId, timestamp: Date.now(), historicalId: null, historical: null, historicalRecipeId: null, historicalRecipe: null }, 200);
+    await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => goal?.historical_id === null, "the historical series to be dropped");
+    const recalculate = await admin.post("/api/recalculate", { data: { dataSeriesId: seriesId } });
+    expect(recalculate.status(), `the dropped series is deleted: ${await recalculate.text()}`).toBe(403);
+  });
+
+  test("HISTORICAL: a recipe id producing another goal's series is IllegalParent and is left untouched", async ({ admin, sandbox }) => {
+    const [goalId, otherId] = await Promise.all([
+      createGoal(admin, sandbox.iterationId, { name: `Historical claim ${sandbox.label}` }),
+      createGoal(admin, sandbox.iterationId, { name: `Historical owner ${sandbox.label}` }),
+    ]);
+    await postJson(admin, "/api/goal", {
+      target: "HISTORICAL", goalId: otherId, timestamp: Date.now(),
+      historical: { unit: "ton", dateValues: yearlyDateValues([1, 2], 2010) },
+    }, 200);
+    const other = await pageEntityWhen(admin, `/goal/${otherId}`, otherId, goal => typeof goal?.historical_id === "string");
+    const otherRecipe = (other?.historical as { recipe_used: { id: string, recipe: unknown } }).recipe_used;
+
+    const response = await admin.put("/api/goal", {
+      data: {
+        target: "HISTORICAL", goalId, timestamp: Date.now(),
+        historical: { unit: "ton", dateValues: yearlyDateValues([9, 9], 2010) },
+        historicalRecipe: manualRecipe("ton", yearlyDateValues([9, 9], 2010)),
+        historicalRecipeId: otherRecipe.id,
+      },
+    });
+    expect(response.status(), await response.text()).toBe(403);
+    const after = await pageEntity(admin, `/goal/${otherId}`, otherId);
+    expect(seriesValues(after?.historical)).toEqual([1, 2]);
+    expect((after?.historical as { recipe_used: { recipe: unknown } }).recipe_used.recipe).toEqual(otherRecipe.recipe);
   });
 
   test("RECIPE_SUGGESTIONS: POST sets the suggested recipes, PUT replaces the set, an empty set clears it", async ({ admin, sandbox }) => {
@@ -217,6 +279,19 @@ test.describe("Full update", () => {
     expect(goal?.description).toBe("changed");
     expect(goal?.listing).toBe("UNLISTED");
     expect(seriesValues(goal?.data_series), "an omitted section is left alone").toEqual([1, 2, 3, 4, 5]);
+  });
+
+  test("PUT FULL touching only the listing keeps the historical data", async ({ admin, sandbox }) => {
+    const goalId = await createGoal(admin, sandbox.iterationId, { name: `Listing ${sandbox.label}` });
+    await postJson(admin, "/api/goal", {
+      target: "HISTORICAL", goalId, timestamp: Date.now(),
+      historical: { unit: "ton", dateValues: yearlyDateValues([1, 2], 2010) },
+    }, 200);
+    const before = await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => typeof goal?.historical_id === "string");
+
+    await putJson(admin, "/api/goal", { target: "FULL", goalId, timestamp: Date.now(), listing: "UNLISTED" }, 200);
+    const after = await pageEntityWhen(admin, `/goal/${goalId}`, goalId, goal => goal?.listing === "UNLISTED");
+    expect(after?.historical_id, "an omitted historical section is left alone").toBe(before?.historical_id);
   });
 
   test("a stale timestamp answers 409 and changes nothing", async ({ admin, sandbox }) => {
