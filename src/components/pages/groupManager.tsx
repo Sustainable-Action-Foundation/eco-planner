@@ -7,6 +7,7 @@ import formSubmitter from "@/functions/formSubmitter";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import SelectMultipleSearch from "@/components/form/elements/combobox/selectMultipleSearch";
 import SelectSingleSearch from "@/components/form/elements/combobox/selectSingleSearch";
+import { IconPlus } from "@tabler/icons-react";
 import ListFilter, { matchesFilter } from "@/components/form/filters/listFilter";
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import { areaSorter } from "@/lib/sorters";
@@ -76,7 +77,6 @@ export default function GroupManager({ management }: { management: OrgManagement
         <section>
           <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.groups_heading")}</h2>
           <GroupList management={management} />
-          <CreateGroup orgId={management.org.id} members={management.members} />
         </section>
     </>
   );
@@ -192,10 +192,8 @@ function GroupList({ management }: { management: OrgManagement }) {
   const { t } = useTranslation(["pages", "common"]);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
-
-  if (management.groups.length === 0) {
-    return <p className="margin-block-100">{t("pages:org_groups.no_groups")}</p>;
-  }
+  // An org without groups has nothing else to do here, so it starts out creating one
+  const [creating, setCreating] = useState(management.groups.length === 0);
 
   const names = new Map(management.members.map(member => [member.membershipId, member.name]));
   // By its name or a member's, so "which groups is Anna in?" has an answer too
@@ -204,16 +202,37 @@ function GroupList({ management }: { management: OrgManagement }) {
 
   return (
     <>
-      <ListFilter
-        className="margin-block-100"
-        style={{ maxWidth: '30rem' }}
-        aria-label={t("pages:org_groups.filter_groups")}
-        placeholder={t("pages:org_groups.filter_groups")}
-        value={filter}
-        onChange={(event) => setFilter(event.target.value)}
-        data-testid="group-filter"
-      />
-      {shown.length === 0 ? <p className="margin-block-100">{t("pages:org_groups.no_matches")}</p> : null}
+      <div className="flex gap-50 flex-wrap-wrap align-items-center margin-block-100">
+        {management.groups.length > 0 ? (
+          <ListFilter
+            className="flex-grow-100"
+            style={{ maxWidth: '30rem' }}
+            aria-label={t("pages:org_groups.filter_groups")}
+            placeholder={t("pages:org_groups.filter_groups")}
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            data-testid="group-filter"
+          />
+        ) : null}
+        <button
+          type="button"
+          className="seagreen color-purewhite flex align-items-center gap-25"
+          aria-expanded={creating}
+          data-testid="group-create-open"
+          onClick={() => setCreating(true)}
+        >
+          <IconPlus width={16} height={16} aria-hidden="true" />
+          {t("pages:org_groups.new_group")}
+        </button>
+      </div>
+      {creating ? (
+        <CreateGroup orgId={management.org.id} members={management.members} onClose={() => setCreating(false)} />
+      ) : null}
+      {management.groups.length === 0 ? (
+        <p className="margin-block-100">{t("pages:org_groups.no_groups")}</p>
+      ) : shown.length === 0 ? (
+        <p className="margin-block-100">{t("pages:org_groups.no_matches")}</p>
+      ) : null}
       <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
         {shown.map(group => (
           <li key={group.id} data-group-id={group.id}>
@@ -431,12 +450,15 @@ function GroupEditor({
   );
 }
 
+/** The new-group form; stays open after a create so several can be made in a row */
 function CreateGroup({
   orgId,
   members,
+  onClose,
 }: {
   orgId: string,
   members: OrgManagement["members"],
+  onClose: () => void,
 }) {
   const { t } = useTranslation(["pages", "common"]);
   const { addToast } = useToast();
@@ -467,7 +489,7 @@ function CreateGroup({
   }
 
   return (
-    <form onSubmit={create} className="margin-top-300 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-create">
+    <form onSubmit={create} className="margin-block-100 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-create">
       <h3 className="margin-top-0 font-size-125">{t("pages:org_groups.create_group")}</h3>
       <label className="font-weight-500">
         {t("pages:org_groups.name_label")}
@@ -476,6 +498,7 @@ function CreateGroup({
           type="text"
           required={true}
           data-testid="create-group-name"
+          autoFocus={true}
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
@@ -496,9 +519,14 @@ function CreateGroup({
         onChange={(options) => setSelected((options ?? []).map(option => option.value))}
       />
 
-      <button type="submit" className="seagreen color-purewhite margin-top-100" disabled={isLoading} data-testid="create-group-submit">
-        {t("pages:org_groups.create_group")}
-      </button>
+      <div className="flex gap-50 margin-top-100">
+        <button type="submit" className="seagreen color-purewhite" disabled={isLoading} data-testid="create-group-submit">
+          {t("pages:org_groups.create_group")}
+        </button>
+        <button type="button" disabled={isLoading} data-testid="create-group-cancel" onClick={onClose}>
+          {t("common:tsx.close")}
+        </button>
+      </div>
     </form>
   );
 }

@@ -305,6 +305,7 @@
     "name_label": "Group name",
     "members_legend": "Members",
     "create_group": "Create group",
+    "new_group": "New group",
     "no_groups": "This organization has no groups yet.",
     "saved_toast": "Group \"{{name}}\" saved",
     "created_toast": "Group \"{{name}}\" created",

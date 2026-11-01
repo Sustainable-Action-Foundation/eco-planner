@@ -305,6 +305,7 @@
     "name_label": "Gruppnamn",
     "members_legend": "Medlemmar",
     "create_group": "Skapa grupp",
+    "new_group": "Ny grupp",
     "no_groups": "Organisationen har inga grupper ännu.",
     "saved_toast": "Gruppen \"{{name}}\" sparades",
     "created_toast": "Gruppen \"{{name}}\" skapades",
