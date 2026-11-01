@@ -321,6 +321,9 @@
     "role_updated_toast": "{{name}}s roll uppdaterades",
     "member_count_one": "{{count}} medlem",
     "member_count_other": "{{count}} medlemmar",
+    "filter_groups": "Sök grupp eller medlem",
+    "filter_members": "Sök medlem",
+    "no_matches": "Inget matchar sökningen.",
     "home_org": "från {{orgs}}",
     "home_org_none": "ingen egen organisation"
   },

@@ -7,6 +7,7 @@ import formSubmitter from "@/functions/formSubmitter";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import SelectMultipleSearch from "@/components/form/elements/combobox/selectMultipleSearch";
 import SelectSingleSearch from "@/components/form/elements/combobox/selectSingleSearch";
+import ListFilter, { matchesFilter } from "@/components/form/filters/listFilter";
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import { areaSorter } from "@/lib/sorters";
 import type { Option } from "@/components/types";
@@ -50,29 +51,29 @@ export default function GroupManager({ management }: { management: OrgManagement
 
   return (
     <>
-      <section className="margin-bottom-300">
-        <h2 className="font-size-125">{t("pages:org_groups.org_heading")}</h2>
-        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
-        <RenameOrg key={management.org.name} org={management.org} />
-        {/* Keyed on the area for the same reason */}
-        <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
-      </section>
+        <section className="margin-bottom-300">
+          <h2 className="font-size-125">{t("pages:org_groups.org_heading")}</h2>
+          {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
+          <RenameOrg key={management.org.name} org={management.org} />
+          {/* Keyed on the area for the same reason */}
+          <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
+        </section>
 
-      <section className="margin-bottom-300">
-        <h2 className="font-size-125">{t("pages:org_groups.members_heading")}</h2>
-        <details data-testid="members-details">
-          <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
-            {t("pages:org_groups.member_count", { count: management.members.length })}
-          </summary>
-          <MemberRoles management={management} />
-        </details>
-      </section>
+        <section className="margin-bottom-300">
+          <h2 className="font-size-125">{t("pages:org_groups.members_heading")}</h2>
+          <details data-testid="members-details">
+            <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
+              {t("pages:org_groups.member_count", { count: management.members.length })}
+            </summary>
+            <MemberRoles management={management} />
+          </details>
+        </section>
 
-      <section>
-        <h2 className="font-size-125">{t("pages:org_groups.groups_heading")}</h2>
-        <GroupList management={management} />
-        <CreateGroup orgId={management.org.id} members={management.members} />
-      </section>
+        <section>
+          <h2 className="font-size-125">{t("pages:org_groups.groups_heading")}</h2>
+          <GroupList management={management} />
+          <CreateGroup orgId={management.org.id} members={management.members} />
+        </section>
     </>
   );
 }
@@ -186,44 +187,60 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
 function GroupList({ management }: { management: OrgManagement }) {
   const { t } = useTranslation(["pages", "common"]);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
 
   if (management.groups.length === 0) {
     return <p className="margin-block-100">{t("pages:org_groups.no_groups")}</p>;
   }
 
   const names = new Map(management.members.map(member => [member.membershipId, member.name]));
+  // By its name or a member's, so "which groups is Anna in?" has an answer too
+  const shown = management.groups.filter(group => group.id === editingGroupId
+    || matchesFilter(filter, group.name, ...group.memberIds.map(id => names.get(id) ?? "")));
 
   return (
-    <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
-      {management.groups.map(group => (
-        <li key={group.id} className="margin-bottom-50" data-group-id={group.id}>
-          {group.id === editingGroupId ? (
-            // Keyed on content so a router.refresh() after saving remounts with fresh data
-            <GroupEditor
-              key={`${group.id}:${group.name}:${group.memberIds.join(',')}`}
-              group={group}
-              members={management.members}
-              onClose={() => setEditingGroupId(null)}
-            />
-          ) : (
-            <div className="flex gap-100 align-items-center padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-row">
-              <div className="flex-grow-100" style={{ minWidth: 0 }}>
-                <span className="font-weight-500">{group.name}</span>
-                <p className="margin-0 color-gray white-space-nowrap text-overflow-ellipsis overflow-hidden">
-                  {t("pages:org_groups.member_count", { count: group.memberIds.length })}
-                  {group.memberIds.length > 0
-                    ? ` · ${group.memberIds.map(id => names.get(id)).filter(Boolean).join(", ")}`
-                    : null}
-                </p>
+    <>
+      <ListFilter
+        className="margin-block-100"
+        style={{ maxWidth: '30rem' }}
+        aria-label={t("pages:org_groups.filter_groups")}
+        placeholder={t("pages:org_groups.filter_groups")}
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+        data-testid="group-filter"
+      />
+      {shown.length === 0 ? <p className="margin-block-100">{t("pages:org_groups.no_matches")}</p> : null}
+      <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
+        {shown.map(group => (
+          <li key={group.id} className="margin-bottom-50" data-group-id={group.id}>
+            {group.id === editingGroupId ? (
+              // Keyed on content so a router.refresh() after saving remounts with fresh data
+              <GroupEditor
+                key={`${group.id}:${group.name}:${group.memberIds.join(',')}`}
+                group={group}
+                members={management.members}
+                onClose={() => setEditingGroupId(null)}
+              />
+            ) : (
+              <div className="flex gap-100 align-items-center padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-row">
+                <div className="flex-grow-100" style={{ minWidth: 0 }}>
+                  <span className="font-weight-500">{group.name}</span>
+                  <p className="margin-0 color-gray white-space-nowrap text-overflow-ellipsis overflow-hidden">
+                    {t("pages:org_groups.member_count", { count: group.memberIds.length })}
+                    {group.memberIds.length > 0
+                      ? ` · ${group.memberIds.map(id => names.get(id)).filter(Boolean).join(", ")}`
+                      : null}
+                  </p>
+                </div>
+                <button type="button" data-testid="group-edit" onClick={() => setEditingGroupId(group.id)}>
+                  {t("common:tsx.edit")}
+                </button>
               </div>
-              <button type="button" data-testid="group-edit" onClick={() => setEditingGroupId(group.id)}>
-                {t("common:tsx.edit")}
-              </button>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -233,6 +250,9 @@ function MemberRoles({ management }: { management: OrgManagement }) {
   const { addToast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [filter, setFilter] = useState("");
+
+  const shown = management.members.filter(member => matchesFilter(filter, member.name, member.username));
 
   function setRole(member: OrgManagement["members"][number], role: string) {
     formSubmitter('/api/org-membership', JSON.stringify({
@@ -248,41 +268,53 @@ function MemberRoles({ management }: { management: OrgManagement }) {
   }
 
   return (
-    <ul className="margin-0 padding-0" style={{ listStyle: 'none', maxWidth: '30rem' }}>
-      {management.members.map(member => {
-        // One's own role is locked (an org shouldn't manage away its last manager
-        // by accident), and guest status is a different relationship, not a rank
-        const locked = member.membershipId === management.selfMembershipId || member.role === OrgRole.GUEST;
-        return (
-          <li key={member.membershipId} className="flex gap-100 align-items-center margin-block-25 font-size-14px" data-testid="member-row">
-            <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">
-              {member.name}
-              {/* Proper members are home here — nothing to annotate. Guests show where
-                  they come from, or that they have no home org at all. */}
+    <>
+      <ListFilter
+        className="margin-block-50"
+        style={{ maxWidth: '30rem' }}
+        aria-label={t("pages:org_groups.filter_members")}
+        placeholder={t("pages:org_groups.filter_members")}
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+        data-testid="member-filter"
+      />
+      {shown.length === 0 ? <p className="margin-block-50">{t("pages:org_groups.no_matches")}</p> : null}
+      <ul className="margin-0 padding-0" style={{ listStyle: 'none', maxWidth: '30rem' }}>
+        {shown.map(member => {
+          // One's own role is locked (an org shouldn't manage away its last manager
+          // by accident), and guest status is a different relationship, not a rank
+          const locked = member.membershipId === management.selfMembershipId || member.role === OrgRole.GUEST;
+          return (
+            <li key={member.membershipId} className="flex gap-100 align-items-center margin-block-25 font-size-14px" data-testid="member-row">
+              <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">
+                {member.name}
+                {/* Proper members are home here — nothing to annotate. Guests show where
+                    they come from, or that they have no home org at all. */}
+                {member.role === OrgRole.GUEST ? (
+                  <small className="color-gray"> {member.homeOrgs.length > 0
+                    ? t("pages:org_groups.home_org", { orgs: member.homeOrgs.join(", ") })
+                    : t("pages:org_groups.home_org_none")}</small>
+                ) : null}
+              </span>
               {member.role === OrgRole.GUEST ? (
-                <small className="color-gray"> {member.homeOrgs.length > 0
-                  ? t("pages:org_groups.home_org", { orgs: member.homeOrgs.join(", ") })
-                  : t("pages:org_groups.home_org_none")}</small>
-              ) : null}
-            </span>
-            {member.role === OrgRole.GUEST ? (
-              <span className="color-gray">{roleLabel(member.role, t)}</span>
-            ) : (
-              <select
-                style={{ padding: '.25rem .5rem' }}
-                value={member.role}
-                disabled={locked || isLoading}
-                data-testid="member-role"
-                onChange={(event) => setRole(member, event.target.value)}
-              >
-                <option value={OrgRole.MEMBER}>{t("pages:org_groups.roles.member")}</option>
-                <option value={OrgRole.MANAGER}>{t("pages:org_groups.roles.manager")}</option>
-              </select>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+                <span className="color-gray">{roleLabel(member.role, t)}</span>
+              ) : (
+                <select
+                  style={{ padding: '.25rem .5rem' }}
+                  value={member.role}
+                  disabled={locked || isLoading}
+                  data-testid="member-role"
+                  onChange={(event) => setRole(member, event.target.value)}
+                >
+                  <option value={OrgRole.MEMBER}>{t("pages:org_groups.roles.member")}</option>
+                  <option value={OrgRole.MANAGER}>{t("pages:org_groups.roles.manager")}</option>
+                </select>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }
 

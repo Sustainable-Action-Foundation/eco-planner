@@ -321,6 +321,9 @@
     "role_updated_toast": "Updated {{name}}'s role",
     "member_count_one": "{{count}} member",
     "member_count_other": "{{count}} members",
+    "filter_groups": "Search groups or members",
+    "filter_members": "Search members",
+    "no_matches": "Nothing matches the search.",
     "home_org": "from {{orgs}}",
     "home_org_none": "no organization of their own"
   },
