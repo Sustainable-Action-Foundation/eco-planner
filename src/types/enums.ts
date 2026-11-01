@@ -86,6 +86,18 @@ export const HistoricalDataType = {
 } as const;
 export type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
 
+/**
+ * Which of the goal's historical-data pages the form serves. Lives here rather
+ * than in the "use client" form module so server pages can pass it as a prop.
+ */
+export const HistoricalFormMode = {
+  /** Adds historical data to a goal that has none (POST) */
+  Create: "CREATE",
+  /** Replaces the goal's existing historical data (PUT) */
+  Edit: "EDIT",
+} as const;
+export type HistoricalFormMode = (typeof HistoricalFormMode)[keyof typeof HistoricalFormMode];
+
 
 /** The graphs available for a goal. */
 export const GraphType = {
