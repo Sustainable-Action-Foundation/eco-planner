@@ -6,6 +6,7 @@ import type { AccessControlInfo, AccessControlInput } from "@/types";
 import { AccessLevel, Sharing } from "@/lib/prisma/generated";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
+import ListFilter, { matchesFilter } from "@/components/form/filters/listFilter";
 
 /** A grant row's selectable level; NONE means no grant for the group */
 const GrantChoice = {
@@ -14,6 +15,9 @@ const GrantChoice = {
   ReadWrite: AccessLevel.RW,
 } as const;
 type GrantChoice = (typeof GrantChoice)[keyof typeof GrantChoice];
+
+/** Past this many groups the grant list gets a search box */
+const filterThreshold = 5;
 
 /** New roadmaps start shared with the whole org */
 const defaultSharing: Sharing = Sharing.ORG;
@@ -64,6 +68,10 @@ export default function ConfigureAccess({
         .map(([groupId, level]) => ({ groupId, accessLevel: level as AccessLevel })),
     });
   };
+
+  const [filter, setFilter] = useState("");
+  const shownGroups = groups.filter(group => matchesFilter(filter, group.name));
+  const grantedCount = groups.filter(group => (grants[group.id] ?? GrantChoice.None) !== GrantChoice.None).length;
 
   const changeSharing = (next: Sharing) => {
     setSharing(next);
@@ -130,28 +138,51 @@ export default function ConfigureAccess({
 
       <fieldset className="fieldset-unset-pseudo-class">
         <legend className="font-weight-500 margin-bottom-50">{t("forms:access_selector.group_grants")}</legend>
+        {/* Managers otherwise build all-staff groups by hand to get exactly this */}
+        {sharing !== Sharing.PUBLIC ? (
+          <p className="margin-block-25 font-size-14px color-gray">{t("forms:access_selector.org_sharing_hint")}</p>
+        ) : null}
         {groups.length === 0 ? (
           <p className="margin-block-25 font-style-italic">{t("forms:access_selector.no_groups")}</p>
         ) : (
-          <div
-            className="grid margin-block-50 gap-50 align-items-center"
-            style={{ gridTemplateColumns: 'auto 1fr', columnGap: '1rem' }}
-          >
-            {groups.map(group => (
-              <label key={group.id} className="display-contents">
-                <span>{group.name}</span>
-                <select
-                  className="width-fit-content"
-                  value={grants[group.id] ?? GrantChoice.None}
-                  onChange={(e) => changeGrant(group.id, e.target.value as GrantChoice)}
-                >
-                  <option value={GrantChoice.None}>{t("forms:access_selector.no_access")}</option>
-                  <option value={GrantChoice.ReadOnly}>{t("forms:access_selector.read_only")}</option>
-                  <option value={GrantChoice.ReadWrite}>{t("forms:access_selector.read_write")}</option>
-                </select>
-              </label>
-            ))}
-          </div>
+          <>
+            <p className="margin-block-25" data-testid="grant-summary">
+              {t("forms:access_selector.grant_summary", { count: groups.length, granted: grantedCount })}
+            </p>
+            {groups.length > filterThreshold ? (
+              <ListFilter
+                className="margin-block-50"
+                style={{ maxWidth: '30rem' }}
+                aria-label={t("forms:access_selector.filter_groups")}
+                placeholder={t("forms:access_selector.filter_groups")}
+                value={filter}
+                onChange={(event) => setFilter(event.target.value)}
+                data-testid="grant-filter"
+              />
+            ) : null}
+            {shownGroups.length === 0 ? (
+              <p className="margin-block-25 font-style-italic">{t("forms:access_selector.no_matching_groups")}</p>
+            ) : null}
+            <div
+              className="grid margin-block-50 gap-50 align-items-center"
+              style={{ gridTemplateColumns: 'auto 1fr', columnGap: '1rem' }}
+            >
+              {shownGroups.map(group => (
+                <label key={group.id} className="display-contents">
+                  <span>{group.name}</span>
+                  <select
+                    className="width-fit-content"
+                    value={grants[group.id] ?? GrantChoice.None}
+                    onChange={(e) => changeGrant(group.id, e.target.value as GrantChoice)}
+                  >
+                    <option value={GrantChoice.None}>{t("forms:access_selector.no_access")}</option>
+                    <option value={GrantChoice.ReadOnly}>{t("forms:access_selector.read_only")}</option>
+                    <option value={GrantChoice.ReadWrite}>{t("forms:access_selector.read_write")}</option>
+                  </select>
+                </label>
+              ))}
+            </div>
+          </>
         )}
       </fieldset>
     </fieldset>

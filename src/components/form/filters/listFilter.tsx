@@ -15,7 +15,16 @@ export default function ListFilter({
   return (
     <div className={`flex align-items-center padding-50 smooth focusable ${className ?? ""}`} style={style}>
       <IconSearch width={20} height={20} style={{ minWidth: '20px' }} strokeWidth={1.5} aria-hidden="true" />
-      <input type="search" className="padding-0 margin-inline-50 flex-grow-100" {...inputProps} />
+      <input
+        type="search"
+        className="padding-0 margin-inline-50 flex-grow-100"
+        {...inputProps}
+        onKeyDown={(event) => {
+          // The list filters as one types; Enter must not submit a surrounding form
+          if (event.key === "Enter") event.preventDefault();
+          inputProps.onKeyDown?.(event);
+        }}
+      />
     </div>
   );
 }

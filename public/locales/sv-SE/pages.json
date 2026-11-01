@@ -306,6 +306,7 @@
     "members_legend": "Medlemmar",
     "create_group": "Skapa grupp",
     "new_group": "Ny grupp",
+    "everyone_hint": "Du behöver ingen grupp med all personal: färdplaner som delas med ”Alla i organisationen” syns redan för varje medlem. Grupper behövs för att ge redigeringsrätt eller för att dela med bara en del av organisationen.",
     "no_groups": "Organisationen har inga grupper ännu.",
     "saved_toast": "Gruppen \"{{name}}\" sparades",
     "created_toast": "Gruppen \"{{name}}\" skapades",

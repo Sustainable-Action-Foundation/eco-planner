@@ -56,28 +56,30 @@ export default function GroupManager({ management }: { management: OrgManagement
 
   return (
     <>
-        <section className="margin-bottom-300">
-          <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.org_heading")}</h2>
-          {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
-          <RenameOrg key={management.org.name} org={management.org} />
-          {/* Keyed on the area for the same reason */}
-          <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
-        </section>
+      <section className="margin-bottom-300">
+        <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.org_heading")}</h2>
+        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
+        <RenameOrg key={management.org.name} org={management.org} />
+        {/* Keyed on the area for the same reason */}
+        <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
+      </section>
 
-        <section className="margin-bottom-300">
-          <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.members_heading")}</h2>
-          <details data-testid="members-details">
-            <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
-              {t("pages:org_groups.member_count", { count: management.members.length })}
-            </summary>
-            <MemberRoles management={management} />
-          </details>
-        </section>
+      <section className="margin-bottom-300">
+        <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.members_heading")}</h2>
+        <details data-testid="members-details">
+          <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
+            {t("pages:org_groups.member_count", { count: management.members.length })}
+          </summary>
+          <MemberRoles management={management} />
+        </details>
+      </section>
 
-        <section>
-          <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.groups_heading")}</h2>
-          <GroupList management={management} />
-        </section>
+      <section>
+        <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.groups_heading")}</h2>
+        {/* There is no everyone-group: org-wide sharing is a sharing tier of its own */}
+        <p className="margin-block-50 font-size-14px color-gray" style={{ maxWidth: '60ch' }}>{t("pages:org_groups.everyone_hint")}</p>
+        <GroupList management={management} />
+      </section>
     </>
   );
 }

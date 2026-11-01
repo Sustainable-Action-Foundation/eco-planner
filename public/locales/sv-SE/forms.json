@@ -17,7 +17,12 @@
     "read_write": "Läsa och redigera",
     "granted_groups_only_description": "Dold för alla utom de grupper som ges åtkomst nedan.",
     "org_members_description": "Alla medlemmar i organisationen kan se den; grupper nedan kan även redigera.",
-    "all_users_description": "Syns för alla, inloggade eller inte. Redigering styrs fortfarande av gruppåtkomsten nedan."
+    "all_users_description": "Syns för alla, inloggade eller inte. Redigering styrs fortfarande av gruppåtkomsten nedan.",
+    "org_sharing_hint": "Ska alla i organisationen kunna se den räcker det att välja ”Alla i organisationen” ovan; ingen grupp med all personal behövs.",
+    "grant_summary_one": "{{count}} grupp, {{granted}} med åtkomst",
+    "grant_summary_other": "{{count}} grupper, {{granted}} med åtkomst",
+    "filter_groups": "Sök grupp",
+    "no_matching_groups": "Ingen grupp matchar sökningen."
   },
   "action": {
     "action_description": "Beskrivning",
