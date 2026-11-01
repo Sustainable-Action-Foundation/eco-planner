@@ -1,4 +1,4 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
@@ -26,7 +26,7 @@ async function getRequestContext(): Promise<UserAccessContext | null> {
   if (!session.user?.id) {
     return null;
   }
-  return getAccessContextById(session.user.id);
+  return getAccessContextFor(session.user);
 }
 
 /** Keeps only ids that are actual memberships of the given org (the composite FKs would reject others anyway) */

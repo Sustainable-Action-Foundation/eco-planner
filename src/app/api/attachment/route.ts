@@ -1,6 +1,6 @@
 import findTypeFromId from "@/functions/findTypeFromId";
 import { attachmentContentType, AttachmentRejection, MaxAttachmentBytes, MaxAttachmentsPerObject, rejectAttachment, sanitizeAttachmentName } from "@/functions/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { editableActionsWHERE, editableAttachmentsWHERE, writableAccessControlWHERE } from "@/lib/accessFilters";
 import { isAttachmentParent, type AttachmentParent } from "@/lib/attachments";
 import serveTea from "@/lib/i18nServer";
@@ -49,7 +49,7 @@ async function mayEditParent(parent: AttachmentParent, id: string, ctx: UserAcce
 /** The session's access context, or null for anonymous and stale sessions (which get logged out). */
 async function requireUser(session: Awaited<ReturnType<typeof getSession>>): Promise<UserAccessContext | null> {
   if (!session.user?.isLoggedIn || !session.user.id) return null;
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
     session.destroy();
     return null;

@@ -1,6 +1,6 @@
 import { getOneRecipe } from "@/fetchers";
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeError } from "@/functions/recipe/types/errors";
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const accessContext = await getAccessContextById(session.user.id);
+    const accessContext = await getAccessContextFor(session.user);
 
     // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
     if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {

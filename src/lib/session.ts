@@ -108,11 +108,23 @@ export function forgetProxySession(userId: string): void {
  * who no longer exists, reads as anonymous here. The stale cookie itself is left in
  * place because server components may not set cookies during render; the next
  * login or logout replaces it.
+ *
+ * `user.isSuperAdmin` is the effective privilege (off while the super admin has
+ * suspended it), `user.canToggleSuperAdmin` the raw flag from login. Never `save()`
+ * the session returned here: it carries those derived values. Writes go through
+ * {@link readSession}.
  */
 export async function getSession(cookies: ReadonlyRequestCookies, sessionOptions?: SessionOptions): Promise<IronSession<LoginData>> {
   const session = await readSession(cookies, sessionOptions);
   if (session.user?.isLoggedIn && !(await isSessionCurrent(session.user.id, session.user.sessionVersion ?? 0))) {
     delete session.user;
+  }
+  if (session.user) {
+    // Effective privilege: a super admin who switched their powers off is a regular
+    // user everywhere, except for the switch itself (canToggleSuperAdmin)
+    const rawSuperAdmin = session.user.isSuperAdmin === true;
+    session.user.canToggleSuperAdmin = rawSuperAdmin;
+    session.user.isSuperAdmin = rawSuperAdmin && session.user.superAdminSuspended !== true;
   }
   return session;
 }

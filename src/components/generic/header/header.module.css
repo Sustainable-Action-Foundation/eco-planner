@@ -209,3 +209,13 @@
 .sidebar-menu > * > a[href="/signup"]:hover {
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
+
+/* "Super admin off" next to the profile link while a super admin has suspended their powers */
+.suspended-badge {
+  padding: .125rem .5rem;
+  border-radius: 9999px;
+  background-color: var(--gray-40, #666);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}

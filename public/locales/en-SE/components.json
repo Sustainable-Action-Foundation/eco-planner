@@ -409,7 +409,9 @@
     "language": "Language",
     "language_alt": "Select language",
     "my_profile": "My account",
-    "toggle_menu_alt": "Toggle menu"
+    "toggle_menu_alt": "Toggle menu",
+    "super_admin_suspended": "Super admin off",
+    "super_admin_suspended_hint": "Your super admin mode is deactivated. Switch it back on from your profile page."
   },
   "signup": {
     "already_have_account": "Already have an account?",
@@ -513,5 +515,10 @@
     "continue": "Continue",
     "saved": "Your name is saved.",
     "failed": "The name could not be saved. Check the fields and try again."
+  },
+  "super_admin_toggle": {
+    "on": "Super admin mode is on",
+    "off": "Super admin mode is off",
+    "failed": "Could not change super admin mode. Please try again."
   }
 }
