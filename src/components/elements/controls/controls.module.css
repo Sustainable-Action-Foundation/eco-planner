@@ -76,14 +76,14 @@
 /* Admin panel: a soft warning-yellow surface so privileged controls are unmistakable */
 
 .admin-panel {
-  background-color: hsl(48, 100%, 92%);
-  border: 1px solid hsl(45, 90%, 62%);
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
   border-radius: .5rem;
   padding: .75rem 1rem 1rem;
 }
 
 .admin-panel .object-menu {
-  border-top-color: hsl(45, 90%, 62%);
+  border-top-color: var(--admin-border);
 }
 
 /* Objectmenu */

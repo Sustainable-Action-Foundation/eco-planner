@@ -1,5 +1,5 @@
 import findTypeFromId from "@/functions/findTypeFromId";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { readableAccessControlWHERE, visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Commenting requires view access to the commented object (signed-in is already checked)
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext) {
     return Response.json({ message: 'Unauthenticated, only registered users can comment' },
       { status: 401 },

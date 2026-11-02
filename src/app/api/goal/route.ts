@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
@@ -49,7 +49,7 @@ async function authorizeGoalWrite(
 
   try {
     const [accessContext, currentGoal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.goals.findUnique({
         where: { id: goalId },
         select: {
@@ -508,11 +508,15 @@ async function writeRecipeSuggestionsSection(authorId: string, orgId: string, go
  */
 async function createFullGoal(session: IronSession<LoginData>, authorId: string, formData: GoalCreateFull, t: TFunction): Promise<Response> {
   let orgId: string;
+  const sessionUser = session.user;
+  if (!sessionUser) {
+    return Response.json({ message: t('api:common.unauthorized') }, { status: 401, headers: { 'Location': '/login' } });
+  }
 
   // Auth control (edit access to the parent iteration's roadmap)
   try {
     const [accessContext, iteration] = await Promise.all([
-      getAccessContextById(authorId),
+      getAccessContextFor(sessionUser),
       prisma.roadmapIterations.findUnique({
         where: { id: formData.iterationId },
         select: {
@@ -849,7 +853,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const [accessContext, currentGoal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.goals.findUnique({
         where: { id: goal.id },
         select: {

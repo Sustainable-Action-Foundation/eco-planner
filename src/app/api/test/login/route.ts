@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     isLoggedIn: true,
     isSuperAdmin: user.is_super_admin,
     sessionVersion: user.session_version,
+    remember: body.remember === true,
   };
   await session.save();
 

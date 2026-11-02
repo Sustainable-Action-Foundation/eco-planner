@@ -1,4 +1,4 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
@@ -42,7 +42,7 @@ async function setLike(request: NextRequest, liked: boolean) {
   }
   const goalId = body.goalId;
 
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   // No user behind the session cookie: log them out
   if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
     session.destroy();

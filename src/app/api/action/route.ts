@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import { parseActionFieldType } from "@/functions/fields";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
   // Auth
   try {
     const [foundAccessContext, iteration, goal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       !actionCreate.iterationId
         ? null
         : prisma.roadmapIterations.findUnique({
@@ -282,7 +282,7 @@ export async function PUT(request: NextRequest) {
   // Auth
   try {
     const [foundAccessContext, currentAction] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.actions.findUnique({
         where: { id: action.actionId },
         select: {
@@ -417,7 +417,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const [accessContext, currentAction] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.actions.findUnique({
         where: { id: action.id },
         select: {

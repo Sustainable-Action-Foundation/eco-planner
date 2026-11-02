@@ -254,7 +254,9 @@
     "sessions_description_self": "You stay signed in for 30 days after each login, or a year if you chose \"Remember me\". If you signed in on a shared or lost computer you can log out everywhere: every device is signed out, including this one, and the next login link works as usual.",
     "sessions_description_other": "As an administrator you can sign {{name}} out of every device. They can sign in again with a new login link.",
     "name": "Your name",
-    "name_description": "Shown wherever you are named, for example as the author of actions and comments."
+    "name_description": "Shown wherever you are named, for example as the author of actions and comments.",
+    "super_admin": "Super admin mode",
+    "super_admin_description": "As a super admin you see and may change everything in the tool. Deactivate it to see the tool as a regular user: you then get only what your organisation memberships allow. The setting applies to this browser until you switch it back on or log in again."
   },
   "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",

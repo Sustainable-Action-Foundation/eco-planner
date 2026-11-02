@@ -1,4 +1,4 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
@@ -30,7 +30,7 @@ export async function PUT(request: NextRequest) {
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext) {
     return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } },

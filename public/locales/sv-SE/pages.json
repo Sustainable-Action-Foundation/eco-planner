@@ -254,7 +254,9 @@
     "sessions_description_self": "Du förblir inloggad i 30 dagar efter varje inloggning, eller ett år om du valde \"Kom ihåg mig\". Har du loggat in på en delad eller borttappad dator kan du logga ut överallt: alla enheter loggas ut, även den här, och nästa inloggningslänk fungerar som vanligt.",
     "sessions_description_other": "Som administratör kan du logga ut {{name}} från alla enheter. Användaren kan logga in igen med en ny inloggningslänk.",
     "name": "Ditt namn",
-    "name_description": "Visas där du nämns, till exempel som författare till åtgärder och kommentarer."
+    "name_description": "Visas där du nämns, till exempel som författare till åtgärder och kommentarer.",
+    "super_admin": "Superadmin-läge",
+    "super_admin_description": "Som superadmin ser och får du ändra allt i verktyget. Avaktivera för att se verktyget som en vanlig användare: du får då bara det dina organisationsmedlemskap ger. Inställningen gäller den här webbläsaren tills du slår på den igen eller loggar in på nytt."
   },
   "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",

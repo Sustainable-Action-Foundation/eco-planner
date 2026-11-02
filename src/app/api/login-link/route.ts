@@ -175,6 +175,7 @@ export async function PATCH(request: NextRequest) {
     isLoggedIn: true,
     isSuperAdmin: user.is_super_admin,
     sessionVersion: user.session_version,
+    remember: remember,
   };
   await session.save();
 
