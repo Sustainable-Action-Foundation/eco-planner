@@ -125,6 +125,8 @@ model Roadmaps {
   geo_area      GeoAreas?   @relation(fields: [geo_area_code], references: [code], onDelete: SetNull)
   // The type of roadmap, for example national, regional, or local
   type          RoadmapType @default(OTHER)
+  // Hidden roadmaps are left out of listings and pickers but stay reachable by URL; never affects access
+  hidden        Boolean     @default(false)
 
   // The different versions of the roadmap
   iterations        RoadmapIterations[] @relation("roadmap_iterations")
@@ -298,8 +300,26 @@ model GoalLikes {
   user_id String
   user    Users  @relation("user_goal_likes", fields: [user_id], references: [id], onDelete: Cascade)
 
+  // The kinds of rådighet the liker sees for the goal, see GoalLikeAspects
+  aspects GoalLikeAspects[] @relation("goal_like_aspects")
+
   @@id([goal_id, user_id])
   @@index([user_id])
+}
+
+// Optional refinements of a like: through which kind of rådighet (ability to act)
+// the liker's org can act on the goal. `aspect` is a `LikeAspect` (src/types/enums.ts),
+// a config list rather than a DB enum so it can change without a migration.
+// Hangs off the like itself, so an aspect without a like can't exist and unliking drops them.
+model GoalLikeAspects {
+  created_at DateTime @default(now())
+
+  goal_id String
+  user_id String
+  like    GoalLikes @relation("goal_like_aspects", fields: [goal_id, user_id], references: [goal_id, user_id], onDelete: Cascade)
+  aspect  String    @db.VarChar(64)
+
+  @@id([goal_id, user_id, aspect])
 }
 
 model GoalTags {

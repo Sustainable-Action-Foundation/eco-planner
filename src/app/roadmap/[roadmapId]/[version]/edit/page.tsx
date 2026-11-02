@@ -1,5 +1,6 @@
 import RoadmapIterationForm from "@/components/form/forms/roadmapIteration";
 import { getRoadmapIterationByVersion, getRoadmaps, getUserAccessContext } from "@/fetchers";
+import { HiddenRoadmaps } from "@/types/enums";
 import { parseVersionSlug } from "@/functions/versionSlug";
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
@@ -49,8 +50,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
     getUserAccessContext(),
     getRoadmapIterationByVersion(params.roadmapId, version),
     // Lets the form find the roadmap this one works towards, for the target version select.
-    // Unfiltered on purpose: that roadmap only needs to be visible, not editable.
-    getRoadmaps(),
+    // Unfiltered on purpose: that roadmap only needs to be visible, not editable (hidden included: a lookup, not a listing).
+    getRoadmaps(HiddenRoadmaps.Include),
   ]);
 
   const access = accessChecker(

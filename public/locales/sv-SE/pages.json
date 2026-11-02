@@ -201,7 +201,13 @@
       "title": "Målbanor organisationen vill jobba med",
       "total_likes_one": "{{count}} gilla-markering totalt",
       "total_likes_other": "{{count}} gilla-markeringar totalt",
-      "total_likes_title": "Gilla-markeringar från alla, även andra organisationer"
+      "total_likes_title": "Gilla-markeringar från alla, även andra organisationer",
+      "aspect_filter_label": "Filtrera på rådighet",
+      "aspect_all": "All rådighet",
+      "aspects_label": "Rådighet enligt gilla-markeringarna",
+      "aspect_count": "{{aspect}}: {{count}}",
+      "empty_aspect": "Inga gillade målbanor med rådigheten {{aspect}} än.",
+      "overview_link": "Översikt för {{area}}"
     },
     "national_goals": {
       "copy": "Använd i färdplan",
@@ -355,5 +361,16 @@
   "welcome": {
     "title": "Välkommen!",
     "description": "Du är inloggad. Berätta vad du heter så att dina kollegor ser vem som skrivit vad. Det här frågar vi bara en gång; inloggningen är alltid bara din e‑postadress."
+  },
+  "likes_area": {
+    "breadcrumb": "Gillade målbanor",
+    "heading": "Gillade målbanor i {{area}}",
+    "description": "Målbanor som medlemmar i organisationerna i {{area}} har gillat, mest gillade först, med hur många organisationer som står bakom och genom vilken rådighet de kan påverka.",
+    "description_county": "Målbanor som medlemmar i organisationerna i {{area}} och länets kommuner har gillat, mest gillade först, med hur många organisationer som står bakom och genom vilken rådighet de kan påverka.",
+    "orgs_one": "{{count}} organisation ingår",
+    "orgs_other": "{{count}} organisationer ingår",
+    "related": "Se även",
+    "county_link": "Hela {{area}}",
+    "goals_title": "Mest gillade målbanor"
   }
 }

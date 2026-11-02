@@ -132,5 +132,21 @@
     "yes": "Ja",
     "move_up": "Flytta upp",
     "move_down": "Flytta ner"
+  },
+  "like_aspect": {
+    "own_operations": "Egen verksamhet",
+    "own_operations_description": "Direkt rådighet: egna fastigheter, fordon, inköp",
+    "ownership": "Ägande (bolag)",
+    "ownership_description": "Ägardirektiv och bolagsstyrning",
+    "authority_planning": "Myndighet och planering",
+    "authority_planning_description": "Översikts- och detaljplaner, markanvisning, tillsyn",
+    "market_power": "Marknadsmakt",
+    "market_power_description": "Upphandling, markförsäljning, finansiering",
+    "enabling": "Möjliggörande",
+    "enabling_description": "Infrastruktur, rådgivning, partnerskap",
+    "influence_local": "Påverkan lokalt",
+    "influence_local_description": "Invånare, företag, civilsamhälle, att vara förebild",
+    "influence_upward": "Påverkan uppåt",
+    "influence_upward_description": "Stat, region, EU, nätägare"
   }
 }

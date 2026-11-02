@@ -99,7 +99,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
       <header className="margin-block-300" >
         <div className="flex align-items-center gap-50 flex-wrap-wrap">
           <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
-          <VisibilityBadges status={iteration.status} />
+          <VisibilityBadges hidden={iteration.roadmap.hidden} status={iteration.status} />
         </div>
         <h1 className="margin-0">{iteration.roadmap.name}</h1>
         <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>

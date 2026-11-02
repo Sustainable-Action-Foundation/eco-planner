@@ -8,6 +8,7 @@ import {
   editableActionsWHERE,
   editableDataSeriesWHERE,
   listedGoalsWHERE,
+  listedRoadmapsWHERE,
   managedOrgIds,
   memberOrgIds,
   publishedIterationsOfTypeWHERE,
@@ -17,7 +18,8 @@ import {
   visibleRoadmapIterationsWHERE,
   writableAccessControlWHERE,
 } from "../../src/lib/accessFilters";
-import { isGoalListed } from "../../src/lib/listing";
+import { isGoalListed, isRoadmapListed } from "../../src/lib/listing";
+import { HiddenRoadmaps } from "../../src/types/enums";
 import { AccessLevel as GrantLevel, GoalListing, IterationStatus, RoadmapType, Sharing } from "../../src/lib/prisma/generated";
 import type { AccessControlInfo } from "../../src/types";
 import { accessControls, contexts, IDLE_GROUP, ORG, OTHER_ORG, RO_GROUP, RW_GROUP, type AccessControlName, type ContextName } from "../lib/access-contexts";
@@ -229,6 +231,34 @@ test.describe("listed goals agree with isGoalListed", () => {
     const listed = listedGoalsWHERE(contexts.orgless);
     const hidden = { listing: GoalListing.UNLISTED, roadmap_iteration: iterations.find(it => it.name === "orgNoGrants/PUBLISHED") };
     expect(matches(listed, hidden)).toBe(false);
+  });
+});
+
+test.describe("listed roadmaps agree with isRoadmapListed", () => {
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      for (const mode of Object.values(HiddenRoadmaps)) {
+        const listed = listedRoadmapsWHERE(contexts[contextName], mode);
+        for (const acName of accessControlNames) {
+          const level = accessChecker({ access_control: accessControls[acName] }, contexts[contextName]);
+          // The WHERE is applied on top of the access filter, so only compare readable roadmaps
+          if (!hasViewAccess(level)) continue;
+          for (const hidden of [false, true]) {
+            const roadmap = { hidden, access_control: accessControls[acName] };
+            expect(matches(listed, roadmap), `${contextName} ${mode} lists ${hidden ? "hidden" : "listed"} roadmap of ${acName}`).toBe(isRoadmapListed(roadmap, level, mode));
+          }
+        }
+      }
+    });
+  }
+
+  test("hiding never touches the access filters", () => {
+    // Visibility ≠ listing: a hidden roadmap's versions stay visible to everyone who may read them
+    for (const contextName of contextNames) {
+      for (const where of [visibleRoadmapIterationsWHERE(contexts[contextName]), readableAccessControlWHERE(contexts[contextName]), visibleDataSeriesWHERE(contexts[contextName])]) {
+        expect(JSON.stringify(where), contextName).not.toContain('"hidden"');
+      }
+    }
   });
 });
 

@@ -66,5 +66,8 @@
   },
   "welcome": {
     "description": "Fill in your name"
+  },
+  "likes_area": {
+    "title": "Liked goals in the area"
   }
 }

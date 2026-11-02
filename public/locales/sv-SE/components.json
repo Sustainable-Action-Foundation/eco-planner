@@ -382,6 +382,8 @@
     "name_descending": "Namn (A-Ö)",
     "roadmap_type": "Typ av färdplan",
     "search_roadmaps": "Sök bland $t(common:roadmap_other)",
+    "show_hidden": "Visa dolda färdplaner",
+    "show_hidden_on": "Visar dolda färdplaner",
     "sort_by": "Sortera utifrån"
   },
   "roadmap_deleter": {
@@ -455,7 +457,8 @@
     "listing_featured": "Framlyft",
     "status_current": "Status: {{state}}",
     "status_draft": "Utkast",
-    "status_published": "Publicerad"
+    "status_published": "Publicerad",
+    "sharing": "Delning"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",
@@ -484,7 +487,8 @@
   "visibility_badge": {
     "draft": "Utkast",
     "unlisted": "Dold",
-    "featured": "Framlyft"
+    "featured": "Framlyft",
+    "hidden": "Dold"
   },
   "sharing_line": {
     "public": "Synlig för alla",
@@ -498,7 +502,12 @@
   "like_button": {
     "failed": "Kunde inte spara gilla-markeringen: {{details}}",
     "like": "Gilla målbanan",
-    "unlike": "Ta bort din gilla-markering"
+    "unlike": "Ta bort din gilla-markering",
+    "aspects_show": "Visa rådighet",
+    "aspects_hide": "Dölj rådighet",
+    "aspects_toggle": "Rådighet",
+    "aspects_toggle_count": "Rådighet ({{count}})",
+    "aspects_label": "Genom vilken rådighet kan ni påverka målbanan? Valfritt."
   },
   "logout_everywhere": {
     "title": "Logga ut överallt",
@@ -520,5 +529,15 @@
     "on": "Superadmin-läge är på",
     "off": "Superadmin-läge är av",
     "failed": "Kunde inte ändra superadmin-läget. Försök igen."
+  },
+  "hide_roadmap": {
+    "hide": "Dölj färdplan",
+    "show": "Visa färdplan",
+    "hide_title": "Dölj färdplanen?",
+    "show_title": "Visa färdplanen igen?",
+    "hide_confirm": "{{name}} försvinner från listor, sökningar och väljare. Den går fortfarande att nå via länk med samma behörigheter, och mål i andra färdplaner som räknar på dess målbanor fortsätter att fungera.",
+    "show_confirm": "{{name}} visas igen i listor, sökningar och väljare för alla som har tillgång till den.",
+    "hidden_toast": "{{name}} är nu dold",
+    "shown_toast": "{{name}} visas igen"
   }
 }

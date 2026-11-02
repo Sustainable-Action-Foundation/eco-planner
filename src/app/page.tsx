@@ -4,7 +4,9 @@ import AttributedImage, { AttributeText } from "@/components/generic/images/attr
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
-import { LikeScope, RoadmapSortBy } from "@/types/enums";
+import { HiddenRoadmaps, LikeScope, RoadmapSortBy } from "@/types/enums";
+import { showHiddenParam } from "@/lib/listing";
+import ShowHiddenToggle from "@/components/form/filters/showHiddenToggle";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree, { type TreeIteration } from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
@@ -45,7 +47,8 @@ export default async function Page(
     props.searchParams,
     getSession(await cookies()),
     getUserAccessContext(),
-    getRoadmaps(),
+    // Hidden roadmaps stay out unless the "show hidden" toggle asks for the writable ones
+    props.searchParams.then(params => getRoadmaps(params[showHiddenParam] === "true" ? HiddenRoadmaps.Writable : HiddenRoadmaps.Exclude)),
     getUserOrgs(),
   ]);
 
@@ -164,9 +167,10 @@ export default async function Page(
     ? iterations.filter(iteration => iteration.roadmap.access_control.org_id === selectedOrg.id)
     : [];
   // Where a copied national goal can go: the versions of the org's roadmaps the user can edit
+  // (hidden ones stay out even while the toggle shows them, like in the other pickers)
   const copyTargets = selectedOrg
     ? roadmaps
-      .filter(roadmap => roadmap.access_control.org_id === selectedOrg.id)
+      .filter(roadmap => roadmap.access_control.org_id === selectedOrg.id && !roadmap.hidden)
       .flatMap(roadmap => roadmap.iterations
         .filter(iteration => hasEditAccess(accessChecker({ access_control: roadmap.access_control, status: iteration.status }, accessContext)))
         .map(iteration => ({ id: iteration.id, roadmapId: roadmap.id, version: iteration.version, name: t("common:roadmap_version_name", { name: roadmap.name, version: iteration.version }) })))
@@ -221,7 +225,11 @@ export default async function Page(
         </div>
 
         <section className="margin-top-200">
-          <h2 className="margin-top-0 margin-bottom-100 font-weight-600">{t("pages:home.title")}</h2>
+          <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between margin-bottom-100">
+            <h2 className="margin-0 font-weight-600">{t("pages:home.title")}</h2>
+            { // Writers can bring back the hidden roadmaps they can edit
+              accessContext ? <ShowHiddenToggle /> : null}
+          </div>
           <RoadmapTree
             accessContext={accessContext}
             iterations={orgIterations}
@@ -288,6 +296,8 @@ export default async function Page(
             {t("pages:home.filter")}
           </h2>
           <RoadmapFilters />
+          { // Writers can bring back the hidden roadmaps they can edit
+            accessContext ? <ShowHiddenToggle className="margin-top-150" /> : null}
         </aside>
         <div className="flex-grow-infinity max-width-100">
           <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50 font-weight-600">{t("pages:home.search_roadmaps", { count: roadmaps.filter((roadmap) => roadmap.iterations.length > 0).length })}</h2>

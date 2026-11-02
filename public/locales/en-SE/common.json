@@ -132,5 +132,21 @@
     "yes": "Yes",
     "move_up": "Move up",
     "move_down": "Move down"
+  },
+  "like_aspect": {
+    "own_operations": "Own operations",
+    "own_operations_description": "Direct control: own buildings, vehicles, purchasing",
+    "ownership": "Ownership (companies)",
+    "ownership_description": "Owner directives and corporate governance",
+    "authority_planning": "Authority and planning",
+    "authority_planning_description": "Comprehensive and detailed plans, land allocation, supervision",
+    "market_power": "Market power",
+    "market_power_description": "Procurement, land sales, financing",
+    "enabling": "Enabling",
+    "enabling_description": "Infrastructure, advice, partnerships",
+    "influence_local": "Local influence",
+    "influence_local_description": "Residents, businesses, civil society, leading by example",
+    "influence_upward": "Upward influence",
+    "influence_upward_description": "State, region, EU, grid owners"
   }
 }

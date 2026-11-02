@@ -400,10 +400,21 @@ test.describe("Org administration (Malmö stad)", () => {
         await expect(likeButton(page)).toHaveAttribute("aria-pressed", "true");
         await expect(likeButton(page).getByTestId("goal-like-count")).toHaveText("1");
 
-        // Ranked on Malmö's landing in the org's own scope
+        // The fresh like opens its optional aspects; picking one saves it
+        const aspect = page.getByTestId("goal-like-aspects").filter({ visible: true }).locator('[data-aspect="AUTHORITY_PLANNING"]');
+        await expect(aspect).toHaveAttribute("aria-pressed", "false");
+        await saveLike(page, aspect);
+        await expect(aspect).toHaveAttribute("aria-pressed", "true");
+
+        // Ranked on Malmö's landing in the org's own scope, with the aspect counted
         await expectAfterReload(page, "/", async () => {
           await expect(likedRow(page)).toHaveCount(1, { timeout: 5_000 });
+          await expect(likedRow(page).getByTestId("liked-goal-aspects").locator('[data-aspect="AUTHORITY_PLANNING"]')).toBeVisible({ timeout: 5_000 });
         });
+        // Filtering on the aspect keeps the goal
+        await page.getByTestId("liked-goals-aspect").filter({ visible: true }).locator('a[data-aspect="AUTHORITY_PLANNING"]').click();
+        await expect(page).toHaveURL(/aspect=AUTHORITY_PLANNING/);
+        await expect(likedRow(page)).toHaveCount(1, { timeout: 10_000 });
         await expect(scopeLink(page, "ORG")).toHaveAttribute("aria-current", "true");
         await expect(likeButton(likedRow(page))).toHaveAttribute("aria-pressed", "true");
 

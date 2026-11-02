@@ -9,12 +9,16 @@ import { cookies } from 'next/headers';
  */
 const createOrEditRegEx = /\/(create|edit|historical-data)\/?$/;
 
+/** Matches the pages only signed-in users can open at all, e.g. "/likes/2582" */
+const signedInOnlyRegEx = /^\/likes(\/|$)/;
+
 /** Matches strings starting with /@ or /%40 (URL-encoded @) */
 const userIndicatorRegEx = /^\/(@|%40)/;
 
 export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const isCreateOrEdit = createOrEditRegEx.test(pathname);
+  // Pages that send anonymous visitors to the login
+  const requiresLogin = createOrEditRegEx.test(pathname) || signedInOnlyRegEx.test(pathname);
   // The link interstitial is exempt from the login-page rule: redeeming a login link
   // replaces the session, which is how you switch accounts.
   const isAuthPage = (pathname.startsWith('/login') && !pathname.startsWith('/login/link')) || pathname.startsWith('/signup');
@@ -26,7 +30,7 @@ export async function proxy(req: NextRequest) {
   // the visitor as anonymous — create pages render empty, /login bounces back to /.
   const { user } = await readSession(await cookies());
   const claimsLogin = user?.isLoggedIn === true;
-  const isLoggedIn = claimsLogin && (isCreateOrEdit || isAuthPage)
+  const isLoggedIn = claimsLogin && (requiresLogin || isAuthPage)
     ? await isSessionCurrentForProxy(user.id, user.sessionVersion ?? 0)
     : claimsLogin;
   const staleCookie = claimsLogin && !isLoggedIn;
@@ -36,8 +40,8 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Redirect away from creation and editing pages if not logged in
-  if (isCreateOrEdit && !isLoggedIn) {
+  // Redirect away from creation and editing pages, and the signed-in-only ones, if not logged in
+  if (requiresLogin && !isLoggedIn) {
     const loginUrl = new URL('/login', req.url);
     // Save the current page as the "from" query parameter so we can redirect back after logging in
     loginUrl.searchParams.set('from', pathname);

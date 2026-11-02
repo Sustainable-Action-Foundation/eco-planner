@@ -1,3 +1,4 @@
+import { HiddenRoadmaps } from "@/types/enums";
 import ActionForm from "@/components/form/forms/action";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
@@ -35,7 +36,8 @@ export default async function Page(
     getUserAccessContext(),
     getOneGoal(typeof searchParams.goalId === 'string' ? searchParams.goalId : ''),
     getOneRoadmapIteration(typeof searchParams.iterationId === 'string' ? searchParams.iterationId : ''),
-    getRoadmapIterations(),
+    // Writable: the preselected version may sit in a hidden roadmap (filtered below)
+    getRoadmapIterations(HiddenRoadmaps.Writable),
   ]);
 
   if (
@@ -64,8 +66,10 @@ export default async function Page(
   );
 
   // The roadmap iterations the user can choose to add the action to (the ones they have edit access to)
+  // (hidden roadmaps stay out, except the preselected version or the goal's)
   const availableIterations = iterationList.filter((iteration) =>
-    hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)),
+    hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext))
+    && (!iteration.roadmap.hidden || iteration.id === searchParams.iterationId || iteration.id === goal?.roadmap_iteration_id),
   );
 
   return (

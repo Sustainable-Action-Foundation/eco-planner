@@ -6,6 +6,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneRoadmapIteration, getRoadmaps } from "@/fetchers";
+import { HiddenRoadmaps } from "@/types/enums";
 import { getGoalPrefill } from "@/fetchers/resolveSeriesRef";
 import type { Metadata } from "next";
 
@@ -38,7 +39,8 @@ export default async function Page(
   const [accessContext, iteration, roadmapList, { prefill, failed: badPrefill }] = await Promise.all([
     getUserAccessContext(),
     getOneRoadmapIteration(typeof searchParams.iterationId == 'string' ? searchParams.iterationId : ''),
-    getRoadmaps(),
+    // Writable: a hidden roadmap's version can still be the preselected target (filtered below)
+    getRoadmaps(HiddenRoadmaps.Writable),
     getGoalPrefill(t, searchParams),
   ]);
 
@@ -48,7 +50,9 @@ export default async function Page(
     (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)))
   );
 
-  const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));
+  // Hidden roadmaps stay out of the picker unless the form was opened for one of their versions
+  const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext))
+    && (!roadmap.hidden || roadmap.iterations.some(candidate => candidate.id === searchParams.iterationId)));
 
   return (
     <>

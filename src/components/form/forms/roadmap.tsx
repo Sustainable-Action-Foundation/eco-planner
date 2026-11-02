@@ -102,6 +102,8 @@ export default function RoadmapForm({
         geoAreaCode: geoAreaCode,
         // Sharing settings are only sent when the user may (and did) edit them
         access: mayEditSharing ? access : undefined,
+        // Rendered (and so sent) only for those who may edit sharing
+        hidden: (form.namedItem("hidden") as HTMLInputElement | null)?.checked ?? undefined,
         parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
         timestamp,
       } satisfies RoadmapUpdateInput;
@@ -270,7 +272,19 @@ export default function RoadmapForm({
           onChange={setAccess}
           positionIndex={positionIndex++}
           legend={t("forms:roadmap.legend_visibility")}
-        />
+          id="sharing"
+        >
+          {/* Listing, next to sharing and manager-only like it; only existing roadmaps can be hidden */}
+          {currentRoadmap ? (
+            <label className="flex align-items-start gap-50 margin-top-100">
+              <input type="checkbox" name="hidden" id="hidden" defaultChecked={currentRoadmap.hidden} />
+              <span>
+                <span className="block" style={{ textShadow: '0 0' }}>{t("forms:roadmap.hidden")}</span>
+                <span className="block" style={{ color: '#292929' }}>{t("forms:roadmap.hidden_description")}</span>
+              </span>
+            </label>
+          ) : null}
+        </ConfigureAccess>
       ) : null}
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
