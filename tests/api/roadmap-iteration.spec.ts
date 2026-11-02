@@ -74,10 +74,9 @@ test.describe("Versions", () => {
     expect(response.headers()["location"], "versions are max + 1, not a counter").toBe(`/roadmap/${sandbox.roadmapId}/v2`);
   });
 
-  // Known bug: the next version is read as max + 1 outside a transaction, so parallel creates
-  // collide on the (roadmap_id, version) unique key and the P2002 surfaces as a 500.
+  // The next version is read as max + 1 outside a lock, so parallel creates may collide on
+  // the (roadmap_id, version) unique key; the route retries and finally answers 409, never 500.
   test("parallel creates get distinct versions or a 409, never a 500", async ({ admin, sandbox }) => {
-    test.fail(true, "POST /api/roadmap-iteration answers 500 on a version collision (unhandled P2002)");
     const responses = await Promise.all(Array.from({ length: 5 }, () => admin.post("/api/roadmap-iteration", {
       data: { roadmapId: sandbox.roadmapId, description: null, targetVersion: null, status: "DRAFT", goals: null },
     })));

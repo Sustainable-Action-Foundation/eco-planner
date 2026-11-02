@@ -18,6 +18,9 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 
+/** Version numbers are assigned optimistically; this many tries before a collision answers 409 */
+const VERSION_ATTEMPTS = 5;
+
 // Type guards
 function isRoadmapIterationCreate(iteration: JSONValue): iteration is RoadmapIterationCreateInput {
   return (
@@ -210,65 +213,85 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Get the highest existing version number for this roadmap, defaulting to 0
-  let latestVersion: number;
-  try {
-    latestVersion = (await prisma.roadmapIterations.aggregate({
-      where: { roadmap_id: iteration.roadmapId },
-      _max: { version: true },
-    }))._max.version ?? 0;
-  } catch {
-    return Response.json({ message: t('api:roadmapIteration.failed_fetch_latest') },
-      { status: 500 },
-    );
-  }
-
-  // Create the iteration
-  try {
-    const newIteration = await prisma.roadmapIterations.create({
-      data: {
-        description: iteration.description,
-        version: latestVersion + 1,
-        target_version: iteration.targetVersion,
-        // Drafts are only visible to users with edit access; published_at records the first publication
-        status: iteration.status ?? IterationStatus.DRAFT,
-        published_at: iteration.status && iteration.status !== IterationStatus.DRAFT ? new Date() : null,
-        author: { connect: { id: session.user.id } },
-        roadmap: { connect: { id: iteration.roadmapId } },
-        goals: {
-          create: roadmapGoalCreator(iteration, session.user.id, orgId),
-        },
-      },
-      select: { id: true, roadmap_id: true, version: true },
-    });
-    // Invalidate old cache
-    revalidateTag('roadmapIteration', { expire: 0 });
-    // The iteration form creates and copies goals
-    revalidateTag('goal', { expire: 0 });
-    // Return the new iteration's ID if successful
-    return Response.json({ message: t('api:roadmapIteration.iteration_created'), id: newIteration.id },
-      { status: 201, headers: { 'Location': iterationPath(newIteration.roadmap_id, newIteration.version) } },
-    );
-  }
-  catch (err) {
-    // Custom error if there are errors in the nested goal creation
-    if (err instanceof Error) {
-      if (err.cause === 'nestedGoalCreation') {
-        return Response.json({ message: err.message },
-          { status: 400 },
-        );
-      }
-    }
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
-      return Response.json({ message: t('api:roadmapIteration.failed_record_connection') },
-        { status: 400 },
+  // The version is max + 1, read outside any lock, so parallel creates on one roadmap
+  // can race for the same number and hit the (roadmap_id, version) unique key (P2002).
+  // Retry a few times with a little jitter before answering 409; the client may try again.
+  for (let attempt = 1; attempt <= VERSION_ATTEMPTS; attempt++) {
+    // Get the highest existing version number for this roadmap, defaulting to 0
+    let latestVersion: number;
+    try {
+      latestVersion = (await prisma.roadmapIterations.aggregate({
+        where: { roadmap_id: iteration.roadmapId },
+        _max: { version: true },
+      }))._max.version ?? 0;
+    } catch {
+      return Response.json({ message: t('api:roadmapIteration.failed_fetch_latest') },
+        { status: 500 },
       );
     }
-    console.error(err);
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
+
+    // Create the iteration
+    try {
+      const newIteration = await prisma.roadmapIterations.create({
+        data: {
+          description: iteration.description,
+          version: latestVersion + 1,
+          target_version: iteration.targetVersion,
+          // Drafts are only visible to users with edit access; published_at records the first publication
+          status: iteration.status ?? IterationStatus.DRAFT,
+          published_at: iteration.status && iteration.status !== IterationStatus.DRAFT ? new Date() : null,
+          author: { connect: { id: session.user.id } },
+          roadmap: { connect: { id: iteration.roadmapId } },
+          goals: {
+            create: roadmapGoalCreator(iteration, session.user.id, orgId),
+          },
+        },
+        select: { id: true, roadmap_id: true, version: true },
+      });
+      // Invalidate old cache
+      revalidateTag('roadmapIteration', { expire: 0 });
+      // The iteration form creates and copies goals
+      revalidateTag('goal', { expire: 0 });
+      // Return the new iteration's ID if successful
+      return Response.json({ message: t('api:roadmapIteration.iteration_created'), id: newIteration.id },
+        { status: 201, headers: { 'Location': iterationPath(newIteration.roadmap_id, newIteration.version) } },
+      );
+    }
+    catch (err) {
+      // Custom error if there are errors in the nested goal creation
+      if (err instanceof Error) {
+        if (err.cause === 'nestedGoalCreation') {
+          return Response.json({ message: err.message },
+            { status: 400 },
+          );
+        }
+      }
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === 'P2025') {
+          return Response.json({ message: t('api:roadmapIteration.failed_record_connection') },
+            { status: 400 },
+          );
+        }
+        if (err.code === 'P2002') {
+          if (attempt < VERSION_ATTEMPTS) {
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+            continue;
+          }
+          return Response.json({ message: t('api:roadmapIteration.version_conflict') },
+            { status: 409 },
+          );
+        }
+      }
+      console.error(err);
+      return Response.json({ message: t('api:common.server_error') },
+        { status: 500 },
+      );
+    }
   }
+  // Unreachable: every attempt returns or continues
+  return Response.json({ message: t('api:common.server_error') },
+    { status: 500 },
+  );
 }
 
 /**
