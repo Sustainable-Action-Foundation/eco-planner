@@ -11,7 +11,7 @@
     "granted_groups_only": "Endast grupper med åtkomst nedan",
     "org_members": "Alla i organisationen",
     "group_grants": "Gruppåtkomst",
-    "no_groups": "Organisationen har inga grupper ännu. Chefer kan skapa grupper.",
+    "no_groups": "Organisationen har inga grupper ännu. Ansvariga kan skapa grupper.",
     "no_access": "Ingen åtkomst",
     "read_only": "Läsa",
     "read_write": "Läsa och redigera",
