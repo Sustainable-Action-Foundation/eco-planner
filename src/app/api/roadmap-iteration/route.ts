@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { readJson, readJsonObject } from "@/functions/readJson";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
@@ -140,7 +141,7 @@ function isRoadmapIterationUpdate(iteration: JSONValue): iteration is RoadmapIte
 export async function POST(request: NextRequest) {
   const [session, iteration] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -301,7 +302,7 @@ export async function PUT(request: NextRequest) {
   const [session, iteration] = await Promise.all([
     getSession(await cookies()),
     // The version number is not allowed to be changed
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -451,12 +452,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, iteration] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
-  if (!iteration.id) {
+  if (typeof iteration?.id !== 'string' || !iteration.id) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
     );

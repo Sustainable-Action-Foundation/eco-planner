@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { readJson } from "@/functions/readJson";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
@@ -17,7 +18,7 @@ import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { getSession } from "@/lib/session";
-import type { BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue, LoginData, RecipeSuggestionsFields, UserAccessContext } from "@/types";
+import type { BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, LoginData, RecipeSuggestionsFields, UserAccessContext } from "@/types";
 import { GoalDataTarget } from "@/types/enums";
 import { ClientError } from "@/types/consts";
 import { isGoalCreate, isGoalUpdate } from "@/types/typeguards";
@@ -728,7 +729,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
 export async function POST(request: NextRequest) {
   const [session, formData] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -782,7 +783,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -833,7 +834,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 

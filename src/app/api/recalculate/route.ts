@@ -1,4 +1,5 @@
 import { getOneRecipe } from "@/fetchers";
+import { readJsonObject } from "@/functions/readJson";
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
@@ -17,15 +18,16 @@ import type { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<{ dataSeriesId: string }>).catch(() => null),
+    readJsonObject(request),
   ]);
 
   // Validate request
-  if (!requestJson?.dataSeriesId) {
+  if (typeof requestJson?.dataSeriesId !== 'string' || !requestJson.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 },
     );
   }
+  const dataSeriesId = requestJson.dataSeriesId;
 
   // Validate session
   if (!session.user?.id) {
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
     // Get the data series, requiring edit access via any of its dependent slots
     const dataSeries = await prisma.dataSeries.findUnique({
       where: {
-        id: requestJson.dataSeriesId,
+        id: dataSeriesId,
         AND: [editableDataSeriesWHERE(accessContext)],
       },
       select: {
@@ -73,7 +75,7 @@ export async function POST(request: NextRequest) {
     const evaluationResult = await recipe.evaluate(warnings, { dataSeriesGetter: clientSafeGetOneDataSeries })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
-        console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, { err });
+        console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${dataSeriesId}:`, { err });
         if (err instanceof Error) {
           throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
         }
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     if (warnings.length > 0) {
       // If there are warnings, log them
-      console.warn(`Recalculate data series ${requestJson.dataSeriesId} with recipe "${recipe.name}" (${dbRecipe.id}) (${JSON.stringify(recipe)})\nproduced warnings:\n${warnings.join('\n')}`);
+      console.warn(`Recalculate data series ${dataSeriesId} with recipe "${recipe.name}" (${dbRecipe.id}) (${JSON.stringify(recipe)})\nproduced warnings:\n${warnings.join('\n')}`);
     }
 
     if (!isDateValues(evaluationResult.dateValues)) {
@@ -106,7 +108,7 @@ export async function POST(request: NextRequest) {
     };
 
     const updatedDataSeries = await prisma.dataSeries.update({
-      where: { id: requestJson.dataSeriesId },
+      where: { id: dataSeriesId },
       data: {
         // Values share a composite PK (data_series_id, timestamp), so clear before re-inserting
         values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
