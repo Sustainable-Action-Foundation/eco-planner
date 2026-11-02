@@ -2,7 +2,7 @@
 
 import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Action, Effect, Goal, GoalUpdateInput, Roadmap, RoadmapIteration, RoadmapIterationUpdateInput } from "@/types";
 import { AccessLevel, GoalDataTarget } from "@/types/enums";
 import { GoalListing, IterationStatus } from "@/lib/prisma/generated";
@@ -281,6 +281,7 @@ export function ControlsMenu(
   const { t } = useTranslation(["components", "common"]);
 
   const menu = useRef<HTMLDialogElement | null>(null);
+  const toggle = useRef<HTMLButtonElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
 
   const links = buildLinks(object, t);
@@ -290,7 +291,23 @@ export function ControlsMenu(
   const roadmapSettings = hasAdminAccess(accessLevel ?? AccessLevel.None) ? hideableRoadmap(object, rowIsRoadmap) : null;
 
   const openMenu = () => {
-    menu.current?.show();
+    // A second press closes: the menu may still be open from before a navigation (see below)
+    if (menu.current?.open) menu.current.close();
+    else menu.current?.show();
+  };
+
+  // Routes stay mounted across client navigations, so a menu left open when a link in it
+  // was followed would still be open on the way back, with no focus in it to lose. Close
+  // it whenever this row is shown again (effects rerun when a hidden route is revealed)
+  useEffect(() => {
+    menu.current?.close();
+  }, []);
+
+  /** Following a link in the menu closes it */
+  const closeOnLink = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target instanceof Element && e.target.closest("a[href]")) {
+      menu.current?.close();
+    }
   };
 
   const closeMenu = (e: React.FocusEvent<HTMLDialogElement> | React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLDialogElement>) => {
@@ -298,6 +315,10 @@ export function ControlsMenu(
     if (e.type === 'blur') {
       e = e as React.FocusEvent<HTMLDialogElement>;
       if (menu.current?.contains(e.relatedTarget as Node) || menu.current === e.relatedTarget) {
+        return;
+      }
+      // Focus moving to the menu button: its click decides (toggles), not the blur
+      if (toggle.current && e.relatedTarget === toggle.current) {
         return;
       }
     }
@@ -312,11 +333,11 @@ export function ControlsMenu(
 
   return (
     <div className={`${styles.actionButton} display-flex`}>
-      <button type="button" onClick={openMenu} className={styles.button} data-testid="controls-menu-button" aria-label={t("components:table_menu.button_aria", { component: objectName || roadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
+      <button type="button" onClick={openMenu} ref={toggle} className={styles.button} data-testid="controls-menu-button" aria-label={t("components:table_menu.button_aria", { component: objectName || roadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
         {buttonText || null}
         <IconDotsVertical aria-hidden="true" width={width} height={height} />
       </button>
-      <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
+      <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} onClick={closeOnLink} ref={menu} onKeyUp={closeMenu}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
           {/* Button to close menu */}
           <button type="button" aria-label={t("common:tsx.close")} onClick={closeMenu} className={styles.button} autoFocus={true} >
