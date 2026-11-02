@@ -117,7 +117,11 @@ test.describe("Historical data", () => {
 
     await page.goto(`/goal/${goalId}/historical-data/edit`);
     await expect(visible(page, `${historicalGrid} [data-row="2"][data-column="2"] input`)).toHaveValue("15", { timeout: 30_000 });
-    await visible(page, `${historicalGrid} [data-row="1"][data-column="2"] input`).fill("20");
+    // Select the cell first, as a user would: a fill into a non-selected cell is dropped in Firefox and WebKit
+    const cell = visible(page, `${historicalGrid} [data-row="1"][data-column="2"]`);
+    await cell.click();
+    await cell.locator("input").fill("20");
+    await expect(cell.locator("input")).toHaveValue("20");
     await waitForRecipeFormSyncs(page);
     await expect(historicalSeriesInput(page)).toHaveValue(/:20[,}]/);
     expect(await saveHistorical(page, "PUT")).toBe(200);
