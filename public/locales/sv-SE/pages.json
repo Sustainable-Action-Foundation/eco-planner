@@ -254,7 +254,9 @@
     "sessions_description_self": "Du förblir inloggad i 30 dagar efter varje inloggning, eller ett år om du valde \"Kom ihåg mig\". Har du loggat in på en delad eller borttappad dator kan du logga ut överallt: alla enheter loggas ut, även den här, och nästa inloggningslänk fungerar som vanligt.",
     "sessions_description_other": "Som administratör kan du logga ut {{name}} från alla enheter. Användaren kan logga in igen med en ny inloggningslänk.",
     "name": "Ditt namn",
-    "name_description": "Visas där du nämns, till exempel som författare till åtgärder och kommentarer."
+    "name_description": "Visas där du nämns, till exempel som författare till åtgärder och kommentarer.",
+    "super_admin": "Superadmin-läge",
+    "super_admin_description": "Som superadmin ser och får du ändra allt i verktyget. Avaktivera för att se verktyget som en vanlig användare: du får då bara det dina organisationsmedlemskap ger. Inställningen gäller den här webbläsaren tills du slår på den igen eller loggar in på nytt."
   },
   "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",
@@ -305,6 +307,8 @@
     "name_label": "Gruppnamn",
     "members_legend": "Medlemmar",
     "create_group": "Skapa grupp",
+    "new_group": "Ny grupp",
+    "everyone_hint": "Du behöver ingen grupp med all personal: färdplaner som delas med ”Alla i organisationen” syns redan för varje medlem. Grupper behövs för att ge redigeringsrätt eller för att dela med bara en del av organisationen.",
     "no_groups": "Organisationen har inga grupper ännu.",
     "saved_toast": "Gruppen \"{{name}}\" sparades",
     "created_toast": "Gruppen \"{{name}}\" skapades",
@@ -321,13 +325,10 @@
     "role_updated_toast": "{{name}}s roll uppdaterades",
     "member_count_one": "{{count}} medlem",
     "member_count_other": "{{count}} medlemmar",
-    "invite_heading": "Bjud in gäster",
-    "invite_description": "Gäster är externa medarbetare: de ser bara det som deras grupper uttryckligen fått tillgång till. Den inbjudna får ett mejl med en länk för att gå med.",
-    "invite_email_label": "E-postadress",
-    "invite_send": "Skicka inbjudan",
-    "invite_sent_toast": "Inbjudan skickad till {{email}}",
-    "invite_revoked_toast": "Inbjudan till {{email}} återkallades",
-    "invite_revoke": "Återkalla",
+    "filter_groups": "Sök grupp eller medlem",
+    "filter_members": "Sök medlem",
+    "no_matches": "Inget matchar sökningen.",
+    "no_group_members": "Gruppen har inga medlemmar ännu.",
     "home_org": "från {{orgs}}",
     "home_org_none": "ingen egen organisation"
   },

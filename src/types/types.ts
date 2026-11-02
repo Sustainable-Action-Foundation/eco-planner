@@ -141,7 +141,18 @@ export type LoginData = {
     id: string;
     username: string;
     isLoggedIn?: boolean;
+    /**
+     * Whether the user acts as a super admin. As stored in the cookie this is
+     * `Users.is_super_admin` at login; `getSession()` hands out the *effective* value,
+     * false while {@link superAdminSuspended} is set.
+     */
     isSuperAdmin?: boolean;
+    /** The super admin switched their powers off for this browser session (POST /api/user/privileges); a new login clears it. */
+    superAdminSuspended?: boolean;
+    /** Not stored: set by `getSession()` to the raw super-admin flag, so the toggle stays reachable while suspended. */
+    canToggleSuperAdmin?: boolean;
+    /** The login was made with "remember me"; re-saving the cookie keeps that lifetime. Absent on older cookies. */
+    remember?: boolean;
     /** `Users.session_version` when this session was issued; a mismatch means the user logged out everywhere since. Absent on sessions issued before the field existed (treated as 0). */
     sessionVersion?: number;
   };

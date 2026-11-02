@@ -1,4 +1,4 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import { Recipe } from "@/functions/recipe/recipe";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
   // Get user and check permissions
   try {
     const [accessContext, action, goal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.actions.findUnique({
         where: { id: effect.actionId },
         select: effectParentsSelection.action.select,
@@ -228,7 +228,7 @@ export async function PUT(request: NextRequest) {
   // Get user and check permissions
   try {
     const [accessContext, currentEffect] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.effects.findUnique({
         where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
         select: {
@@ -368,7 +368,7 @@ export async function DELETE(request: NextRequest) {
   // Get user and check permissions
   try {
     const [accessContext, currentEffect] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.effects.findUnique({
         where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
         select: effectParentsSelection,

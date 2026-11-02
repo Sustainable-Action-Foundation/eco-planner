@@ -1,0 +1,11 @@
+/* The super-admin switch on the profile page: the admin yellow, striped while the mode is off like the sidebar's account button */
+.panel {
+  padding: .75rem 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: .5rem;
+  background-color: var(--admin-surface);
+}
+
+.panel.off {
+  background-image: var(--admin-stripes);
+}

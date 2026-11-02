@@ -1,4 +1,5 @@
-import HistoricalForm, { HistoricalFormMode } from "@/components/form/forms/historical";
+import HistoricalForm from "@/components/form/forms/historical";
+import { HistoricalFormMode } from "@/types/enums";
 import serveTea from "@/lib/i18nServer";
 import type { Metadata } from "next";
 import { getEditableGoal, GoalSectionPage, goalSectionMetadata } from "../../goalSectionPage";

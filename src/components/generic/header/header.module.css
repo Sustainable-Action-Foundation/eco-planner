@@ -209,3 +209,23 @@
 .sidebar-menu > * > a[href="/signup"]:hover {
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
+
+/* "Super admin off" next to the profile link while a super admin has suspended their powers */
+.suspended {
+  /* The admin yellow as stripes: the account button says "superadmin mode is off" without taking any room */
+  background-image: var(--admin-stripes);
+}
+
+.sidebar-menu a.suspended:hover {
+  background-color: transparent;
+  filter: brightness(.95);
+}
+
+.suspended-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

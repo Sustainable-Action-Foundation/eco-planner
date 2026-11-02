@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import accessChecker, { hasAdminAccess, hasEditAccess, hasViewAccess } from "@/lib/accessChecker";
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
   let accessContext: UserAccessContext;
   try {
     const [fetchedContext, targetRoadmap] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       ...(
         roadmap.parentRoadmapId ?
           [
@@ -248,7 +248,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Get user context, current roadmap, and target parent roadmap (if any)
     const [fetchedContext, currentRoadmap, targetRoadmap] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.roadmaps.findUnique({
         where: { id: roadmap.id },
         select: {
@@ -430,7 +430,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const [accessContext, currentRoadmap] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.roadmaps.findUnique({
         where: { id: roadmap.id },
         select: { access_control: { select: accessControlSelection } },

@@ -464,6 +464,17 @@ export function linkedScalarRecipe(options: { dataSeriesId: string, unit: string
   });
 }
 
+/** A serialized manual recipe (`Recipe.fromManualDateValues` shape): one inline series variable, `meta.isManual`. */
+export function manualRecipe(unit: string, dateValues: Record<string, number>, variableId = "manual"): string {
+  return JSON.stringify({
+    name: "Manual data series",
+    equation: `\${${variableId}}`,
+    variables: [{ id: variableId, name: "Manual data series", type: "data-series", pick: "whole", unit, dataSeriesId: null, value: dateValues }],
+    unit,
+    meta: { v: 1, isSuggestedRecipe: false, isManual: true },
+  });
+}
+
 /** A serialized scalar-only recipe (`<scalar> * 2`), usable as a recipe suggestion. */
 export function scalarRecipe(name: string, value: number): string {
   return JSON.stringify({

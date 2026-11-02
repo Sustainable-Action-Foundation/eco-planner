@@ -409,7 +409,9 @@
     "language": "Språk",
     "language_alt": "Välj språk",
     "my_profile": "Mitt konto",
-    "toggle_menu_alt": "Växla meny"
+    "toggle_menu_alt": "Växla meny",
+    "super_admin_suspended": "Superadmin av",
+    "super_admin_suspended_hint": "Ditt superadmin-läge är avaktiverat. Slå på det igen på din profilsida."
   },
   "signup": {
     "already_have_account": "Har du redan ett konto?",
@@ -513,5 +515,10 @@
     "continue": "Fortsätt",
     "saved": "Namnet är sparat.",
     "failed": "Namnet kunde inte sparas. Kontrollera fälten och försök igen."
+  },
+  "super_admin_toggle": {
+    "on": "Superadmin-läge är på",
+    "off": "Superadmin-läge är av",
+    "failed": "Kunde inte ändra superadmin-läget. Försök igen."
   }
 }

@@ -202,7 +202,7 @@ test.describe("Org administration (Malmö stad)", () => {
     const orgId = new URL(await chip.getAttribute("href") ?? "", "http://localhost").searchParams.get("org") ?? "";
     await expect(manageLink(page, orgId)).toBeVisible();
     await gotoSettled(page, `/org/${orgId}/groups`);
-    await expect(page.getByTestId("group-create").filter({ visible: true })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("group-create-open").filter({ visible: true })).toBeVisible({ timeout: 30_000 });
     return orgId;
   }
 
@@ -240,7 +240,9 @@ test.describe("Org administration (Malmö stad)", () => {
       await withLock("malmo-stad", async () => {
         await openGroupsPage(page);
 
-        // Create with both members
+        // Create with both members; the form opens from the button above the list
+        await page.getByTestId("group-create-open").filter({ visible: true }).click();
+        await expect(page.getByTestId("group-create").filter({ visible: true })).toBeVisible();
         await visible(page, '[data-testid="create-group-name"]').fill(name);
         await toggleMembers(page, visible(page, "#create-group-members"), [malmoManager, malmoMember]);
         expect(await groupRequest(page, "POST", () => page.getByTestId("create-group-submit").filter({ visible: true }).click())).toBe(201);
@@ -255,7 +257,8 @@ test.describe("Org administration (Malmö stad)", () => {
         groupId = await item.getAttribute("data-group-id");
         expect(groupId).toBeTruthy();
 
-        // A second group by the same name is refused
+        // A second group by the same name is refused (the reload above closed the form)
+        await page.getByTestId("group-create-open").filter({ visible: true }).click();
         await visible(page, '[data-testid="create-group-name"]').fill(name);
         expect(await groupRequest(page, "POST", () => page.getByTestId("create-group-submit").filter({ visible: true }).click())).toBe(400);
         await expect(toast(page, "error")).toBeVisible();
