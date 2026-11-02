@@ -23,9 +23,8 @@ export function LanguageSwitcher() {
     // Set cookie for future visits
     setCookie("locale", cleanLocale);
 
-    // Client update. Set lang and dispatch event for rerendering
+    // Client update: the provider switches the i18next language, whose hooks re-render their text
     setLocaleContext(cleanLocale);
-    window.dispatchEvent(new CustomEvent("i18n-language-changed"));
     router.refresh();
   }
 
