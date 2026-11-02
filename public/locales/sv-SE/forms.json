@@ -19,10 +19,12 @@
     "org_members_description": "Alla medlemmar i organisationen kan se den; grupper nedan kan även redigera.",
     "all_users_description": "Syns för alla, inloggade eller inte. Redigering styrs fortfarande av gruppåtkomsten nedan.",
     "org_sharing_hint": "Ska alla i organisationen kunna se den räcker det att välja ”Alla i organisationen” ovan; ingen grupp med all personal behövs.",
-    "grant_summary_one": "{{count}} grupp, {{granted}} med åtkomst",
-    "grant_summary_other": "{{count}} grupper, {{granted}} med åtkomst",
-    "filter_groups": "Sök grupp",
-    "no_matching_groups": "Ingen grupp matchar sökningen."
+    "add_group": "Lägg till grupp …",
+    "remove_grant": "Ta bort åtkomsten för {{group}}",
+    "level_for": "Åtkomst för {{group}}",
+    "no_grants": "Ingen grupp har särskild åtkomst.",
+    "no_grants_groups_sharing": "Ingen grupp har åtkomst ännu: bara organisationens chefer ser den.",
+    "all_groups_granted": "Alla organisationens grupper har åtkomst."
   },
   "action": {
     "action_description": "Beskrivning",
