@@ -23,15 +23,12 @@ function adminPanel(page: Parameters<typeof visible>[0]) {
   return page.locator("aside").filter({ visible: true });
 }
 
-/**
- * Saves the historical form and resolves with the `/api/goal` status. The create
- * page is meant to POST and the edit page to PUT, but the mode prop crosses the
- * server/client boundary as a client-module enum (see the report), so accept either.
- */
-async function saveHistorical(page: Parameters<typeof visible>[0]): Promise<number> {
+/** Saves the historical form with the expected method (the create page POSTs, the edit page PUTs) and resolves with the `/api/goal` status. */
+async function saveHistorical(page: Parameters<typeof visible>[0], method: "POST" | "PUT"): Promise<number> {
   const response = page.waitForResponse(res => new URL(res.url()).pathname === "/api/goal" && ["POST", "PUT"].includes(res.request().method()), { timeout: 30_000 });
   await visible(page, "#submit-button").click();
   const answer = await response;
+  expect(answer.request().method()).toBe(method);
   if (answer.status() >= 300) console.warn(`historical save ${answer.request().method()} -> ${answer.status()}: ${await answer.text()} (sent ${answer.request().postData()})`);
   return answer.status();
 }
@@ -70,7 +67,7 @@ test.describe("Historical data", () => {
     await fillManualDataSeries(page, [[2015, 10], [2016, 12], [2017, 15]], historicalGrid);
     await waitForRecipeFormSyncs(page);
     await expect(historicalSeriesInput(page)).toHaveValue(/2017/);
-    expect(await saveHistorical(page)).toBeLessThan(300);
+    expect(await saveHistorical(page, "POST")).toBeLessThan(300);
     await page.waitForURL(goalPage);
     await expect(visible(page, "h1").filter({ hasText: goalName })).toBeVisible({ timeout: 20_000 });
     await expect.poll(() => storedHistorical(admin, goalId), { timeout: 20_000 }).toEqual([10, 12, 15]);
@@ -88,10 +85,6 @@ test.describe("Historical data", () => {
   });
 
   test("Manual historical data: the edit page deletes it after a typed confirmation", async ({ page, admin, sandbox }) => {
-    // Known app bug: the edit page passes `mode={HistoricalFormMode.Edit}` from a server component,
-    // but the enum lives in the "use client" form module, so the client never sees "EDIT": the delete
-    // button is not rendered (and the create page PUTs instead of POSTing). Remove once it renders.
-    test.fail(true, "historical edit page renders no delete button (HistoricalFormMode crosses the server/client boundary)");
     const goalId = await createGoal(admin, sandbox.iterationId, { name: `Historical delete ${sandbox.label}` });
     await postJson(admin, "/api/goal", {
       target: "HISTORICAL",
@@ -114,10 +107,6 @@ test.describe("Historical data", () => {
   });
 
   test("Manual historical data: an edit saves the new values", async ({ page, admin, sandbox }) => {
-    // Known app bug: re-saving existing historical data sends its recipe id, and the API creates a
-    // second series on that 1:1 recipe (Prisma P2014 on `recipe_used`, answered 500). Remove this
-    // annotation once the edit saves.
-    test.fail(true, "PUT /api/goal HISTORICAL with the existing historicalRecipeId answers 500 (P2014 recipe_used)");
     const goalId = await createGoal(admin, sandbox.iterationId, { name: `Historical edit ${sandbox.label}` });
     await postJson(admin, "/api/goal", {
       target: "HISTORICAL",
@@ -131,7 +120,7 @@ test.describe("Historical data", () => {
     await visible(page, `${historicalGrid} [data-row="1"][data-column="2"] input`).fill("20");
     await waitForRecipeFormSyncs(page);
     await expect(historicalSeriesInput(page)).toHaveValue(/:20[,}]/);
-    expect(await saveHistorical(page)).toBe(200);
+    expect(await saveHistorical(page, "PUT")).toBe(200);
     await page.waitForURL(new RegExp(`/goal/${goalId}$`));
     await expect.poll(() => storedHistorical(admin, goalId), { timeout: 20_000 }).toEqual([10, 20, 15]);
   });

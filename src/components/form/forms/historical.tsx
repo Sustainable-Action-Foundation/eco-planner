@@ -14,7 +14,7 @@ import { useToast } from "@/components/generic/toast/toastContext.use";
 import formSubmitter from "@/functions/formSubmitter";
 import { Recipe, type SerializedRecipe } from "@/functions/recipe";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { GoalDataTarget, HistoricalDataType } from "@/types/enums";
+import { GoalDataTarget, HistoricalDataType, HistoricalFormMode } from "@/types/enums";
 import { useMemo, useRef, useState, type SubmitEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { GoalGraph } from "@/components/graph/graphs/goal/main";
@@ -22,14 +22,6 @@ import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset
 import HistoricalFootnote, { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import { IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-
-export const HistoricalFormMode = {
-  /** Adds historical data to a goal that has none (POST) */
-  Create: "CREATE",
-  /** Replaces the goal's existing historical data (PUT) */
-  Edit: "EDIT",
-} as const;
-export type HistoricalFormMode = (typeof HistoricalFormMode)[keyof typeof HistoricalFormMode];
 
 export default function HistoricalForm({
   goal,
