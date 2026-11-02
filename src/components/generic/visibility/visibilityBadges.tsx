@@ -5,15 +5,18 @@ import serveTea from "@/lib/i18nServer";
 import { IconEyeOff, IconPencil, IconStar } from "@tabler/icons-react";
 
 /**
- * The state badges for a version (draft) and, on a goal, its listing
- * (unlisted / featured). Published and listed items get no badge: they are the
+ * The state badges for a roadmap (hidden), a version (draft) and, on a goal, its
+ * listing (unlisted / featured). Published and listed items get no badge: they are the
  * normal case. Kept in one place so the same words and colours show everywhere.
  */
 export default async function VisibilityBadges({
+  hidden,
   status,
   listing,
   className,
 }: {
+  /** The roadmap is hidden from listings */
+  hidden?: boolean;
   status?: IterationStatus;
   listing?: GoalListing;
   className?: string;
@@ -21,6 +24,9 @@ export default async function VisibilityBadges({
   const t = await serveTea("components");
 
   const badges: { key: string, className: string, icon: React.ReactNode, label: string }[] = [];
+  if (hidden) {
+    badges.push({ key: "hidden", className: styles.unlisted, icon: <IconEyeOff aria-hidden="true" width={14} height={14} style={{ minWidth: '14px' }} />, label: t("components:visibility_badge.hidden") });
+  }
   if (status === IterationStatus.DRAFT) {
     badges.push({ key: "draft", className: styles.draft, icon: <IconPencil aria-hidden="true" width={14} height={14} style={{ minWidth: '14px' }} />, label: t("components:visibility_badge.draft") });
   }

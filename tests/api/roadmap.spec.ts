@@ -1,13 +1,14 @@
 import { expect, test } from "../lib/users";
 import {
-  createAction, createGoal, createIteration, createRoadmap, deleteRoadmap, expectPageStatus, groupIdByName, pageEntity, pageEntityWhen, pageStatus, putJson, Seed,
+  createAction, createGoal, createIteration, createRoadmap, deleteRoadmap, expectPageStatus, flightPayload, groupIdByName, pageEntity, pageEntityWhen, pageStatus, putJson, Seed,
 } from "../lib/api";
+import type { APIRequestContext } from "playwright/test";
 
 /*
  * Contract of /api/roadmap: creating with grants, what each sharing level lets
  * a member / an orgless user / an anonymous visitor read, the manager-only
- * rules (PUBLIC, `access` on update, delete), parent linking, stale timestamps
- * and the delete cascade. Readability is checked through the page routes.
+ * rules (PUBLIC, `access` and `hidden` on update, delete), parent linking, stale
+ * timestamps, hidden roadmaps leaving the listings, and the delete cascade. Readability is checked through the page routes.
  */
 
 // Page read-backs poll for the fresh render on a shared, loaded dev server; give them room
@@ -16,6 +17,11 @@ test.slow(true, "read-after-write polling against the shared dev server");
 /** PUT /api/roadmap with a fresh timestamp */
 function update(id: string, fields: Record<string, unknown>) {
   return { id, timestamp: Date.now(), ...fields };
+}
+
+/** Waits until the start page at `url` does (or doesn't) list the roadmap's first version */
+async function expectListed(request: APIRequestContext, url: string, roadmapId: string, listed: boolean, message: string) {
+  await expect.poll(async () => (await flightPayload(request, url)).includes(`/roadmap/${roadmapId}/v1`), { message, timeout: 60_000 }).toBe(listed);
 }
 
 test.describe("Create", () => {
@@ -224,6 +230,88 @@ test.describe("Update", () => {
     finally {
       await deleteRoadmap(admin, childId);
       await deleteRoadmap(admin, hiddenId);
+    }
+  });
+});
+
+test.describe("Hidden", () => {
+  test("only managers may hide: a read-write grant gets 403, a non-boolean 400", async ({ admin, anita, sandbox }) => {
+    const groupId = await groupIdByName(admin, sandbox.orgId, Seed.groupName);
+    const id = await createRoadmap(admin, sandbox.orgId, { name: `Hide RW ${sandbox.label}`, access: { sharing: "ORG", grants: [{ groupId, accessLevel: "RW" }] } });
+    try {
+      expect((await pageEntity(admin, `/roadmap/${id}`, id))?.hidden, "roadmaps start listed").toBe(false);
+
+      const writer = await anita.put("/api/roadmap", { data: update(id, { hidden: true }) });
+      expect(writer.status(), `RW grant: ${await writer.text()}`).toBe(403);
+      const unchanged = await anita.put("/api/roadmap", { data: update(id, { hidden: false }) });
+      expect(unchanged.status(), `even the current value: ${await unchanged.text()}`).toBe(403);
+      const invalid = await admin.put("/api/roadmap", { data: update(id, { hidden: "yes" }) });
+      expect(invalid.status(), await invalid.text()).toBe(400);
+
+      await putJson(admin, "/api/roadmap", update(id, { hidden: true }));
+      await pageEntityWhen(admin, `/roadmap/${id}`, id, roadmap => roadmap?.hidden === true);
+      // Other updates leave the flag alone
+      await putJson(anita, "/api/roadmap", update(id, { name: `Hide RW renamed ${sandbox.label}` }));
+      await pageEntityWhen(admin, `/roadmap/${id}`, id, roadmap => roadmap?.name === `Hide RW renamed ${sandbox.label}` && roadmap.hidden === true);
+
+      await putJson(admin, "/api/roadmap", update(id, { hidden: false }));
+      await pageEntityWhen(admin, `/roadmap/${id}`, id, roadmap => roadmap?.hidden === false);
+    }
+    finally {
+      await deleteRoadmap(admin, id);
+    }
+  });
+
+  test("a hidden roadmap leaves the listings but stays reachable by URL; show hidden brings back the writable ones", async ({ admin, anita, sandbox }) => {
+    const groupId = await groupIdByName(admin, sandbox.orgId, Seed.groupName);
+    // anita writes to one and only reads the other
+    const writableId = await createRoadmap(admin, sandbox.orgId, { name: `Hidden writable ${sandbox.label}`, access: { sharing: "ORG", grants: [{ groupId, accessLevel: "RW" }] } });
+    const readableId = await createRoadmap(admin, sandbox.orgId, { name: `Hidden readable ${sandbox.label}`, access: { sharing: "ORG", grants: [] } });
+    try {
+      const goalIds: string[] = [];
+      for (const id of [writableId, readableId]) {
+        const iterationId = await createIteration(admin, id);
+        goalIds.push(await createGoal(admin, iterationId, { name: `Goal ${sandbox.label}` }));
+      }
+      const publicList = "/?org=public";
+      const orgLanding = `/?org=${sandbox.orgId}`;
+      const showHidden = (url: string) => `${url}&showHidden=true`;
+
+      // Listed to begin with, so the checks below aren't vacuous
+      for (const id of [writableId, readableId]) {
+        await expectListed(anita, publicList, id, true, `${id} listed before hiding`);
+        await expectListed(anita, orgLanding, id, true, `${id} on the org landing before hiding`);
+      }
+
+      for (const id of [writableId, readableId]) await putJson(admin, "/api/roadmap", update(id, { hidden: true }));
+
+      for (const id of [writableId, readableId]) {
+        await expectListed(anita, publicList, id, false, `${id} off the public list once hidden`);
+        await expectListed(anita, orgLanding, id, false, `${id} off the org landing once hidden`);
+        await expectListed(admin, orgLanding, id, false, `${id} off the landing for the manager too`);
+      }
+
+      // Still reachable by URL with the same access, and flagged there
+      for (const id of [writableId, readableId]) {
+        expect(await pageStatus(anita, `/roadmap/${id}`)).toBe(200);
+        expect(await pageStatus(anita, `/roadmap/${id}/v1`)).toBe(200);
+        expect((await pageEntity(anita, `/roadmap/${id}`, id))?.hidden).toBe(true);
+      }
+      for (const goalId of goalIds) expect(await pageStatus(anita, `/goal/${goalId}`)).toBe(200);
+
+      // Show hidden: the writable one comes back for anita, the read-only one doesn't; the manager gets both
+      await expectListed(anita, showHidden(publicList), writableId, true, "writable hidden roadmap with show hidden");
+      await expectListed(anita, showHidden(orgLanding), writableId, true, "writable hidden roadmap on the landing with show hidden");
+      await expectListed(anita, showHidden(publicList), readableId, false, "read-only hidden roadmap stays out with show hidden");
+      await expectListed(admin, showHidden(orgLanding), readableId, true, "the manager sees every hidden roadmap with show hidden");
+
+      // Showing it again puts it back
+      await putJson(admin, "/api/roadmap", update(readableId, { hidden: false }));
+      await expectListed(anita, publicList, readableId, true, "listed again once shown");
+    }
+    finally {
+      await deleteRoadmap(admin, writableId);
+      await deleteRoadmap(admin, readableId);
     }
   });
 });

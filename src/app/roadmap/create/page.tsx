@@ -3,6 +3,7 @@ import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getRoadmaps } from '@/fetchers';
+import { HiddenRoadmaps } from "@/types/enums";
 import { getOrgOptions } from '@/fetchers/getOrgOptions';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
@@ -24,7 +25,7 @@ export default async function Page() {
   const [t, session, parentRoadmapOptions, orgOptions] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getRoadmaps(),
+    getRoadmaps(HiddenRoadmaps.Exclude),
     getOrgOptions(),
   ]);
 

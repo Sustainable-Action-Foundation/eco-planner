@@ -1,11 +1,11 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { listedGoalsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { listedGoalsWHERE, listedRoadmapsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { GeoAreaType } from "@/lib/prisma/generated";
 import { isLikeAspect } from "@/functions/likeAspect";
-import { LikeAspect, LikeScope } from "@/types/enums";
+import { HiddenRoadmaps, LikeAspect, LikeScope } from "@/types/enums";
 import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import type { UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -230,7 +230,8 @@ async function getCachedLikedGoals(orgId: string | null, areaCode: string | null
       where: {
         likes: { some: { user: { memberships: { some: inScope } } } },
         roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
-        AND: [listedGoalsWHERE(accessContext)],
+        // Goals of hidden roadmaps leave the ranking with their roadmap
+        AND: [listedGoalsWHERE(accessContext), { roadmap_iteration: { roadmap: listedRoadmapsWHERE(accessContext, HiddenRoadmaps.Exclude) } }],
       },
       select: {
         id: true,

@@ -486,6 +486,12 @@ export function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInp
       isAccessControlInput(roadmap.access)
     ) &&
 
+    // hidden: boolean | undefined;
+    (
+      typeof roadmap.hidden === 'boolean' ||
+      roadmap.hidden === undefined
+    ) &&
+
     // parentRoadmapId: string | null | undefined;
     (
       typeof roadmap.parentRoadmapId === 'string' ||

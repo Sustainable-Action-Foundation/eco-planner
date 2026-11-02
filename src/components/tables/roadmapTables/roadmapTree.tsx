@@ -132,7 +132,7 @@ function IterationLink({ iteration, t }: { iteration: TreeIteration, t: TFunctio
       {/* Name, version */}
       <div className="flex align-items-center gap-50 flex-wrap-wrap">
         {t("components:roadmap_tree.title", { name: iteration.roadmap.name, version: iteration.version })}
-        <VisibilityBadges status={iteration.status} />
+        <VisibilityBadges hidden={iteration.roadmap.hidden} status={iteration.status} />
       </div>
       {/* Type, goal count */}
       <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
@@ -180,6 +180,7 @@ async function NestedRoadmapRenderer({
                     <ControlsMenu
                       accessLevel={accessLevel}
                       object={node}
+                      rowIsRoadmap={true}
                     />
                   </span>
                 </summary>
@@ -219,6 +220,7 @@ async function NestedRoadmapRenderer({
                 <ControlsMenu
                   accessLevel={accessLevel}
                   object={node}
+                  rowIsRoadmap={true}
                 />
               </span>
             </li>

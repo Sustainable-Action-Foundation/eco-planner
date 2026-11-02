@@ -279,8 +279,9 @@ export async function PUT(request: NextRequest) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
 
-    // Sharing settings are manager-only: read-write grants must not be able to (re)publish content
-    if (roadmap.access !== undefined && !hasAdminAccess(currentAccess)) {
+    // Sharing settings are manager-only: read-write grants must not be able to (re)publish content.
+    // Hiding is a listing setting next to sharing, so it is manager-only too.
+    if ((roadmap.access !== undefined || roadmap.hidden !== undefined) && !hasAdminAccess(currentAccess)) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
 
@@ -364,6 +365,7 @@ export async function PUT(request: NextRequest) {
         parent_roadmap: roadmap.parentRoadmapId === undefined ? undefined
           : roadmap.parentRoadmapId === null ? { disconnect: true }
             : { connect: { id: roadmap.parentRoadmapId } },
+        hidden: roadmap.hidden,
         ...(resolvedAccess?.ok ? {
           access_control: {
             update: {
@@ -384,7 +386,9 @@ export async function PUT(request: NextRequest) {
     // Invalidate old cache; expire immediately so the follow-up navigation sees the update.
     // Sharing decides who may read everything under the roadmap; every access-filtered reader
     // (goals, actions, effects, series, likes) declares `roadmap` for that reason (caching.md),
-    // so this one tag also expires them when sharing or grants change.
+    // so this one tag also expires them when sharing or grants change. The same goes for
+    // hiding: every listing reader that filters on it (roadmaps, iterations, actions, likes,
+    // national goal matches) declares `roadmap`.
     revalidateTag('roadmap', { expire: 0 });
     // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },

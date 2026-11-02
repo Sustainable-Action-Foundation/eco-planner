@@ -9,6 +9,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getOneGoal, getRoadmaps } from "@/fetchers";
+import { HiddenRoadmaps } from "@/types/enums";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: { params: Promise<{ goalId: string }> }): Promise<Metadata> {
@@ -42,7 +43,8 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
     serveTea("pages"),
     getUserAccessContext(),
     getOneGoal(params.goalId),
-    getRoadmaps(),
+    // Writable: the goal's own roadmap may be hidden and the form reads it (filtered below)
+    getRoadmaps(HiddenRoadmaps.Writable),
   ]);
 
   let goalAccessData: AccessControlled | null = null;
@@ -57,7 +59,8 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
     return notFound();
   }
 
-  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));
+  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext))
+    && (!roadmap.hidden || roadmap.iterations.some(candidate => candidate.id === currentGoal.roadmap_iteration_id)));
 
   return (
     <>

@@ -15,7 +15,8 @@ import { clientSafeGetRoadmapIterations, clientSafeGetOneRoadmapIteration, clien
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { parseUnit } from "@/functions/unit";
-import { BaselineType } from "@/types/enums";
+import { BaselineType, HiddenRoadmaps } from "@/types/enums";
+
 import { Trans } from "react-i18next/TransWithoutContext";
 import i18next from "i18next";
 
@@ -283,7 +284,8 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
   // Roadmap iterations are the top-level nodes; each one's goals are fetched
   // lazily the first time it's expanded, via onExpand.
   useEffect(() => {
-    clientSafeGetRoadmapIterations()
+    // A picker: hidden roadmaps stay out (an inherited baseline keeps working through its recipe)
+    clientSafeGetRoadmapIterations(HiddenRoadmaps.Exclude)
       .then((iterationList) => {
         setTreeItems(
           iterationList.map((iteration): TreeItem => ({

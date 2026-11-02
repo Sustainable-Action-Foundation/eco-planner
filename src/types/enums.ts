@@ -145,3 +145,15 @@ export const LikeAspect = {
   InfluenceUpward: "INFLUENCE_UPWARD",
 } as const;
 export type LikeAspect = (typeof LikeAspect)[keyof typeof LikeAspect];
+
+/**
+ * Which hidden roadmaps a roadmap or iteration query includes. Hiding is listing only, never access:
+ * listings and pickers exclude hidden roadmaps, the "show hidden" toggle adds back the ones the user
+ * can write to, and lookups by reference (recipes, parents, target versions) include them all.
+ */
+export const HiddenRoadmaps = {
+  Exclude: "EXCLUDE",
+  Writable: "WRITABLE",
+  Include: "INCLUDE",
+} as const;
+export type HiddenRoadmaps = (typeof HiddenRoadmaps)[keyof typeof HiddenRoadmaps];

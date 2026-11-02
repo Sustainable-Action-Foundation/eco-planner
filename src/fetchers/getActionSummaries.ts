@@ -2,9 +2,10 @@ import "server-only";
 import { actionSummarySelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { visibleActionsWHERE } from "@/lib/accessFilters";
+import { listedRoadmapsWHERE, visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { ActionSummary, UserAccessContext } from "@/types";
+import { HiddenRoadmaps } from "@/types/enums";
 import { cacheTag } from "next/cache";
 
 /**
@@ -32,7 +33,14 @@ async function getCachedActionSummaries(accessContext: UserAccessContext | null,
 
   return boundedFill("getCachedActionSummaries", async () => {
     return await prisma.actions.findMany({
-      where: { AND: [orgId ? { org_id: orgId } : {}, visibleActionsWHERE(accessContext)] },
+      where: {
+        AND: [
+          orgId ? { org_id: orgId } : {},
+          visibleActionsWHERE(accessContext),
+          // Actions of hidden roadmaps stay out of the lists, like the roadmaps themselves
+          { OR: [{ roadmap_iteration: null }, { roadmap_iteration: { roadmap: listedRoadmapsWHERE(accessContext, HiddenRoadmaps.Exclude) } }] },
+        ],
+      },
       select: actionSummarySelection,
     });
   });

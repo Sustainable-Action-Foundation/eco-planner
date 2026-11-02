@@ -1,3 +1,4 @@
+import { HiddenRoadmaps } from "@/types/enums";
 import EffectForm from "@/components/form/forms/effect";
 import { getOneAction, getOneGoal, getRoadmapIterations } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
@@ -35,7 +36,8 @@ export default async function Page(
     getUserAccessContext(),
     getOneAction(typeof searchParams.actionId === 'string' ? searchParams.actionId : ''),
     getOneGoal(typeof searchParams.goalId === 'string' ? searchParams.goalId : ''),
-    getRoadmapIterations(),
+    // Writable: preselected action/goal versions may sit in a hidden roadmap (filtered below)
+    getRoadmapIterations(HiddenRoadmaps.Writable),
   ]);
 
   // Roadmapless actions (the public action database) are editable by the owning org's managers
@@ -55,7 +57,9 @@ export default async function Page(
     || (goal && !hasEditAccess(accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, status: goal.roadmap_iteration.status }, accessContext)))
   );
 
-  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
+  // Hidden roadmaps stay out of the pickers, except the versions of a preselected action or goal
+  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext))
+    && (!iteration.roadmap.hidden || iteration.id === action?.roadmap_iteration_id || iteration.id === goal?.roadmap_iteration_id));
 
   return (
     <>

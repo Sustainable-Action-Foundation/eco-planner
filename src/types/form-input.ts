@@ -56,6 +56,9 @@ export type RoadmapUpdateInput = {
   /** Sharing settings; only org managers and super admins may send this */
   access: AccessControlInput | undefined,
 
+  /** Hidden roadmaps are left out of listings but stay reachable by URL; like sharing, manager-only */
+  hidden: boolean | undefined,
+
   // UUID for the parent roadmap (if any)
   parentRoadmapId: string | null | undefined,
 

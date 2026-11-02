@@ -2,13 +2,14 @@ import "server-only";
 import { getCuratedHistoricalEntries } from "@/fetchers/getCuratedHistoricalData";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { publishedIterationsOfTypeWHERE } from "@/lib/accessFilters";
+import { listedRoadmapsWHERE, publishedIterationsOfTypeWHERE } from "@/lib/accessFilters";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import { prisma } from "@/lib/prisma";
 import { GoalListing, RoadmapType } from "@/lib/prisma/generated";
 import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { NationalGoalMapping } from "@/lib/curatedHistoricalData";
 import type { DateValues, UserAccessContext } from "@/types";
+import { HiddenRoadmaps } from "@/types/enums";
 import type { TFunction } from "i18next";
 import { cacheTag } from "next/cache";
 
@@ -107,6 +108,8 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
         listing: { not: GoalListing.UNLISTED },
         data_series: { isNot: null },
         roadmap_iteration: publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL),
+        // Hidden national roadmaps aren't offered for copying (their goals still resolve by reference)
+        AND: [{ roadmap_iteration: { roadmap: listedRoadmapsWHERE(accessContext, HiddenRoadmaps.Exclude) } }],
       },
       select: {
         id: true,
