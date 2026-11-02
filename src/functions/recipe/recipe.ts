@@ -6,7 +6,7 @@ import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, Serializ
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import { MathjsError, RecipeError } from "@/functions/recipe/types/errors";
 import { isEvalTimeSeries, isEvalTimeVariable, isRecipe } from "@/functions/recipe/types/typeguards";
-import { parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
+import { convertToDeclaredUnit, parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
@@ -298,7 +298,9 @@ export class Recipe {
       result = Array(axis.length).fill(result.clone()) as MathJSUnit[];
     }
 
-    const evaluated = parseDateValuesFromVector(result, axis);
+    // Expressed in the declared unit where the evaluated one converts to it
+    // (kWh → MWh, procent^2 → procent); see convertToDeclaredUnit
+    const evaluated = parseDateValuesFromVector(convertToDeclaredUnit(result, this.unit), axis);
     if (Object.keys(evaluated.dateValues).length === 0) {
       throw new RecipeError("The result has no values: the selected data series have no overlapping years. Adjust their date ranges or picks.");
     }

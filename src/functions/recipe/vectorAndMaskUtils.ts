@@ -214,6 +214,27 @@ export function cancelMatchingUnits(unit: MathJSUnit): MathJSUnit {
   return cancelled;
 }
 
+/**
+ * The vector expressed in the recipe's declared unit where that is a
+ * conversion rather than a relabelling: an evaluated `kWh` declared as `MWh`
+ * is divided by 1000, `procent^2` or `procent person / person` declared as
+ * `procent` becomes plain procent, and a dimensionless leftover like `kWh / Wh`
+ * declared unitless becomes its ratio. Entries without any unit (a bare
+ * number, as a manual series or a share of two absolutes evaluates to) are
+ * left alone: the declared unit is then a label, which is what the manual
+ * input relies on. A declared unit the result can't be converted to is left
+ * to the caller's relabelling too (the pre-existing behaviour).
+ */
+export function convertToDeclaredUnit(vector: MathJSUnit[], declared: Unit): MathJSUnit[] {
+  if (declared === UnitFlags.Missing) return vector;
+  const target = declared === UnitFlags.Unitless ? mathjs.unit(1) : isMathjsUnit(declared) ? mathjs.unit(1, declared) : null;
+  if (!target) return vector;
+  return vector.map(entry => {
+    if (entry.units.length === 0 || !entry.equalBase(target)) return entry;
+    return declared === UnitFlags.Unitless ? mathjs.unit(entry.value ?? NaN) : entry.to(declared);
+  });
+}
+
 export function getPrevailingUnit(existingUnit: Unit, newUnit: Unit): Unit {
   // A real unit or an explicit "unitless" takes precedence; only a missing
   // newUnit falls back to the existing one.
