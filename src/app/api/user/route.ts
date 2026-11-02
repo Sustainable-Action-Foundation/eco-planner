@@ -1,10 +1,10 @@
 import type { NextRequest } from "next/server";
+import { readJson } from "@/functions/readJson";
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { normalizeName, nameMaxLength } from "@/functions/personName";
-import type { JSONValue } from "@/types";
 
 /**
  * The signed-in user's own account. PATCH sets the first and last name, asked for
@@ -17,7 +17,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await (request.json() as Promise<JSONValue>).catch(() => null);
+  const body = await readJson(request);
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return Response.json({ message: "Invalid body" }, { status: 400 });
   }

@@ -1,4 +1,5 @@
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
+import { readJson } from "@/functions/readJson";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import { Recipe } from "@/functions/recipe/recipe";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
@@ -83,7 +84,7 @@ function mayEditEffectParents(parents: Pick<EffectParents, "action" | "goal">, a
 export async function POST(request: NextRequest) {
   const [session, effect] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -201,7 +202,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, effect] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -336,7 +337,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, effect] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
