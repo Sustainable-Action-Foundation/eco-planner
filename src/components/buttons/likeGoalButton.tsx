@@ -39,6 +39,7 @@ export default function LikeGoalButton({
   aspects = [],
   className,
   size = 20,
+  layout = "stacked",
 }: {
   goalId: string,
   liked: boolean,
@@ -47,6 +48,12 @@ export default function LikeGoalButton({
   aspects?: LikeAspect[],
   className?: string,
   size?: number,
+  /**
+   * `stacked`: the aspects open under the button, right-aligned (goal page).
+   * `row`: inside a wrapping flex row, the open aspects take a full line of their own
+   * below the row instead of widening the button's cell
+   */
+  layout?: "stacked" | "row",
 }) {
   const { t } = useTranslation(["components", "common"]);
   const { addToast } = useToast();
@@ -126,7 +133,7 @@ export default function LikeGoalButton({
   }
 
   return (
-    <div className={`${styles.wrapper} ${className ?? ""}`} data-testid="goal-like">
+    <div className={`${layout === "row" ? styles.row : styles.wrapper} ${className ?? ""}`} data-testid="goal-like">
       <div className="display-inline-flex align-items-center gap-25">
         <button
           type="button"

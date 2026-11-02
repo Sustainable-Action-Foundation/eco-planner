@@ -239,7 +239,7 @@ async function LikedGoalRow({ goal, rank, orgId, canCreateGoals, showOrgCount, h
           : null}
       </div>
 
-      <LikeGoalButton goalId={goal.id} liked={goal.likedByViewer} likeCount={goal.likeCount} aspects={goal.viewerAspects} />
+      <LikeGoalButton goalId={goal.id} liked={goal.likedByViewer} likeCount={goal.likeCount} aspects={goal.viewerAspects} layout="row" />
       {showOrgCount ?
         <small className="color-gray" data-testid="liked-goal-org-count">
           {t("pages:home.liked_goals.org_count", { count: goal.orgCount })}
