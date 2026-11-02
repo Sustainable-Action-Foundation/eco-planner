@@ -383,6 +383,7 @@
     "roadmap_type": "Typ av färdplan",
     "search_roadmaps": "Sök bland $t(common:roadmap_other)",
     "show_hidden": "Visa dolda färdplaner",
+    "show_hidden_on": "Visar dolda färdplaner",
     "sort_by": "Sortera utifrån"
   },
   "roadmap_deleter": {

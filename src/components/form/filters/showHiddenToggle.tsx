@@ -19,23 +19,27 @@ export default function ShowHiddenToggle({ className }: { className?: string }) 
 
   const checked = searchParams.get(showHiddenParam) === "true";
 
+  const toggle = () => {
+    const newParams = new URLSearchParams(window.location.search);
+    if (checked) newParams.delete(showHiddenParam);
+    else newParams.set(showHiddenParam, "true");
+    const query = newParams.toString();
+    startTransition(() => {
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    });
+  };
+
   return (
-    // The chip hides its checkbox, so the label carries the test id
-    <label className={`chip ${className ?? ""}`} aria-busy={isPending} data-testid="show-hidden-roadmaps">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => {
-          const newParams = new URLSearchParams(window.location.search);
-          if (e.target.checked) newParams.set(showHiddenParam, "true");
-          else newParams.delete(showHiddenParam);
-          const query = newParams.toString();
-          startTransition(() => {
-            router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-          });
-        }}
-      />
-      {t("components:roadmap_filters.show_hidden")}
-    </label>
+    // Same pill as the landing's other filters (scope, aspect): green when on
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={checked}
+      aria-busy={isPending}
+      className={`button round smooth font-size-14px padding-block-25${checked ? ' seagreen color-purewhite font-weight-500' : ''} ${className ?? ""}`}
+      data-testid="show-hidden-roadmaps"
+    >
+      {checked ? t("components:roadmap_filters.show_hidden_on") : t("components:roadmap_filters.show_hidden")}
+    </button>
   );
 }

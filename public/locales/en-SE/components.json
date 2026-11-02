@@ -383,6 +383,7 @@
     "roadmap_type": "Roadmap type",
     "search_roadmaps": "Search $t(common:roadmap_one)",
     "show_hidden": "Show hidden roadmaps",
+    "show_hidden_on": "Showing hidden roadmaps",
     "sort_by": "Sort by"
   },
   "roadmap_deleter": {
