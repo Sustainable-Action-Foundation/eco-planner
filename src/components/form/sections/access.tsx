@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from "react";
-import { IconBuildingCommunity, IconLock, IconWorld } from "@tabler/icons-react";
+import { IconBuildingCommunity, IconLock, IconWorld, IconX } from "@tabler/icons-react";
 import type { AccessControlInfo, AccessControlInput } from "@/types";
 import { AccessLevel, Sharing } from "@/lib/prisma/generated";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
+import SelectSingleSearch from "@/components/form/elements/combobox/selectSingleSearch";
 
 /** A grant row's selectable level; NONE means no grant for the group */
 const GrantChoice = {
@@ -65,6 +66,10 @@ export default function ConfigureAccess({
     });
   };
 
+  // Only granted groups are listed; the rest wait in the "add group" picker
+  const granted = groups.filter(group => (grants[group.id] ?? GrantChoice.None) !== GrantChoice.None);
+  const available = groups.filter(group => (grants[group.id] ?? GrantChoice.None) === GrantChoice.None);
+
   const changeSharing = (next: Sharing) => {
     setSharing(next);
     emit(next, grants);
@@ -75,6 +80,9 @@ export default function ConfigureAccess({
     setGrants(next);
     emit(sharing, next);
   };
+
+  // Under org or public sharing everyone already reads, so a new grant is there to let the group edit
+  const addGrant = (groupId: string) => changeGrant(groupId, sharing === Sharing.GROUPS ? GrantChoice.ReadOnly : GrantChoice.ReadWrite);
 
   return (
     <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -130,28 +138,71 @@ export default function ConfigureAccess({
 
       <fieldset className="fieldset-unset-pseudo-class">
         <legend className="font-weight-500 margin-bottom-50">{t("forms:access_selector.group_grants")}</legend>
+        {/* Managers otherwise build all-staff groups by hand to get exactly this */}
+        {sharing !== Sharing.PUBLIC ? (
+          <p className="margin-block-25 font-size-14px color-gray">{t("forms:access_selector.org_sharing_hint")}</p>
+        ) : null}
         {groups.length === 0 ? (
           <p className="margin-block-25 font-style-italic">{t("forms:access_selector.no_groups")}</p>
         ) : (
-          <div
-            className="grid margin-block-50 gap-50 align-items-center"
-            style={{ gridTemplateColumns: 'auto 1fr', columnGap: '1rem' }}
-          >
-            {groups.map(group => (
-              <label key={group.id} className="display-contents">
-                <span>{group.name}</span>
-                <select
-                  className="width-fit-content"
-                  value={grants[group.id] ?? GrantChoice.None}
-                  onChange={(e) => changeGrant(group.id, e.target.value as GrantChoice)}
-                >
-                  <option value={GrantChoice.None}>{t("forms:access_selector.no_access")}</option>
-                  <option value={GrantChoice.ReadOnly}>{t("forms:access_selector.read_only")}</option>
-                  <option value={GrantChoice.ReadWrite}>{t("forms:access_selector.read_write")}</option>
-                </select>
-              </label>
-            ))}
-          </div>
+          <>
+            {granted.length === 0 ? (
+              <p className="margin-block-25 font-style-italic" data-testid="grant-empty">
+                {sharing === Sharing.GROUPS ? t("forms:access_selector.no_grants_groups_sharing") : t("forms:access_selector.no_grants")}
+              </p>
+            ) : (
+              <ul className="margin-block-50 padding-0 flex flex-direction-column gap-25" style={{ listStyle: 'none', maxWidth: '36rem' }} data-testid="grant-list">
+                {granted.map(group => (
+                  <li
+                    key={group.id}
+                    className="flex align-items-center gap-50 padding-block-25 padding-inline-50 smooth"
+                    style={{ border: '1px solid var(--gray-80)' }}
+                    data-testid="grant-row"
+                    data-group-id={group.id}
+                  >
+                    <span className="flex-grow-100" style={{ overflowWrap: 'anywhere' }}>{group.name}</span>
+                    <select
+                      className="width-fit-content"
+                      aria-label={t("forms:access_selector.level_for", { group: group.name })}
+                      value={grants[group.id]}
+                      onChange={(e) => changeGrant(group.id, e.target.value as GrantChoice)}
+                    >
+                      <option value={GrantChoice.ReadOnly}>{t("forms:access_selector.read_only")}</option>
+                      <option value={GrantChoice.ReadWrite}>{t("forms:access_selector.read_write")}</option>
+                    </select>
+                    <button
+                      type="button"
+                      className="transparent padding-25 smooth display-flex"
+                      aria-label={t("forms:access_selector.remove_grant", { group: group.name })}
+                      title={t("forms:access_selector.remove_grant", { group: group.name })}
+                      onClick={() => changeGrant(group.id, GrantChoice.None)}
+                      data-testid="grant-remove"
+                    >
+                      <IconX aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {available.length > 0 ? (
+              // Remounted after every pick so the picker is empty again for the next group
+              <SelectSingleSearch
+                key={granted.length}
+                props={{
+                  id: "grant-add",
+                  name: "grant-add",
+                  className: "margin-top-50",
+                  style: { maxWidth: '36rem' },
+                  placeholder: t("forms:access_selector.add_group"),
+                }}
+                defaultValue={false}
+                options={available.map(group => ({ name: group.name, value: group.id }))}
+                onChange={(option) => { if (option) addGrant(option.value); }}
+              />
+            ) : (
+              <p className="margin-block-25 font-size-14px color-gray">{t("forms:access_selector.all_groups_granted")}</p>
+            )}
+          </>
         )}
       </fieldset>
     </fieldset>

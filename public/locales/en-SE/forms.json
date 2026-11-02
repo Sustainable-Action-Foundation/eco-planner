@@ -17,7 +17,14 @@
     "read_write": "Read and edit",
     "granted_groups_only_description": "Hidden from everyone except the groups given access below.",
     "org_members_description": "Every member of the organization can see it; groups below may also edit.",
-    "all_users_description": "Visible to anyone, logged in or not. Editing still follows the group access below."
+    "all_users_description": "Visible to anyone, logged in or not. Editing still follows the group access below.",
+    "org_sharing_hint": "For everyone in the organization to see it, choose “Everyone in the organization” above; no all-staff group is needed.",
+    "add_group": "Add a group …",
+    "remove_grant": "Remove access for {{group}}",
+    "level_for": "Access for {{group}}",
+    "no_grants": "No group has specific access.",
+    "no_grants_groups_sharing": "No group has access yet: only the organization's managers can see it.",
+    "all_groups_granted": "Every group in the organization has access."
   },
   "action": {
     "action_description": "Description",

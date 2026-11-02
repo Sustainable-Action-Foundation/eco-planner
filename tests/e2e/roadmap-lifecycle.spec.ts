@@ -18,9 +18,21 @@ const navigationTimeout = 60_000;
  * is removed through the API afterwards in case the UI delete never ran.
  */
 
-/** The grant select of a group in the sharing editor of the roadmap form */
+/** The row of a granted group in the sharing editor of the roadmap form; only granted groups have one */
+function grantRow(page: Page, group: string) {
+  return page.getByTestId("grant-row").filter({ visible: true }).filter({ hasText: group });
+}
+
+/** The level select of a granted group */
 function grantSelect(page: Page, group: string) {
-  return visible(page, "label").filter({ hasText: group }).locator("select");
+  return grantRow(page, group).locator("select");
+}
+
+/** Grants a group through the "add a group" picker and sets its level */
+async function grantGroup(page: Page, group: string, level: "RO" | "RW") {
+  await visible(page, "#grant-add").click();
+  await visible(page, "#grant-add-dialog-listbox li").filter({ hasText: group }).first().click();
+  await grantSelect(page, group).selectOption(level);
 }
 
 /** The name of a geo area by its SCB code (the form lists areas by name) */
@@ -56,7 +68,7 @@ async function fillRoadmapForm(page: Page, name: string, description: string, al
   await visible(page, "#geo-area").click();
   await visible(page, "#geo-area-dialog-listbox li").filter({ hasText: areaName("03") }).click();
   await visible(page, 'input[name="sharing"][value="ORG"]').check();
-  await grantSelect(page, Seed.groupName).selectOption("RW");
+  await grantGroup(page, Seed.groupName, "RW");
   await visible(page, "#parent-roadmap").click();
   await visible(page, "#parent-roadmap-dialog-listbox li").filter({ hasText: Seed.nationalRoadmap }).click();
 }
@@ -303,7 +315,7 @@ test.describe.serial("Roadmap lifecycle, required fields only", () => {
     await expect(visible(page, "#actor")).toHaveValue("");
     // New roadmaps are shared with the org and no group holds a grant
     await expect(visible(page, 'input[name="sharing"][value="ORG"]')).toBeChecked();
-    await expect(grantSelect(page, Seed.groupName)).toHaveValue("NONE");
+    await expect(grantRow(page, Seed.groupName)).toHaveCount(0);
     expect((await submitAndWait(page, "/api/roadmap", "PUT")).status()).toBe(200);
     await expect(page).toHaveURL(`/roadmap/${roadmapId}`, { timeout: navigationTimeout });
   });
@@ -311,7 +323,7 @@ test.describe.serial("Roadmap lifecycle, required fields only", () => {
   test("sharing with granted groups only round-trips", async ({ page }) => {
     await page.goto(`/roadmap/${roadmapId}/edit`);
     await visible(page, 'input[name="sharing"][value="GROUPS"]').check();
-    await grantSelect(page, Seed.groupName).selectOption("RW");
+    await grantGroup(page, Seed.groupName, "RW");
     expect((await submitAndWait(page, "/api/roadmap", "PUT")).status()).toBe(200);
     await expect(page).toHaveURL(`/roadmap/${roadmapId}`, { timeout: navigationTimeout });
 
