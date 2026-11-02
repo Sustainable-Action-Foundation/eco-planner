@@ -35,7 +35,7 @@ env:
 
 jobs:
   de-duplication:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       should_skip: ${{ steps.decision.outputs.should_skip }}
       reason: ${{ steps.decision.outputs.reason }}
@@ -68,7 +68,7 @@ jobs:
   build-and-publish:
     needs: de-duplication
     if: ${{ needs.de-duplication.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
@@ -210,7 +210,7 @@ jobs:
     needs: build-and-publish
     # Deploys on dev pushes (and manual dispatches on dev that pushed an image)
     if: ${{ github.ref == 'refs/heads/dev' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.should_push == true)) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     environment:
@@ -287,7 +287,7 @@ jobs:
   deploy-production:
     needs: build-and-publish
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.should_push == true)) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     # The production environment's required reviewers gate this job
