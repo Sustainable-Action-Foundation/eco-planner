@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconShieldOff, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
+import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
 import { getUserAccessContext } from '@/fetchers';
 import { OrgRole } from '@/lib/prisma/generated';
 import DisabledCreateButton from '@/components/buttons/disabledCreateButton';
@@ -48,13 +48,13 @@ export default async function Sidebar() {
               // A suspended super admin is reminded on every page, also in the icon-only rail
               <Link
                 href={`/@${user.username}`}
-                className="margin-bottom-300 color-pureblack rounded"
+                className={`margin-bottom-300 color-pureblack rounded ${styles.suspended}`}
                 title={t("components:sidebar.super_admin_suspended_hint")}
                 data-testid="super-admin-suspended"
               >
-                <IconShieldOff aria-hidden='true' />
+                <IconUser aria-hidden='true' />
                 {t("components:sidebar.my_profile")}
-                <span className={styles['suspended-badge']}>{t("components:sidebar.super_admin_suspended")}</span>
+                <span className={styles['suspended-text']}>{t("components:sidebar.super_admin_suspended")}</span>
               </Link>
               :
               <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">

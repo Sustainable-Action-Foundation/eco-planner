@@ -211,11 +211,24 @@
 }
 
 /* "Super admin off" next to the profile link while a super admin has suspended their powers */
-.suspended-badge {
-  padding: .125rem .5rem;
-  border-radius: 9999px;
-  background-color: var(--gray-40, #666);
-  color: white;
-  font-size: 12px;
-  font-weight: 500;
+.suspended {
+  /* The admin-panel yellow as stripes: the account button says "superadmin mode is off" without taking any room */
+  --stripe: hsl(48, 100%, 92%);
+  --stripe-alt: hsl(45, 90%, 80%);
+  background-image: repeating-linear-gradient(135deg, var(--stripe) 0 8px, var(--stripe-alt) 8px 16px);
+}
+
+.sidebar-menu a.suspended:hover {
+  --stripe: hsl(48, 100%, 88%);
+  --stripe-alt: hsl(45, 90%, 74%);
+  background-color: transparent;
+}
+
+.suspended-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
