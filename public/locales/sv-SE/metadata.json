@@ -66,5 +66,8 @@
   },
   "welcome": {
     "description": "Fyll i ditt namn"
+  },
+  "likes_area": {
+    "title": "Gillade målbanor i området"
   }
 }

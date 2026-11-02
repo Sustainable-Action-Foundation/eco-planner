@@ -79,7 +79,8 @@
   "goalLike": {
     "liked": "Goal liked",
     "not_found": "The goal does not exist or you do not have access to it",
-    "unliked": "Like removed"
+    "unliked": "Like removed",
+    "invalid_aspect": "Unknown kind of ability to act: {{aspect}}"
   },
   "attachment": {
     "not_found": "The post does not exist or you do not have permission to edit its documents",

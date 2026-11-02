@@ -498,7 +498,12 @@
   "like_button": {
     "failed": "Kunde inte spara gilla-markeringen: {{details}}",
     "like": "Gilla målbanan",
-    "unlike": "Ta bort din gilla-markering"
+    "unlike": "Ta bort din gilla-markering",
+    "aspects_show": "Visa rådighet",
+    "aspects_hide": "Dölj rådighet",
+    "aspects_toggle": "Rådighet",
+    "aspects_toggle_count": "Rådighet ({{count}})",
+    "aspects_label": "Genom vilken rådighet kan ni påverka målbanan? Valfritt."
   },
   "logout_everywhere": {
     "title": "Logga ut överallt",

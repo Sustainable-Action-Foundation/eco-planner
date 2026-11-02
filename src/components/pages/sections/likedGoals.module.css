@@ -1,0 +1,22 @@
+/* The aspect counts under a liked goal, see likedGoals.tsx */
+.aspects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  list-style: none;
+}
+
+.aspect {
+  padding-inline: .5rem;
+  border-radius: 9999px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  background-color: var(--seagreen-90);
+  color: var(--seagreen-20);
+}
+
+.highlight {
+  background-color: var(--seagreen);
+  color: white;
+}
