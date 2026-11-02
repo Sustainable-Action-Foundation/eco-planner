@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { readJsonObject } from "@/functions/readJson";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
@@ -55,13 +56,19 @@ async function resolveOriginActionId(
  * Handles POST requests to the action API
  */
 export async function POST(request: NextRequest) {
-  const [session, actionCreate] = await Promise.all([
+  const [session, body] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<ActionInput>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  const actionCreate = body as ActionInput;
   if (!actionCreate.name) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
@@ -252,13 +259,19 @@ export async function POST(request: NextRequest) {
  * Handles PUT requests to the action API
  */
 export async function PUT(request: NextRequest) {
-  const [session, action] = await Promise.all([
+  const [session, body] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<ActionInput>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  const action = body as ActionInput;
   if (!action.actionId || !action.name) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
@@ -397,12 +410,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, action] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
-  if (!action.id) {
+  if (typeof action?.id !== 'string' || !action.id) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
     );

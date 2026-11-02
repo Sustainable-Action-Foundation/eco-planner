@@ -5,6 +5,7 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { DataSeries, DateValuesWithUnit, Unit } from "@/types";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 import { color_palette, generateApexChartOptions } from "../../config";
+import { yAxisBounds } from "../../functions/yAxisBounds";
 import { useTranslation } from "react-i18next";
 import { memo } from "react";
 import { UnitFlags } from "@/types/enums";
@@ -139,6 +140,7 @@ function getSiblingColor(index: number, total: number, baseHex: string): string 
 export function GoalGraph({
   chartType, // TODO: TURN INTO PROPER TYPE!
   chartOptionsType,
+  anchorZero = false,
   series: {
     main = null,
     baseline = null,
@@ -151,6 +153,8 @@ export function GoalGraph({
 }: {
   chartType: "main" | "thumbnail" | "siblings" | "preview" // TODO: This should be a type if i do it this way...  (also dislike this generally, probably want to pass options for each graph instead of doing it like this)
   chartOptionsType?: "line" | "area" | "bar" | "pie" | "donut" | "radialBar" | "scatter" | "bubble" | "heatmap" | "candlestick" | "boxPlot" | "radar" | "polarArea" | "rangeBar" | "rangeArea" | "treemap" | "funnel" | "pyramid" | "gauge" | undefined;
+  /** Pin the y axes at zero whenever the values lie on one side of it (the annual change, where zero is the reference); see {@link yAxisBounds} */
+  anchorZero?: boolean;
   series?: {
     main?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     baseline?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
@@ -223,6 +227,21 @@ export function GoalGraph({
   }
   const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
 
+  // The left axis carries every series but the comparison (which gets its own
+  // axis below); pin it at zero when the plotted values call for it. The
+  // thumbnail has no axis to pin.
+  if (Array.isArray(options.yaxis)) {
+    const leftValues = [
+      dateValueMaps.main,
+      dateValueMaps.baseline,
+      dateValueMaps.historical,
+      dateValueMaps.predictedOutcome,
+      dateValueMaps.parent,
+      ...(dateValueMaps.siblings ?? []),
+    ].flatMap((map) => (map ? Array.from(map.values()) : []));
+    Object.assign(options.yaxis[0], yAxisBounds(leftValues, { anchorZero }));
+  }
+
   // Two y-axes exist exactly when a comparison series is drawn (it gets its own
   // opposite axis below). Tag every legend entry with which axis it's plotted
   // against — left for everything, right for the comparison. The suffix goes on
@@ -277,6 +296,7 @@ export function GoalGraph({
       labels: { formatter: graphNumberFormatter },
       seriesName: comparison.name + rightAxisSuffix,
       opposite: true,
+      ...yAxisBounds(dateValueMaps.comparison.values(), { anchorZero }),
     });
 
     colors.push(color_palette.comparison.color);

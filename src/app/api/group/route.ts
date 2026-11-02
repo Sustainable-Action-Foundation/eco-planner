@@ -1,4 +1,5 @@
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
+import { readJsonObject } from "@/functions/readJson";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
@@ -45,7 +46,7 @@ async function validMembershipIds(orgId: string, memberIds: string[]): Promise<s
 export async function POST(request: NextRequest) {
   const [accessContext, body, t] = await Promise.all([
     getRequestContext(),
-    request.json() as Promise<{ orgId?: string, name?: string, memberIds?: string[] }>,
+    readJsonObject(request),
     serveTea("api"),
   ]);
 
@@ -55,6 +56,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
   const name = typeof body.name === 'string' ? body.name.trim() : '';
   const memberIds = Array.isArray(body.memberIds) ? body.memberIds.filter(id => typeof id === 'string') : [];
   if (!body.orgId || typeof body.orgId !== 'string' || !name) {
@@ -102,7 +108,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [accessContext, body, t] = await Promise.all([
     getRequestContext(),
-    request.json() as Promise<{ groupId?: string, name?: string, memberIds?: string[] }>,
+    readJsonObject(request),
     serveTea("api"),
   ]);
 
@@ -112,6 +118,11 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
   const name = typeof body.name === 'string' ? body.name.trim() : undefined;
   if (!body.groupId || typeof body.groupId !== 'string' || name === '') {
     return Response.json({ message: t('api:common.missing_input') },
@@ -168,13 +179,19 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [accessContext, body, t] = await Promise.all([
     getRequestContext(),
-    request.json() as Promise<{ groupId?: string }>,
+    readJsonObject(request),
     serveTea("api"),
   ]);
 
   if (!accessContext) {
     return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } },
+    );
+  }
+
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 

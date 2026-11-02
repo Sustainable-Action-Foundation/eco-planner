@@ -38,9 +38,10 @@ test.describe("Goal page", () => {
     await expect(yAxisLabels(page).first()).toHaveText("40");
     await expect(yAxisLabels(page).last()).toHaveText("10");
 
+    // The annual change is drawn against zero, its reference
     await graphType.selectOption("DELTA");
     await expect(yAxisLabels(page).first()).toHaveText("20");
-    await expect(yAxisLabels(page).last()).toHaveText("10");
+    await expect(yAxisLabels(page).last()).toHaveText("0");
 
     await graphType.selectOption("RELATIVE");
     await expect(yAxisLabels(page).first()).toHaveText("400");
@@ -53,6 +54,25 @@ test.describe("Goal page", () => {
 
     await visible(page, "#select-graphType").selectOption("MAIN");
     await expect(yAxisLabels(page).first()).toHaveText("40");
+  });
+
+  test("a linear goal's steady annual change is drawn at its size, not on a band around it", async ({ page, admin, sandbox }) => {
+    // 100 → 200 → 300 → 400: a change of 100 every year. Left to the chart, a flat
+    // series gets a 99–101 axis, which reads as if the scale never changed.
+    const goalId = await createGoal(admin, sandbox.iterationId, { name: `Linear ${sandbox.label}`, unit: "ton", dateValues: yearlyDateValues([100, 200, 300, 400]) });
+    await gotoGoal(page, goalId);
+
+    const graphType = visible(page, "#select-graphType");
+    await expect(yAxisLabels(page).first()).toHaveText("400", { timeout: 30_000 });
+
+    await graphType.selectOption("DELTA");
+    await expect(yAxisLabels(page).first()).toHaveText("100");
+    await expect(yAxisLabels(page).last()).toHaveText("0");
+
+    // Back on the goal itself the axis follows the data again
+    await graphType.selectOption("MAIN");
+    await expect(yAxisLabels(page).first()).toHaveText("400");
+    await expect(yAxisLabels(page).last()).toHaveText("100");
   });
 
   test("a percentage goal is not offered the change in percent", async ({ page, admin, sandbox }) => {

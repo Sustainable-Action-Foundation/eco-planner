@@ -1,4 +1,5 @@
 import findTypeFromId from "@/functions/findTypeFromId";
+import { readJson } from "@/functions/readJson";
 import { attachmentContentType, AttachmentRejection, MaxAttachmentBytes, MaxAttachmentsPerObject, rejectAttachment, sanitizeAttachmentName } from "@/functions/attachments";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { editableActionsWHERE, editableAttachmentsWHERE, writableAccessControlWHERE } from "@/lib/accessFilters";
@@ -8,7 +9,7 @@ import { deleteStoredObjects, isObjectStorageConfigured, putStoredObject } from 
 import { prisma } from "@/lib/prisma";
 import { consumeToken } from "@/lib/rateLimit";
 import { getSession } from "@/lib/session";
-import type { JSONValue, UserAccessContext } from "@/types";
+import type { UserAccessContext } from "@/types";
 import { isStandardObject } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, body, t] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<JSONValue>).catch(() => null),
+    readJson(request),
     serveTea("api"),
   ]);
 

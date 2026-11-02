@@ -8,15 +8,13 @@ import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../
 import { parseUnit } from "../../src/functions/unit";
 
 /*
- * Regression for the open bug card "Percent goals come out 100x too small
- * through any recipe": `procent` is a dimensionless hundredth in src/math.ts,
- * so mathjs collapses `90 procent * 0.5` into the bare number 0.45, and the
- * evaluator then relabels that as procent. These tests express what a percent
- * series should do; the ones that hit the bug are marked with test.fail so the
- * suite stays green until the evaluator is fixed, and flips when it is.
+ * Regression for the bug card "Percent goals come out 100x too small through
+ * any recipe": `procent` is a dimensionless hundredth in src/math.ts, and
+ * mathjs used to collapse `90 procent * 0.5` into the bare number 0.45, which
+ * the evaluator then relabelled as procent. The instance now runs with
+ * `predictable: true` so the unit survives, and the evaluator converts the
+ * result into the declared unit instead of relabelling it.
  */
-
-const PERCENT_BUG = "Bug card: `procent` collapses to a bare number in any product, so percent results are 100x too small (src/math.ts procent definition / Recipe.evaluate relabelling)";
 
 const isoYear = (year: number): ISOIshDate => `${year}-01-01T00:00:00.000Z`;
 const byYear = (result: DateValuesWithUnit | null): Record<number, number> => Object.fromEntries(
@@ -47,14 +45,12 @@ test.describe("Percent units through Recipe.evaluate", () => {
   });
 
   test("a percent series times a unitless scalar keeps its percent magnitude", async () => {
-    test.fail(true, PERCENT_BUG);
     const result = await new Recipe({ name: "Half", equation: "${share} * ${factor}", variables: [share(), scalar("factor", 0.5)] }).evaluate([]);
     expect(byYear(result)[2020]).toBeCloseTo(45);
     expect(result?.unit).toBe("procent");
   });
 
   test("copying a percent goal through the scalar method with factor 1 keeps the national values", async () => {
-    test.fail(true, PERCENT_BUG);
     // The copied goal declares procent as its unit, like the goal form does for a copy of `Elbilar\Andel av personbilskm`
     const nationalId = "11111111-1111-1111-1111-111111111111";
     const copy = new Recipe({
@@ -77,7 +73,6 @@ test.describe("Percent units through Recipe.evaluate", () => {
   });
 
   test("scaling a percent share by a per-year population ratio stays in percent", async () => {
-    test.fail(true, PERCENT_BUG);
     // The LEAP per-year population method: share .* extend(local) ./ extend(national); Boden is a hundredth of the nation
     const recipe = new Recipe({
       name: "Ratio",
@@ -89,8 +84,25 @@ test.describe("Percent units through Recipe.evaluate", () => {
     expect(byYear(result)[2020]).toBeCloseTo(0.9);
   });
 
+  test("a share of a share declared as percent is converted from procent^2", async () => {
+    const result = await new Recipe({ name: "Product", equation: "${share} * ${half}", variables: [share(), scalar("half", 50, "procent")], unit: parseUnit("procent") }).evaluate([]);
+    expect(result?.unit).toBe("procent");
+    expect(byYear(result)[2020]).toBeCloseTo(45);
+  });
+
+  test("a bare number declared as percent is labelled, not scaled (manual input and shares of absolutes)", async () => {
+    const result = await new Recipe({ name: "Share", equation: "${part} / ${whole}", variables: [scalar("part", 3), scalar("whole", 10)], unit: parseUnit("procent") }).evaluate([]);
+    expect(result?.unit).toBe("procent");
+    expect(byYear(result)[2020]).toBeCloseTo(0.3);
+  });
+
+  test("a declared unit the result converts to is a conversion, not a label", async () => {
+    const result = await new Recipe({ name: "Prefix", equation: "${energy} * ${k}", variables: [scalar("energy", 1500, "kWh"), scalar("k", 2)], unit: parseUnit("MWh") }).evaluate([]);
+    expect(result?.unit).toBe("MWh");
+    expect(byYear(result)[2020]).toBeCloseTo(3);
+  });
+
   test("a percent scalar times a unitless scalar is not relabelled 100x too small", async () => {
-    test.fail(true, PERCENT_BUG);
     const result = await new Recipe({ name: "Scalars", equation: "${p} * ${k}", variables: [scalar("p", 40, "procent"), scalar("k", 2)], unit: parseUnit("procent") }).evaluate([]);
     expect(byYear(result)[2020]).toBeCloseTo(80);
   });
