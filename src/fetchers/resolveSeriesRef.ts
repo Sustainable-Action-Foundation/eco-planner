@@ -134,7 +134,7 @@ async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof cop
     indicatorParameter: goal.indicator_parameter,
     unit: goal.data_series.unit,
     dataSeriesId: goal.data_series.id,
-    dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
+    dateValues: Object.fromEntries<number>(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])),
     geoArea: goal.roadmap_iteration.roadmap.geo_area,
     roadmapType: goal.roadmap_iteration.roadmap.type,
     storedSuggestions: goal.recipe_suggestions.map(row => Recipe.from(row.recipe).serialize()),

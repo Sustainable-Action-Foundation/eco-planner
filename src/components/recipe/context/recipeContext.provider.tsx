@@ -330,102 +330,134 @@ export function RecipeContextProvider({
       warnings,
       error,
     }}>
-      {isDebug ? (() => {
-        // Live view uses published (UI) + debounced (evaluated) state only; the
-        // canonical ref is read in the dump handler (refs must not be read in render).
-        const debugInfo = {
-          pendingEvaluation: !Recipe.areRecipesEqual(publishedRecipe, debouncedRecipe),
-          states: {
-            published: summarizeRecipe(publishedRecipe),
-            debounced: summarizeRecipe(debouncedRecipe),
-          },
-          availableDataSeries: {
-            count: availableDataSeries?.length ?? 0,
-            ids: (availableDataSeries ?? []).map(dataSeries => dataSeries.id),
-          },
-          evaluation: { resultingUnit, error, warnings, resultingDataSeries },
-          variables,
-        };
-
-        const dump = () => {
-          const serializeSafe = (recipe: Recipe) => {
-            try { return recipe.serialize(); }
-            catch (err) { return `<<serialize error: ${err instanceof Error ? err.message : String(err)}>>`; }
-          };
-          // Read the canonical ref here (event handler) and include it in the dump.
-          const canonical = canonicalRecipeRef.current;
-          const fullDump = {
-            ...debugInfo,
-            canonicalEqualsPublished: Recipe.areRecipesEqual(canonical, publishedRecipe),
-            states: { canonical: summarizeRecipe(canonical), ...debugInfo.states },
-            serialized: {
-              canonical: serializeSafe(canonical),
-              published: serializeSafe(publishedRecipe),
-              debounced: serializeSafe(debouncedRecipe),
-            },
-          };
-          console.debug("[Recipe debug] dump", fullDump);
-          void navigator.clipboard?.writeText(JSON.stringify(fullDump, null, 2)).catch(() => undefined);
-        };
-
-        return (
-          <div
-            style={{
-              position: "fixed",
-              right: 24,
-              bottom: 24,
-              zIndex: 9999,
-              width: 440,
-              maxWidth: "calc(100vw - 48px)",
-              display: "flex",
-              flexDirection: "column",
-              background: "white",
-              border: "1px solid #bbb",
-              borderRadius: 10,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-              opacity: 0.97,
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "0.5rem 0.75rem",
-                borderBottom: "1px solid #ddd",
-                fontFamily: "monospace",
-                fontSize: "0.85em",
-              }}
-            >
-              <strong style={{ flexGrow: 1 }}>
-                Recipe debug
-                {debugInfo.pendingEvaluation ? " · evaluating…" : ""}
-              </strong>
-              <button type="button" onClick={dump} style={{ transform: "none", padding: "0.2rem 0.5rem", fontSize: "0.85em" }}>
-                Dump (log + copy)
-              </button>
-              <button type="button" onClick={() => setIsDebug(false)} aria-label="Close debug panel" style={{ transform: "none", padding: "0.2rem 0.5rem", fontSize: "0.85em" }}>
-                ✕
-              </button>
-            </div>
-            <pre
-              style={{
-                margin: 0,
-                padding: "0.75rem",
-                maxHeight: "45vh",
-                overflow: "auto",
-                fontSize: "0.8em",
-                fontFamily: "monospace",
-              }}
-            >
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          </div>
-        );
-      })() : null}
+      {isDebug ? (
+        <RecipeDebugPanel
+          publishedRecipe={publishedRecipe}
+          debouncedRecipe={debouncedRecipe}
+          canonicalRecipeRef={canonicalRecipeRef}
+          availableDataSeries={availableDataSeries}
+          evaluation={{ resultingUnit, error, warnings, resultingDataSeries }}
+          variables={variables}
+          onClose={() => setIsDebug(false)}
+        />
+      ) : null}
 
       {children}
     </RecipeContext.Provider>
+  );
+}
+
+/**
+ * Floating debug view of the recipe states. Shows published (UI) + debounced
+ * (evaluated) state; the canonical ref is only read in the dump handler, never in render.
+ */
+function RecipeDebugPanel({
+  publishedRecipe,
+  debouncedRecipe,
+  canonicalRecipeRef,
+  availableDataSeries,
+  evaluation,
+  variables,
+  onClose,
+}: {
+  publishedRecipe: Recipe;
+  debouncedRecipe: Recipe;
+  canonicalRecipeRef: React.RefObject<Recipe>;
+  availableDataSeries?: DataSeries[];
+  evaluation: { resultingUnit: Unit; error: string | null; warnings: string[]; resultingDataSeries: DateValues | null };
+  variables: Recipe["variables"];
+  onClose: () => void;
+}) {
+  // Live view uses published (UI) + debounced (evaluated) state only; the
+  // canonical ref is read in the dump handler (refs must not be read in render).
+  const debugInfo = {
+    pendingEvaluation: !Recipe.areRecipesEqual(publishedRecipe, debouncedRecipe),
+    states: {
+      published: summarizeRecipe(publishedRecipe),
+      debounced: summarizeRecipe(debouncedRecipe),
+    },
+    availableDataSeries: {
+      count: availableDataSeries?.length ?? 0,
+      ids: (availableDataSeries ?? []).map(dataSeries => dataSeries.id),
+    },
+    evaluation,
+    variables,
+  };
+
+  const dump = () => {
+    const serializeSafe = (recipe: Recipe) => {
+      try { return recipe.serialize(); }
+      catch (err) { return `<<serialize error: ${err instanceof Error ? err.message : String(err)}>>`; }
+    };
+    // Read the canonical ref here (event handler) and include it in the dump.
+    const canonical = canonicalRecipeRef.current;
+    const fullDump = {
+      ...debugInfo,
+      canonicalEqualsPublished: Recipe.areRecipesEqual(canonical, publishedRecipe),
+      states: { canonical: summarizeRecipe(canonical), ...debugInfo.states },
+      serialized: {
+        canonical: serializeSafe(canonical),
+        published: serializeSafe(publishedRecipe),
+        debounced: serializeSafe(debouncedRecipe),
+      },
+    };
+    console.debug("[Recipe debug] dump", fullDump);
+    void navigator.clipboard?.writeText(JSON.stringify(fullDump, null, 2)).catch(() => undefined);
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        right: 24,
+        bottom: 24,
+        zIndex: 9999,
+        width: 440,
+        maxWidth: "calc(100vw - 48px)",
+        display: "flex",
+        flexDirection: "column",
+        background: "white",
+        border: "1px solid #bbb",
+        borderRadius: 10,
+        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+        opacity: 0.97,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "0.5rem 0.75rem",
+          borderBottom: "1px solid #ddd",
+          fontFamily: "monospace",
+          fontSize: "0.85em",
+        }}
+      >
+        <strong style={{ flexGrow: 1 }}>
+          Recipe debug
+          {debugInfo.pendingEvaluation ? " · evaluating…" : ""}
+        </strong>
+        <button type="button" onClick={dump} style={{ transform: "none", padding: "0.2rem 0.5rem", fontSize: "0.85em" }}>
+          Dump (log + copy)
+        </button>
+        <button type="button" onClick={() => onClose()} aria-label="Close debug panel" style={{ transform: "none", padding: "0.2rem 0.5rem", fontSize: "0.85em" }}>
+          ✕
+        </button>
+      </div>
+      <pre
+        style={{
+          margin: 0,
+          padding: "0.75rem",
+          maxHeight: "45vh",
+          overflow: "auto",
+          fontSize: "0.8em",
+          fontFamily: "monospace",
+        }}
+      >
+        {JSON.stringify(debugInfo, null, 2)}
+      </pre>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesGrid.module.css";
 import { isValidPastedInput } from "./utils";
 import Grid from "@/components/form/elements/grid/grid";
-import type { DateValues, DateValuesWithUnit } from "@/types";
+import type { DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { parseDecimalInput } from "@/functions/parseDecimalInput";
@@ -63,7 +63,7 @@ export default function DataSeriesGrid({
       if (parsed === null) continue;
       dateValues[`${year}-01-01T00:00:00.000Z`] = parsed;
     }
-    return { unit: UnitFlags.Missing, dateValues: dateValues as DateValues };
+    return { unit: UnitFlags.Missing, dateValues: dateValues };
   }, [value]);
 
   useEffect(() => {
