@@ -1,5 +1,6 @@
 'use client';
 
+import styles from "./superAdminToggle.module.css" with { type: "css" };
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -37,16 +38,18 @@ export default function SuperAdminToggle({ active }: {
   }
 
   return (
-    <label className="flex align-items-center gap-50">
-      <input
-        type="checkbox"
-        role="switch"
-        checked={active}
-        disabled={isLoading}
-        onChange={event => toggle(event.target.checked)}
-        data-testid="super-admin-toggle"
-      />
-      {active ? t("components:super_admin_toggle.on") : t("components:super_admin_toggle.off")}
-    </label>
+    <div className={`${styles.panel}${active ? "" : ` ${styles.off}`}`} data-testid="super-admin-panel">
+      <label className="flex align-items-center gap-50">
+        <input
+          type="checkbox"
+          role="switch"
+          checked={active}
+          disabled={isLoading}
+          onChange={event => toggle(event.target.checked)}
+          data-testid="super-admin-toggle"
+        />
+        {active ? t("components:super_admin_toggle.on") : t("components:super_admin_toggle.off")}
+      </label>
+    </div>
   );
 }

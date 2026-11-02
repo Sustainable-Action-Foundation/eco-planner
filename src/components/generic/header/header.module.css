@@ -212,16 +212,13 @@
 
 /* "Super admin off" next to the profile link while a super admin has suspended their powers */
 .suspended {
-  /* The admin-panel yellow as stripes: the account button says "superadmin mode is off" without taking any room */
-  --stripe: hsl(48, 100%, 92%);
-  --stripe-alt: hsl(45, 90%, 80%);
-  background-image: repeating-linear-gradient(135deg, var(--stripe) 0 8px, var(--stripe-alt) 8px 16px);
+  /* The admin yellow as stripes: the account button says "superadmin mode is off" without taking any room */
+  background-image: var(--admin-stripes);
 }
 
 .sidebar-menu a.suspended:hover {
-  --stripe: hsl(48, 100%, 88%);
-  --stripe-alt: hsl(45, 90%, 74%);
   background-color: transparent;
+  filter: brightness(.95);
 }
 
 .suspended-text {

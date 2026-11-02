@@ -70,6 +70,12 @@
   --primary-neutral: #f6f6f6;
   --secondary-neutral: #fefefe;
   --tertiary-neutral: #f9f9f9;
+
+  /* Admin yellow: the one colour that marks super-admin controls and state (admin panel, sidebar while the mode is off, the toggle itself) */
+  --admin-surface: hsl(48, 100%, 92%);
+  --admin-surface-alt: hsl(45, 90%, 80%);
+  --admin-border: hsl(45, 90%, 62%);
+  --admin-stripes: repeating-linear-gradient(135deg, var(--admin-surface) 0 8px, var(--admin-surface-alt) 8px 16px);
 }
 
 .neutral-background {
