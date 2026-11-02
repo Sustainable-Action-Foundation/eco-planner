@@ -155,13 +155,6 @@ jobs:
           # so --with-deps (which calls sudo apt-get) only runs on GitHub-hosted.
           yarn playwright install ${{ runner.environment == 'github-hosted' && '--with-deps' || '' }}
 
-      - name: Remove a leftover test stack
-        # A cancelled run (concurrency cancel-in-progress) kills Playwright before its global
-        # teardown, leaving the compose stack holding :8081 on the self-hosted runner; the next
-        # run then fails with "localhost:8081 is already used".
-        if: ${{ !inputs.skip_tests }}
-        run: docker compose -f docker/compose.testing.yaml down --remove-orphans || true
-
       - name: Run tests
         id: run-tests
         if: ${{ !inputs.skip_tests }}
