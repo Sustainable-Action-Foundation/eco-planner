@@ -5,8 +5,10 @@ import UseSeriesActions from "@/components/pages/sections/useSeriesActions";
 import { getUserOrgs } from "@/fetchers";
 import { getCuratedHistoricalEntry } from "@/fetchers/getCuratedHistoricalData";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { ExternalDataset } from "@/lib/api/utility";
 import { getCuratedHistoricalCatalog } from "@/lib/curatedHistoricalData";
 import serveTea from "@/lib/i18nServer";
+import { IconInfoCircle } from "@tabler/icons-react";
 import type { CuratedHistoricalEntryData } from "@/fetchers/getCuratedHistoricalData";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -16,6 +18,10 @@ import { notFound } from "next/navigation";
  * cards link here. Shows the entry in full and offers ways to use it (see
  * `UseSeriesActions`). A data lab publishing series of its own would give them
  * a page like this one.
+ *
+ * An unknown entry (or one without data for the area) is a 404; an entry whose
+ * sources fail to answer still renders, with a notice in place of each series
+ * that didn't load, so an upstream outage doesn't read as a missing page.
  */
 
 export async function generateMetadata(props: { params: Promise<{ orgId: string, entryKey: string }> }): Promise<Metadata> {
@@ -59,11 +65,26 @@ export default async function Page(props: { params: Promise<{ orgId: string, ent
 
         <p className="margin-block-100">{entry.description}</p>
 
-        <CuratedHistoricalGraph
-          series={entry.series.map(series => ({ name: series.name, dateValues: series.dateValues }))}
-          unit={entry.unit}
-          height={entry.series.length > 1 ? 460 : 400}
-        />
+        {entry.series.length > 0 ?
+          <CuratedHistoricalGraph
+            series={entry.series.map(series => ({ name: series.name, dateValues: series.dateValues }))}
+            unit={entry.unit}
+            height={entry.series.length > 1 ? 460 : 400}
+          />
+          : null}
+        {entry.unavailable.map(series => {
+          const source = ExternalDataset.getDatasetByAlternateName(series.source.dataset)?.fullName ?? series.source.dataset;
+          // A multi-series entry's notice names the series it stands in for
+          const text = entry.series.length + entry.unavailable.length > 1
+            ? t("pages:org_historical_data.source_unavailable_series", { series: series.name, source })
+            : t("pages:org_historical_data.source_unavailable", { source });
+          return (
+            <p key={series.key} className="flex gap-50 align-items-center margin-block-100 padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="curated-series-unavailable">
+              <IconInfoCircle aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              <span>{text}</span>
+            </p>
+          );
+        })}
         <small className="block color-gray margin-top-50">
           {t("pages:home.curated_historical.source")}: {sourceAttribution(entry)}
         </small>
@@ -74,10 +95,12 @@ export default async function Page(props: { params: Promise<{ orgId: string, ent
           series={entry.series.map(series => ({ key: series.key, name: series.name }))}
         />
 
-        <details className="margin-block-100">
-          <summary className="font-weight-500" style={{ cursor: 'pointer' }}>{t("pages:org_historical_data.values")}</summary>
-          <ValuesTable entry={entry} />
-        </details>
+        {entry.series.length > 0 ?
+          <details className="margin-block-100">
+            <summary className="font-weight-500" style={{ cursor: 'pointer' }}>{t("pages:org_historical_data.values")}</summary>
+            <ValuesTable entry={entry} />
+          </details>
+          : null}
       </main>
     </>
   );
