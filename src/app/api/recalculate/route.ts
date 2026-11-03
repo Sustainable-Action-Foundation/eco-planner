@@ -21,6 +21,13 @@ export async function POST(request: NextRequest) {
     readJsonObject(request),
   ]);
 
+  // Validate session (before the body, like the other routes)
+  if (!session.user?.id) {
+    return Response.json({ message: 'Unauthorized' },
+      { status: 401, headers: { 'Location': '/login' } },
+    );
+  }
+
   // Validate request
   if (typeof requestJson?.dataSeriesId !== 'string' || !requestJson.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
@@ -28,13 +35,6 @@ export async function POST(request: NextRequest) {
     );
   }
   const dataSeriesId = requestJson.dataSeriesId;
-
-  // Validate session
-  if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } },
-    );
-  }
 
   try {
     const accessContext = await getAccessContextFor(session.user);
