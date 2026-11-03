@@ -19,7 +19,7 @@ const initPrisma = () => {
     log: [{ emit: "event", level: "query" }],
   });
   client.$on("query", recordQuery);
-  prismaClient = client as unknown as PrismaClient;
+  prismaClient = client;
 
   if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prismaClient;
 

@@ -87,6 +87,7 @@ export default function EffectTable({
                 // The embedded effect carries everything ControlsMenu reads at runtime,
                 // but action/goal-embedded effects each expose only their counterpart
                 // relation, so we assert the menu-entry shape directly.
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- eslint sees the union as assignable, tsc does not
                 object={effect as unknown as EffectMenuEntry}
               />
             </div>

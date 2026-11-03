@@ -269,7 +269,7 @@ export class Recipe {
           typeof value === "object"
           && value !== null
           && "toArray" in value
-          && typeof (value as { toArray: unknown }).toArray === "function"
+          && typeof (value).toArray === "function"
         ) {
           return normalizeResult((value as { toArray: () => unknown }).toArray());
         }

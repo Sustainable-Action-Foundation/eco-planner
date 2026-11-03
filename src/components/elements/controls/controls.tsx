@@ -313,12 +313,12 @@ export function ControlsMenu(
   const closeMenu = (e: React.FocusEvent<HTMLDialogElement> | React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLDialogElement>) => {
     // Don't close if focus stays within menu
     if (e.type === 'blur') {
-      e = e as React.FocusEvent<HTMLDialogElement>;
-      if (menu.current?.contains(e.relatedTarget as Node) || menu.current === e.relatedTarget) {
+      const { relatedTarget } = e as React.FocusEvent<HTMLDialogElement>;
+      if (menu.current?.contains(relatedTarget) || menu.current === relatedTarget) {
         return;
       }
       // Focus moving to the menu button: its click decides (toggles), not the blur
-      if (toggle.current && e.relatedTarget === toggle.current) {
+      if (toggle.current && relatedTarget === toggle.current) {
         return;
       }
     }

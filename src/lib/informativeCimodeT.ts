@@ -54,5 +54,5 @@ export function informativeCimodeT(instance: i18n): TFunction {
  * Replaces the `t` function of the given i18n instance with the informativeCimodeT wrapper
  */
 export function patchI18nT(instance: i18n): void {
-  instance.t = informativeCimodeT(instance) as typeof instance.t;
+  instance.t = informativeCimodeT(instance);
 }

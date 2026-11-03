@@ -200,7 +200,7 @@ export default function RoadmapForm({
             id="type"
             defaultValue={currentRoadmap?.type ?? ""}
             required={true}
-            onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
+            onChange={(e) => setRoadmapType((e.target).value)}
           >
             <option value="" disabled={true}>{t("forms:roadmap.no_chosen_roadmap_scope")}</option>
             {
