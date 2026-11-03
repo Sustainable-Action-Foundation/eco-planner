@@ -2,6 +2,7 @@
 
 import styles from "./likeGoalButton.module.css" with { type: "css" };
 import { useToast } from "@/components/generic/toast/toastContext.use";
+import LikeAspectLegend from "@/components/likeAspectLegend";
 import { likeAspectDescription, likeAspectLabel } from "@/functions/likeAspect";
 import { LikeAspect } from "@/types/enums";
 import { isStandardObject } from "@/types/typeguards";
@@ -189,6 +190,7 @@ export default function LikeGoalButton({
               </button>
             );
           })}
+          <LikeAspectLegend t={t} className={styles.legend} />
         </div>
         : null}
     </div>

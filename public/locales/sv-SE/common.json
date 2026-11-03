@@ -140,13 +140,14 @@
     "ownership_description": "Ägardirektiv och bolagsstyrning",
     "authority_planning": "Myndighet och planering",
     "authority_planning_description": "Översikts- och detaljplaner, markanvisning, tillsyn",
-    "market_power": "Marknadsmakt",
-    "market_power_description": "Upphandling, markförsäljning, finansiering",
+    "market_power": "Upphandling",
+    "market_power_description": "Krav i upphandling, markförsäljning, finansiering",
     "enabling": "Möjliggörande",
     "enabling_description": "Infrastruktur, rådgivning, partnerskap",
-    "influence_local": "Påverkan lokalt",
+    "influence_local": "Lokalt inflytande",
     "influence_local_description": "Invånare, företag, civilsamhälle, att vara förebild",
     "influence_upward": "Påverkan uppåt",
-    "influence_upward_description": "Stat, region, EU, nätägare"
+    "influence_upward_description": "Stat, region, EU, nätägare",
+    "legend_summary": "Vad betyder kategorierna?"
   }
 }
