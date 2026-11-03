@@ -10,11 +10,13 @@ import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider, waitForRecipeFormSyncs } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
+import { IconLoader2 } from "@tabler/icons-react";
+import styles from '../forms.module.css';
 
 export default function EffectForm({
   goal,
@@ -30,6 +32,9 @@ export default function EffectForm({
   const { t } = useTranslation(["forms", "common"]);
   const timestamp = useFormTimestamp();
   const router = useRouter();
+  // While the submit settles the recipe and awaits the API: the button shows
+  // it and ignores further clicks (a second submit would create a second effect)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { addToast } = useToast();
 
@@ -39,8 +44,24 @@ export default function EffectForm({
     : { unit: UnitFlags.Missing, dateValues: {} },
   );
 
-  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await submit(event);
+    }
+    catch (err) {
+      setIsSubmitting(false);
+      throw err;
+    }
+  }
+
+  /** The submit proper; every early return and the API's error path hand the button back. */
+  async function submit(event: React.ChangeEvent<HTMLFormElement>) {
+    // The recipe context evaluates on a debounce; wait for its FormSync output
+    // to settle so a submit right after an edit doesn't read a stale series.
+    await waitForRecipeFormSyncs(event.target);
 
     const formData = new FormData(event.target);
 
@@ -53,6 +74,7 @@ export default function EffectForm({
     if (!resultingDateValuesString) {
       console.error("No resulting date values provided in form.");
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -66,6 +88,7 @@ export default function EffectForm({
     catch (err) {
       console.error("Failed to parse resulting date values from form:", err);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
     // Validate parsed date values
@@ -75,6 +98,7 @@ export default function EffectForm({
     ) {
       console.error("Parsed date values from form are invalid:", dataSeries);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -85,6 +109,7 @@ export default function EffectForm({
       || !(impactType in ActionImpactType)
     ) {
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -108,11 +133,11 @@ export default function EffectForm({
       defaultLocation = `/action/${selectedAction}`;
     }
 
-    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation, undefined, undefined, addToast, (url) => router.push(url));
+    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, setIsSubmitting, defaultLocation, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={(event) => { void handleSubmit(event); }}>
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
       <ActionSelector
@@ -194,7 +219,10 @@ export default function EffectForm({
           style={{ fontSize: '14px', transform: 'none' }}
           type="submit"
           id="submit-button"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
         >
+          {isSubmitting ? <IconLoader2 data-pending="true" aria-hidden="true" width={16} height={16} className={styles.spinner} /> : null}
           {currentEffect
             ? t("common:tsx.save")
             : t("forms:effect.create")
