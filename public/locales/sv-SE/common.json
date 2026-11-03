@@ -135,19 +135,19 @@
   },
   "like_aspect": {
     "own_operations": "Egen verksamhet",
-    "own_operations_description": "Direkt rådighet: egna fastigheter, fordon, inköp",
+    "own_operations_description": "Kommunens egna fastigheter, fordon, belysning och inköp av el och drivmedel. Här kan kommunen besluta och genomföra själv.",
     "ownership": "Ägande (bolag)",
-    "ownership_description": "Ägardirektiv och bolagsstyrning",
+    "ownership_description": "Energi-, bostads-, VA- och trafikbolag styrs via ägardirektiv, investeringsbeslut och bolagsstyrning. Rådigheten är stor men medierad av bolagens egna mål och affärsmässiga krav.",
     "authority_planning": "Myndighet och planering",
-    "authority_planning_description": "Översikts- och detaljplaner, markanvisning, tillsyn",
+    "authority_planning_description": "Översikts- och detaljplan, markanvisning, tillsyn och prövning. Formell men juridiskt begränsad rådighet; mark- och exploateringsavtal är ofta det praktiska verktyget.",
     "market_power": "Upphandling",
-    "market_power_description": "Krav i upphandling, markförsäljning, finansiering",
+    "market_power_description": "Kommunen styr genom sin köpkraft: krav i upphandling, villkor vid markförsäljning och markanvisning, finansiering. Ett mellanting mellan direkt och indirekt styrning.",
     "enabling": "Möjliggörande",
-    "enabling_description": "Infrastruktur, rådgivning, partnerskap",
+    "enabling_description": "Kommunen skapar förutsättningar men andra fattar besluten: laddinfrastruktur, cykelnät, fjärrvärme, rådgivning, testbäddar, partnerskap och klimatkontrakt.",
     "influence_local": "Lokalt inflytande",
-    "influence_local_description": "Invånare, företag, civilsamhälle, att vara förebild",
+    "influence_local_description": "Påverkan på invånare, företag och civilsamhälle genom förebildsroll, kommunikation och inspiration.",
     "influence_upward": "Påverkan uppåt",
-    "influence_upward_description": "Stat, region, EU, nätägare",
+    "influence_upward_description": "Påverkan på ramvillkoren hos stat, region, EU, nätägare och Svenska kraftnät, till exempel elnätskapacitet, tillståndsprocesser och regelverk.",
     "legend_summary": "Vad betyder kategorierna?"
   }
 }
