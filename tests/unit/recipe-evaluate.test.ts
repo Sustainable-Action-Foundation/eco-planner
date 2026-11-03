@@ -289,20 +289,51 @@ test.describe("Recipe.evaluate", () => {
     expect(validity).toEqual({ good: true, error: undefined, warnings: undefined });
   });
 
-  test("checkValidity reports a unit/number mismatch as invalid", async () => {
+  test("checkValidity reports a unit/number mismatch as invalid, with the friendly message", async () => {
     const recipe = new Recipe({ name: "Mismatch", equation: "${a} + 1", variables: [scalarVariable("a", "A", 1, "kg")] });
     const validity = await recipe.checkValidity();
     expect(validity.good).toBe(false);
-    expect(validity.error).toContain("addScalar");
+    expect(validity.error).toBe("Cannot add a unitless number to a unit.");
     expect(await recipe.isValid()).toBe(false);
   });
 
-  test("checkValidity translates the unit/number mismatch into its friendly message", async () => {
-    // The alias table in checkValidity is keyed by the bare mathjs message, but evaluate()
-    // wraps it in a MathjsError with an "Error evaluating formula equation: " prefix, so no alias ever matches.
-    test.fail(true, "Recipe.checkValidity error aliases never match the prefixed MathjsError message (src/functions/recipe/recipe.ts)");
-    const recipe = new Recipe({ name: "Mismatch", equation: "${a} + 1", variables: [scalarVariable("a", "A", 1, "kg")] });
-    expect((await recipe.checkValidity()).error).toBe("Cannot add a unitless number to a unit.");
+  test("checkValidity translates unit/number mismatches in either order, for + and -", async () => {
+    // evaluate() wraps the mathjs message in a MathjsError with a prefix; the aliases must still match through it
+    const cases: [equation: string, friendly: string][] = [
+      ["${a} + 1", "Cannot add a unitless number to a unit."],
+      ["1 + ${a}", "Cannot add a unit to a unitless number."],
+      ["${a} - 1", "Cannot subtract a unitless number from a unit."],
+      ["1 - ${a}", "Cannot subtract a unit from a unitless number."],
+    ];
+    for (const [equation, friendly] of cases) {
+      const recipe = new Recipe({ name: "Mismatch", equation, variables: [scalarVariable("a", "A", 1, "kg")] });
+      await expect(recipe.evaluate([])).rejects.toThrow(MathjsError);
+      expect((await recipe.checkValidity()).error).toBe(friendly);
+    }
+  });
+
+  test("checkValidity passes an error without an alias through unchanged", async () => {
+    const recipe = new Recipe({ name: "Unknown symbol", equation: "${a} + nope", variables: [scalarVariable("a", "A", 1)] });
+    const validity = await recipe.checkValidity();
+    expect(validity.good).toBe(false);
+    expect(validity.error).toBe("Error evaluating formula equation: Undefined symbol nope");
+  });
+
+  test("a nonzero over zero drops the year like 0/0 does; neither Infinity nor NaN is a value", async () => {
+    const recipe = new Recipe({
+      name: "Division",
+      equation: "${a} ./ ${b}",
+      variables: [
+        inlineDataSeriesVariable({ id: "a", name: "A", values: { [isoYear(2020)]: 4, [isoYear(2021)]: 0, [isoYear(2022)]: -5, [isoYear(2023)]: 0 } }),
+        inlineDataSeriesVariable({ id: "b", name: "B", values: { [isoYear(2020)]: 2, [isoYear(2021)]: 0, [isoYear(2022)]: 0, [isoYear(2023)]: 1 } }),
+      ],
+    });
+    const result = await recipe.evaluate([]);
+    expect(byYear(result)).toEqual({ 2020: 2, 2023: 0 });
+    expect(Object.values(result?.dateValues ?? {}).every(value => Number.isFinite(value))).toBe(true);
+
+    const onlyInfinite = new Recipe({ name: "All over zero", equation: "${a} / 0", variables: [inlineDataSeriesVariable({ id: "a", name: "A", values: { [isoYear(2020)]: 1 } })] });
+    await expect(onlyInfinite.evaluate([])).rejects.toThrow("The result has no values");
   });
 
   test("a linked data series is read through the injected getter", async () => {

@@ -4,7 +4,7 @@ import type { Unit as MathJSUnit } from "mathjs";
 import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
 import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
-import { MathjsError, RecipeError } from "@/functions/recipe/types/errors";
+import { MathjsError, MathjsErrorPrefix, RecipeError, friendlyRecipeErrorMessage } from "@/functions/recipe/types/errors";
 import { isEvalTimeSeries, isEvalTimeVariable, isRecipe } from "@/functions/recipe/types/typeguards";
 import { convertToDeclaredUnit, parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
@@ -115,15 +115,8 @@ export class Recipe {
         console.warn("Warnings encountered during recipe validity check:", warnings);
       }
 
-      const errorAliases = {
-        "Unexpected type of argument in function addScalar (expected: Unit, actual: number, index: 1)":
-          "Cannot add a unitless number to a unit.",
-        "Unexpected type of argument in function addScalar (expected: number or bigint or string or boolean or BigNumber or Complex or Fraction, actual: Unit, index: 1)":
-          "Cannot add a unit to a unitless number.",
-      };
-
       const errorMessage = err instanceof Error ? err.message : String(err);
-      const friendlyMessage = errorAliases[errorMessage as keyof typeof errorAliases] ?? errorMessage;
+      const friendlyMessage = friendlyRecipeErrorMessage(errorMessage);
 
       return {
         good: false,
@@ -290,7 +283,7 @@ export class Recipe {
       result = normalizeResult(rawResult);
     }
     catch (err) {
-      throw new MathjsError("Error evaluating formula equation: " + (err as Error).message);
+      throw new MathjsError(MathjsErrorPrefix + (err as Error).message);
     }
 
     if (result instanceof mathjs.Unit) {
