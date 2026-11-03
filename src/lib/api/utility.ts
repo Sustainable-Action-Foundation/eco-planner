@@ -206,6 +206,16 @@ export function parsePeriod(period: string): Date {
   throw new Error(`Unrecognized period format: ${period}`);
 }
 
+/**
+ * The year a period string is written for, which is what its reading is filed under. For weeks this is
+ * the ISO week-year: week 1 can start in the previous December, so the calendar year of its Monday
+ * (`parsePeriod(period).getUTCFullYear()`) would file it under the wrong year.
+ */
+export function periodYear(period: string): number {
+  parsePeriod(period); // Rejects unrecognized formats
+  return parseInt(period.trim(), 10);
+}
+
 /** 
  * Since there can be multiple readings a year, this picks the first reading for each year, no more.
  */
@@ -214,8 +224,7 @@ export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["
   const seenYears: Set<number> = new Set();
 
   for (const entry of periodValuePairs) {
-    const date = parsePeriod(entry.period);
-    const year = date.getUTCFullYear();
+    const year = periodYear(entry.period);
 
     if (!seenYears.has(year)) {
       seenYears.add(year);

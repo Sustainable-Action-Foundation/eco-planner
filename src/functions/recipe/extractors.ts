@@ -6,7 +6,7 @@ import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
 import type { DataSeries, DateValues, DateValuesWithUnit } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
-import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
+import { filterToInitialYearlyRecords, periodYear } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag, parseUnit, serializeUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
@@ -64,8 +64,7 @@ export async function fetchExternalVariableData(
 
   const fetchedValues = filterToInitialYearlyRecords(data.values);
   for (const valuePeriod of fetchedValues) {
-    const parsedDate = parsePeriod(valuePeriod.period);
-    const isoDateString = new Date(`${parsedDate.getUTCFullYear()}-01-01T00:00:00Z`).toISOString();
+    const isoDateString = new Date(`${periodYear(valuePeriod.period)}-01-01T00:00:00Z`).toISOString();
     if (!isISOIshDate(isoDateString)) {
       throw new RecipeError(`External dataset variable "${variable.name}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
     }

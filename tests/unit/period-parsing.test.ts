@@ -83,7 +83,6 @@ test.describe("filterToInitialYearlyRecords", () => {
   test("years are what the period says, not when the period's first day falls", () => {
     // ISO week 1 of 2020 starts on 2019-12-30, so its calendar year is 2019 and
     // weeks 1 and 2 are both kept as "first of their year"
-    test.fail(true, "parsePeriod gives week 1 the calendar year of its Monday, so a week-1 reading is filed under the previous year");
     expect(filterToInitialYearlyRecords([
       { period: "2020W1", value: "1" },
       { period: "2020W2", value: "2" },

@@ -6,5 +6,7 @@ export default function truncateText(
   if (string.length <= maxLength) return string;
 
   const truncatedString = string.slice(0, maxLength);
-  return truncatedString.slice(0, truncatedString.lastIndexOf(' ')) + '…';
+  // Cut at the last word boundary within the limit; without one, keep the whole prefix
+  const lastSpace = truncatedString.lastIndexOf(' ');
+  return (lastSpace === -1 ? truncatedString : truncatedString.slice(0, lastSpace)) + '…';
 }
