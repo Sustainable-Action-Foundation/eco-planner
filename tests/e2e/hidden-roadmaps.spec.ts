@@ -31,7 +31,10 @@ test.describe("Hidden roadmaps", () => {
     const menu = row.locator("dialog[open]");
     await expect(menu.getByTestId("roadmap-sharing-link")).toHaveAttribute("href", `/roadmap/${sandbox.roadmapId}/edit#sharing`);
     await menu.getByTestId("hide-roadmap").click();
+    // Leaving the page before the PUT has answered aborts it, so wait for the answer
+    const hidden = page.waitForResponse(response => response.request().method() === "PUT" && response.url().includes("/api/roadmap"), { timeout: 20_000 });
     await visible(page, "dialog[open]").getByTestId("hide-roadmap-confirm").click();
+    expect((await hidden).status()).toBe(200);
 
     // Gone from the list
     await expect(async () => {
