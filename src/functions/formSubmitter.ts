@@ -17,6 +17,12 @@ import type { ToastType } from '@/components/generic/toast/types.ts';
  * @param thenReplacement A function to handle the response data if the request is successful, replaces the default behavior
  * @param catchReplacement A function to handle errors if the request fails, replaces the default error handling
  */
+/**
+ * Browsers cap the bodies of in-flight `keepalive` requests at 64 KiB and
+ * reject a larger one up front, so only smaller submits get to outlive the page.
+ */
+const KEEPALIVE_BODY_LIMIT_BYTES = 64 * 1024;
+
 export default function formSubmitter(
   target: string,
   body: string | null,
@@ -33,6 +39,10 @@ export default function formSubmitter(
     method,
     body,
     headers: { 'Content-Type': 'application/json' },
+    // Let the request finish even if the user leaves the page right after
+    // submitting; without it the browser aborts it mid-body and the API
+    // answers an empty-body 500 for a save the user believes went through.
+    keepalive: body === null || new Blob([body]).size <= KEEPALIVE_BODY_LIMIT_BYTES,
   }).then(async (res) => {
     if (res.ok) {
       return { body: await (res.json() as Promise<JSONValue>), location: res.headers.get('Location') };

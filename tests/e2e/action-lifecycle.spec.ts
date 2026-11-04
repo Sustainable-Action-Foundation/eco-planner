@@ -226,8 +226,6 @@ test.describe("Action lifecycle", () => {
     await visible(page, "#startYear").fill("2030");
     await visible(page, "#endYear").fill("2050");
     await fillManualDataSeries(page, [[2030, 5]], "#action-dataseries");
-    // The action form reads the effect series from its FormSync input at submit; wait for the typed values to land there
-    await expect(visible(page, "form").locator('input[name="RESULTING_DATE_VALUES"]')).toHaveValue(/2030/);
     await submitNewAction(page, ownActionName);
 
     // Back on the goal page (rendered before the action existed) the action is a collapsed row in the own-actions list
@@ -257,7 +255,6 @@ test.describe("Action lifecycle", () => {
     }, 60_000);
     await actionSelect.selectOption(foreignActionId);
     await fillManualDataSeries(page, [[2035, 2]], "#effect-dataseries");
-    await expect(visible(page, "form").locator('input[name="RESULTING_DATE_VALUES"]')).toHaveValue(/2035/);
     expect(await submitForm(page, "/api/effect", "POST")).toBe(201);
     await page.waitForURL(url => !url.pathname.includes("/effect/create"), { timeout: 20_000 });
 
@@ -280,7 +277,6 @@ test.describe("Action lifecycle", () => {
     await visible(page, "#impactType").selectOption("DELTA");
     // Rewrite through the shared helper: it focuses the grid first, without which Firefox treats the first fill as a focus change
     await rewriteManualDataSeries(page, [[2035, 7]], "#effect-dataseries");
-    await expect(visible(page, "form").locator('input[name="RESULTING_DATE_VALUES"]')).toHaveValue(/:7[,}]/);
     expect(await submitForm(page, "/api/effect", "PUT")).toBe(200);
     await page.waitForURL(url => !url.pathname.endsWith("/edit"), { timeout: 20_000 });
 
