@@ -353,6 +353,8 @@
     "new_goal": "New goal from this data",
     "new_goal_description": "Opens the goal form with the series filled in.",
     "series_legend": "Series",
+    "source_unavailable": "The source ({{source}}) is not answering right now. Try again later.",
+    "source_unavailable_series": "{{series}}: the source ({{source}}) is not answering right now. Try again later.",
     "subtitle": "Historical data for {{area}}",
     "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
