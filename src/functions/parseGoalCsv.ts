@@ -1,4 +1,5 @@
 import { GoalListing } from "@/lib/prisma/generated";
+import { parseDecimalInput } from "@/functions/parseDecimalInput";
 import { parseUnit } from "@/functions/unit";
 import type { DateValues, GoalCreateFull } from "@/types";
 import { GoalDataTarget } from "@/types/enums";
@@ -135,9 +136,9 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       // Empty cells are years without data
       if (!cell) continue;
 
-      // Tolerate decimal commas and space/nbsp digit grouping
-      const value = parseFloat(cell.replace(/\s/g, "").replaceAll(",", "."));
-      if (!Number.isFinite(value)) {
+      // Tolerates decimal commas and space/nbsp digit grouping, but not trailing garbage (parseFloat would read "12abc" as 12)
+      const value = parseDecimalInput(cell);
+      if (value === null) {
         throw new Error(`Value "${cell}" for year ${year} on row ${i + 1} is not a number`);
       }
 
