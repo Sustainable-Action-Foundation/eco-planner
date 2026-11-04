@@ -1,7 +1,8 @@
 "use client";
 
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
+import { graphTickFormatter } from "@/components/graph/functions/tickLabels";
 import type { Goal, RelatedGoal } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import { useTranslation } from "react-i18next";
@@ -131,7 +132,7 @@ export default function GoalChildGraph({
     },
     yaxis: {
       title: { text: goal.data_series.unit === null ? t("common:tsx.unitless") : goal.data_series.unit || t("common:tsx.unit_missing") },
-      labels: { formatter: graphNumberFormatter },
+      labels: { formatter: graphTickFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },

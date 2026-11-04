@@ -1,6 +1,6 @@
 /* Various style options for graphs to make consistency over several files easier */
 
-import { graphNumberFormatter } from "@/lib/chartWrapper";
+import { graphNumberFormatter, graphTickFormatter } from "@/components/graph/functions/tickLabels";
 import type { ApexMarkers, ApexStroke } from "apexcharts";
 
 /* TODO: Look over the colours here */
@@ -205,7 +205,7 @@ export function generateApexChartOptions({
         yaxis: [
           {
             title: { text: yAxisTitle ?? "" },
-            labels: { formatter: graphNumberFormatter },
+            labels: { formatter: graphTickFormatter },
             seriesName: [],
           },
         ],
@@ -240,7 +240,7 @@ export function generateApexChartOptions({
         yaxis: [
           {
             title: { text: yAxisTitle ?? "" },
-            labels: { formatter: graphNumberFormatter },
+            labels: { formatter: graphTickFormatter },
             seriesName: [],
           },
         ],
@@ -308,7 +308,7 @@ export function generateApexChartOptions({
         yaxis: [
           {
             title: { text: yAxisTitle ?? "" },
-            labels: { formatter: graphNumberFormatter },
+            labels: { formatter: graphTickFormatter },
             seriesName: [],
           },
         ],

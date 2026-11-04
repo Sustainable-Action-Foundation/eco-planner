@@ -1,7 +1,8 @@
 "use client"; // TODO: dont like this but whatever
 
 import { dataSeriesToDateValues } from "@/functions/recipe";
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
+import { graphTickFormatter } from "@/components/graph/functions/tickLabels";
 import type { DataSeries, DateValuesWithUnit, Unit } from "@/types";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 import { color_palette, generateApexChartOptions } from "../../config";
@@ -293,7 +294,7 @@ export function GoalGraph({
           })(),
         })}`,
       },
-      labels: { formatter: graphNumberFormatter },
+      labels: { formatter: graphTickFormatter },
       seriesName: comparison.name + rightAxisSuffix,
       opposite: true,
       ...yAxisBounds(dateValueMaps.comparison.values(), { anchorZero }),

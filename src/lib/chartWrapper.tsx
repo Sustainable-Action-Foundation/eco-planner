@@ -50,14 +50,3 @@ export default function WrappedChart({
   );
 }
 
-/**
- * A somewhat inaccurate formatter for numbers in the graph, since the numbers we work with should be rough estimates rather than exact values.
- * Declared as a client-side function so it can be used in `WrappedChart`.
- */
-export function graphNumberFormatter(value: number) {
-  if (value < 100) {
-    return value?.toLocaleString('sv-SE', { maximumSignificantDigits: 3 });
-  } else {
-    return value?.toLocaleString('sv-SE', { maximumFractionDigits: 0 });
-  }
-}
