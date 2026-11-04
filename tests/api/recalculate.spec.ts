@@ -67,6 +67,9 @@ test("needs a signed-in user with edit access: anonymous 401, missing id 400, un
 
   const anonymous = await anon.post("/api/recalculate", { data: { dataSeriesId: childSeriesId } });
   expect(anonymous.status(), await anonymous.text()).toBe(401);
+  // The session is checked before the body: anonymous without a body is still 401, not 400
+  const anonymousNoBody = await anon.post("/api/recalculate", { headers: { "content-type": "application/json" }, data: "not json" });
+  expect(anonymousNoBody.status(), await anonymousNoBody.text()).toBe(401);
   const missing = await admin.post("/api/recalculate", { data: {} });
   expect(missing.status(), await missing.text()).toBe(400);
   const noBody = await admin.post("/api/recalculate", { headers: { "content-type": "application/json" }, data: "not json" });

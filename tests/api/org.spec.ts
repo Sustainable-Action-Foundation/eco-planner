@@ -188,7 +188,7 @@ test.describe.serial(`mutations of ${org.name}`, () => {
         groupId = await groupIdByName(actors.manager, orgId, name);
         expect(await groupMemberIds(actors.manager, orgId, groupId), "members on create").toEqual([memberId]);
 
-        await expectStatus(actors.manager, "post", "/api/group", { orgId, name }, 400, "manager, duplicate name");
+        await expectStatus(actors.manager, "post", "/api/group", { orgId, name }, 409, "manager, duplicate name");
 
         await putJson(actors.manager, "/api/group", { groupId, name: renamed, memberIds: [] });
         await eventually(async () => expect(await groupIdByName(actors.manager, orgId, renamed)).toBe(groupId));
