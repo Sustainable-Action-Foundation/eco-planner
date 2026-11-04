@@ -94,18 +94,19 @@ export function pickDateValues(
       ? mathjs.unit(lastValue)
       : mathjs.unit(lastValue, dataSeries.unit);
   }
-  // Mean
+  // Mean (over the years that have a value: NaN marks a year without one)
   else if (pick === VectorIndexPickerOptions.Mean) {
-    const values = Object.values(dataSeries.dateValues);
+    const values = Object.values(dataSeries.dateValues).filter(value => Number.isFinite(value));
     const sum = values.reduce((acc, val) => acc + val, 0);
     const mean = sum / values.length;
     return isUnitFlag(dataSeries.unit)
       ? mathjs.unit(mean)
       : mathjs.unit(mean, dataSeries.unit);
   }
-  // Median
+  // Median (likewise; NaN has no order, so sorting with it in would make the
+  // result depend on the input order)
   else if (pick === VectorIndexPickerOptions.Median) {
-    const values = Object.values(dataSeries.dateValues).sort((a, b) => a - b);
+    const values = Object.values(dataSeries.dateValues).filter(value => Number.isFinite(value)).sort((a, b) => a - b);
     const middleIndex = Math.floor(values.length / 2);
     let median: number;
     if (values.length % 2 === 0) {
@@ -153,7 +154,7 @@ export function transformDateValuesToVector(
 
 /**
  * Reads a result vector back into date values, one entry per year of `axis`;
- * NaN entries are years without a value.
+ * non-finite entries (NaN, ±Infinity) are years without a value.
  */
 export function parseDateValuesFromVector(
   vector: MathJSUnit[],
@@ -166,7 +167,9 @@ export function parseDateValuesFromVector(
   const timeline: DateValues = {};
   for (let i = 0; i < vector.length; i++) {
     const value = vector[i].toNumber();
-    if (Number.isNaN(value)) continue;
+    // NaN is a year without a value; ±Infinity (a nonzero over zero) is just
+    // as undefined and must never reach the stored series
+    if (!Number.isFinite(value)) continue;
     timeline[isoYearDate(axis[i])] = value;
   }
 
@@ -283,6 +286,8 @@ export function dateValuesToDBDateRecord(dateValues: DateValues, dataSeriesId?: 
     if (!isISOIshDate(key)) {
       throw new RecipeError(`dateValuesToDBDateRecord: Invalid ISOIshDate key '${key}' in dateValues.`);
     }
+    // A year without a (finite) value has no row; the DB boundary is the last line
+    if (!Number.isFinite(val)) continue;
     dateRecord.push({
       ...(dataSeriesId ? { data_series_id: dataSeriesId } : {}),
       timestamp: new Date(key),
