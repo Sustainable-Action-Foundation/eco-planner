@@ -13,6 +13,8 @@
  * values are compared year by year with the stored ones:
  *   unchanged  every ratio new/old within 1e-9 of 1
  *   x100       every ratio within 1% of 100 (x100^2, x100^3 for a copy of a copy, same bug compounded)
+ *   compensated the ratio is 100^k but the recipe multiplies by 100^k itself (a hand-made counter to the
+ *              bug): the stored values are right, the recipe's scalar must become 1 instead — never written
  *   other      anything else: mixed ratios, different year sets, zeros on one side
  *   error      the recipe could not be evaluated (listed, never touched)
  * Series are processed in dependency order (sources before the series reading
@@ -57,6 +59,8 @@ const Classification = {
   Unchanged: "unchanged",
   /** Every ratio new/old is a power of 100 (`power` says which; 2+ is a copy of a copy) */
   Hundredfold: "x100",
+  /** The ratio is a power of 100 but the recipe itself multiplies by that factor: the user compensated for the bug by hand, the stored values are right, and the recipe needs fixing instead */
+  Compensated: "compensated",
   Other: "other",
   Error: "error",
 } as const;
@@ -202,6 +206,16 @@ function classify(stored: Map<number, number>, fresh: Map<number, number>): Verd
   return { classification: Classification.Other, detail: `ratios ${min.toPrecision(4)}..${max.toPrecision(4)}` };
 }
 
+/** Whether the recipe carries a scalar of 100^power (or its inverse), i.e. a hand-made counter to the collapse */
+function hasCompensatingScalar(recipe: Recipe, power: number): boolean {
+  const factor = 100 ** power;
+  return recipe.variables.some(variable => {
+    if (variable.type !== RecipeDataTypes.Scalar) return false;
+    const value = Number(variable.value);
+    return Number.isFinite(value) && (Math.abs(value / factor - 1) < 1e-9 || Math.abs(value * factor - 1) < 1e-9);
+  });
+}
+
 function sample(values: Map<number, number>): string {
   if (values.size === 0) return "-";
   const years = [...values.keys()].sort();
@@ -301,7 +315,13 @@ async function evaluateCandidate(candidate: Candidate): Promise<Result> {
     if (!evaluation) throw new Error("evaluation returned nothing");
     const records = dateValuesToDBDateRecord(evaluation.dateValues);
     const freshValues = new Map(records.map(record => [yearOf(record.timestamp), record.value]));
-    const { classification, power, detail } = classify(storedValues, freshValues);
+    const verdict = classify(storedValues, freshValues);
+    const { power } = verdict;
+    let { classification, detail } = verdict;
+    if (classification === Classification.Hundredfold && hasCompensatingScalar(recipe, power ?? 1)) {
+      classification = Classification.Compensated;
+      detail = `${detail}; recipe multiplies by 100^${power ?? 1} itself: stored values are right, fix the recipe's scalar instead`;
+    }
     const unitNote = evaluation.unit !== parseUnit(candidate.unit) ? ` (evaluated unit ${String(evaluation.unit)} != stored ${String(candidate.unit)}, unit left as is)` : "";
     return {
       candidate,
