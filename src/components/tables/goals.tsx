@@ -30,7 +30,6 @@ export default function Goals({
   const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(iteration.id));
   const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
-  const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
   const [localizableOnly, setLocalizableOnly] = useState<boolean>(false);
   const localizable = new Set(localizableIndicators ?? []);
   const [showUnlisted, setShowUnlisted] = useState<boolean>(false);
@@ -67,23 +66,6 @@ export default function Goals({
     };
   }
 
-  if (recipeOnly) {
-    filteredIteration = {
-      ...activeIteration,
-      goals: activeIteration.goals.filter(goal => {
-        // Every data series now has a recipe; manually entered series use an inline recipe tagged `meta.isManual`
-        const recipe = goal.data_series?.recipe_used?.recipe;
-        const isManual = (
-          typeof recipe === 'object'
-          && recipe !== null
-          && !Array.isArray(recipe)
-          && (recipe as { meta?: { isManual?: boolean } }).meta?.isManual === true
-        );
-        return !!goal.data_series?.recipe_used && !isManual;
-      }),
-    };
-  }
-
   return (
     <>
       {unlistedGoals.length > 0 ?
@@ -113,10 +95,6 @@ export default function Goals({
             <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
-        </label>
-        <label className='flex align-items-center gap-50'>
-          {t("components:goals.recipe_only_filter")}
-          <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
         </label>
         {localizable.size > 0 ?
           <label className='flex align-items-center gap-50'>

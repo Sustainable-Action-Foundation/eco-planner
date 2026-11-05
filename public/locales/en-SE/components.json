@@ -89,9 +89,8 @@
   "goals": {
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Loading",
-    "localizable_only_filter": "Only show $t(common:goal_other) usable locally",
+    "localizable_only_filter": "$t(common:goal_other, titleCase) with tailored scaling",
     "new_goal": "New $t(common:goal_one)",
-    "recipe_only_filter": "Only show $t(common:goal_other) with formulas",
     "search": "Search $t(common:goal_other)",
     "sort_action_count_ascending": "$t(common:action_one, titleCase) count (low to high)",
     "sort_action_count_descending": "$t(common:action_one, titleCase) count (high to low)",
