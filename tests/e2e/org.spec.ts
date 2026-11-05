@@ -257,10 +257,10 @@ test.describe("Org administration (Malmö stad)", () => {
         groupId = await item.getAttribute("data-group-id");
         expect(groupId).toBeTruthy();
 
-        // A second group by the same name is refused (the reload above closed the form)
+        // A second group by the same name is refused with a conflict (the reload above closed the form)
         await page.getByTestId("group-create-open").filter({ visible: true }).click();
         await visible(page, '[data-testid="create-group-name"]').fill(name);
-        expect(await groupRequest(page, "POST", () => page.getByTestId("create-group-submit").filter({ visible: true }).click())).toBe(400);
+        expect(await groupRequest(page, "POST", () => page.getByTestId("create-group-submit").filter({ visible: true }).click())).toBe(409);
         await expect(toast(page, "error")).toBeVisible();
         await expect(page.getByTestId("group-row").filter({ visible: true }).filter({ hasText: name })).toHaveCount(1);
 
