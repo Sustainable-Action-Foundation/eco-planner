@@ -1,10 +1,10 @@
 import { isLikeAspect } from "@/functions/likeAspect";
+import { readJson } from "@/functions/readJson";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import type { JSONValue } from "@/types";
 import { LikeAspect } from "@/types/enums";
 import { isStandardObject } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
@@ -33,7 +33,7 @@ export async function DELETE(request: NextRequest) {
 async function setLike(request: NextRequest, liked: boolean) {
   const [session, body, t] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<JSONValue>).catch(() => null),
+    readJson(request),
     serveTea("api"),
   ]);
 

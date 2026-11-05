@@ -67,7 +67,7 @@ export async function getNationalGoalMatches(t: TFunction, geoArea: CuratedGeoAr
         indicatorParameter: goal.indicator_parameter,
         unit: goal.data_series.unit || null,
         dataSeriesId: goal.data_series.id,
-        dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
+        dateValues: Object.fromEntries<number>(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])),
       },
       roadmap: {
         id: goal.roadmap_iteration.roadmap.id,

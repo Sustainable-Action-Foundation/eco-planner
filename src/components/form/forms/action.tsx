@@ -206,7 +206,7 @@ export default function ActionForm({
           ),
         ...tags
           .filter(tag => !tagsMarkedForDeletion.includes(tag))
-          .map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
+          .map(value => ({ header: ActionFieldHeaders.Tag, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
       ],
       parentActionId: currentAction?.parent_action_id ?? undefined,
       // On edit, an empty picker unlinks; on create, it simply links nothing

@@ -129,7 +129,7 @@ function validateDateValuesField(goal: Record<string, unknown>, key: string, req
     }
     return true;
   }
-  if (!(isStandardObject(value) && isDateValuesWithUnit(value as JSONValue))) {
+  if (!(isStandardObject(value) && isDateValuesWithUnit(value))) {
     console.debug(`goal parameter "${key}" is not a valid DateValuesWithUnit`);
     return false;
   }

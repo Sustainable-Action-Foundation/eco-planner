@@ -503,11 +503,11 @@
     "failed": "Could not save the like: {{details}}",
     "like": "Like this goal",
     "unlike": "Remove your like",
-    "aspects_show": "Show ability to act",
-    "aspects_hide": "Hide ability to act",
+    "aspects_show": "Show ability-to-act categories",
+    "aspects_hide": "Hide ability-to-act categories",
     "aspects_toggle": "Ability to act",
     "aspects_toggle_count": "Ability to act ({{count}})",
-    "aspects_label": "Through which kind of ability to act can you affect this goal? Optional."
+    "aspects_label": "In which ability-to-act categories can you affect this goal? Optional."
   },
   "logout_everywhere": {
     "title": "Log out everywhere",

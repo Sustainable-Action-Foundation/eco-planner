@@ -125,6 +125,6 @@ export function actionContentDiffers(
   const originGroups = valuesByHeader(origin.fields);
   return [...valuesByHeader(copy.fields)].some(([header, values]) => {
     const originValues = originGroups.get(header);
-    return !originValues || originValues.length !== values.length || originValues.some((value, index) => value !== values[index]);
+    return originValues?.length !== values.length || originValues.some((value, index) => value !== values[index]);
   });
 }

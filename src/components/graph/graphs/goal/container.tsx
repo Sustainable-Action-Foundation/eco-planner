@@ -160,6 +160,7 @@ export default function GoalGraphContainer({
         return (
           <GoalGraph
             chartType="main"
+            anchorZero={true} // zero is the reference of a change; also keeps a steady change (a linear goal) from being drawn on a ±1 band around its value
             series={{
               main: goal.data_series && {
                 name: `${(goal.name || goal.indicator_parameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
@@ -196,7 +197,7 @@ export default function GoalGraphContainer({
               parent: parentGoal?.data_series && {
                 name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicator_parameter || "").split('\\').slice(-1)[0] }),
                 unit: parseUnit(parentGoal.data_series.unit),
-                dateValues: toDeltaDateValues(goal.data_series?.values ?? []),
+                dateValues: toDeltaDateValues(parentGoal.data_series.values),
               },
             }}
           />

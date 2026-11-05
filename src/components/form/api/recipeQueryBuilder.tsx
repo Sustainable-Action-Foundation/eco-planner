@@ -762,7 +762,7 @@ export default function RecipeQueryBuilder({
                             name="externalTableId"
                             checked={selectedTableId === id}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              handleTableSelect((e.target as HTMLInputElement).value);
+                              handleTableSelect((e.target).value);
                               upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
                                 ? { ...prev, tableId: e.target.value }
                                 : prev,

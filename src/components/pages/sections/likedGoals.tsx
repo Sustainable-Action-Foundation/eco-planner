@@ -1,4 +1,5 @@
 import LikeGoalButton from "@/components/buttons/likeGoalButton";
+import LikeAspectLegend from "@/components/likeAspectLegend";
 import PendingLink from "@/components/generic/links/pendingLink";
 import { getLikedGoals, getLikeScopes, rankByAspect } from "@/fetchers/getGoalLikes";
 import { LikeAspect, LikeScope } from "@/types/enums";
@@ -158,8 +159,8 @@ export async function LikedGoalList({
   const offered = Object.values(LikeAspect).filter(item => item === aspect || allGoals.some(goal => (goal.aspectCounts[item] ?? 0) > 0));
 
   return <>
-    {offered.length > 0 ?
-      <nav className="flex gap-25 flex-wrap-wrap align-items-center margin-bottom-100" aria-label={t("pages:home.liked_goals.aspect_filter_label")} data-testid="liked-goals-aspect">
+    {offered.length > 0 ? <>
+      <nav className="flex gap-25 flex-wrap-wrap align-items-center margin-bottom-50" aria-label={t("pages:home.liked_goals.aspect_filter_label")} data-testid="liked-goals-aspect">
         <span className="font-size-14px color-gray margin-right-25">{t("pages:home.liked_goals.aspect_filter_label")}:</span>
         {[null, ...offered].map(item => (
           <Link
@@ -175,7 +176,8 @@ export async function LikedGoalList({
           </Link>
         ))}
       </nav>
-      : null}
+      <LikeAspectLegend t={t} className="margin-bottom-100" />
+    </> : null}
 
     {goals.length === 0 ?
       <p className="flex gap-50 align-items-center margin-top-0 margin-bottom-100 padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="liked-goals-empty">

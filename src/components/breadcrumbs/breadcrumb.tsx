@@ -118,14 +118,14 @@ function BreadcrumbSection({
     // An iteration whose roadmap wasn't included; shouldn't normally happen
     return <>
       <BreadcrumbChevron />
-      <RoadmapIterationSection iteration={object as SimpleIteration} />
+      <RoadmapIterationSection iteration={object} />
       {children}
     </>;
   } else if ("indicator_parameter" in object && typeof object.indicator_parameter === "string" && !("fields" in object && object.fields)) {
     // Goals always have an iteration, but guard anyway
     return <>
       <BreadcrumbChevron />
-      <GoalSection goal={object as SimpleGoal} />
+      <GoalSection goal={object} />
       {children}
     </>;
   } else if (object.roadmap_iteration === null) {
@@ -139,7 +139,7 @@ function BreadcrumbSection({
     return <>
       <BreadcrumbChevron />
 
-      <RoadmapSection roadmap={object as SimpleRoadmap} />
+      <RoadmapSection roadmap={object} />
 
       {children}
     </>;

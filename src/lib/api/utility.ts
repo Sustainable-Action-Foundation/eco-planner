@@ -119,6 +119,16 @@ export class ExternalDataset {
     }
   }
 
+  /** Narrows a static member of this class to a dataset entry; the class also carries methods and key lists. */
+  static isDatasetData(value: unknown): value is DatasetData {
+    return isStandardObject(value) && "baseUrl" in value && "api" in value;
+  }
+
+  private static datasetAt(key: string): DatasetData | null {
+    const value: unknown = Reflect.get(ExternalDataset, key);
+    return ExternalDataset.isDatasetData(value) ? value : null;
+  }
+
   /**
    * Searches for a dataset by any of its alternate names, full name, or key,
    * and returns the dataset data if found.
@@ -128,48 +138,17 @@ export class ExternalDataset {
       return null;
     }
 
-    if (alternateName in ExternalDataset) {
-      const dataset = ExternalDataset[alternateName as keyof typeof ExternalDataset];
-      if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
-        return dataset;
-      } else {
-        return null;
-      }
-    }
-
     const lowerAlternateName = alternateName.toLowerCase();
-    if (lowerAlternateName in ExternalDataset) {
-      const dataset = ExternalDataset[lowerAlternateName as keyof typeof ExternalDataset];
-      if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
-        return dataset;
-      } else {
-        return null;
-      }
+    const direct = ExternalDataset.datasetAt(alternateName) ?? ExternalDataset.datasetAt(lowerAlternateName);
+    if (direct) {
+      return direct;
     }
 
-    const entries: [string, string[]][] = Object.entries(ExternalDataset)
-      .map(([key, value]) => {
-        if (!((o: unknown): o is DatasetData => {
-          return isStandardObject(o) && "fullName" in o && "alternateNames" in o;
-        })(value)) {
-          return undefined; // Skip if value is not a DatasetData object
-        }
-        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames ?? [])].map(alias => alias?.toLowerCase())];
-      })
-      .filter(Boolean) as [string, string[]][];
+    const datasetName = Object.entries(ExternalDataset)
+      .filter((entry): entry is [string, DatasetData] => ExternalDataset.isDatasetData(entry[1]))
+      .find(([key, value]) => [key, value.fullName, ...(value.alternateNames ?? [])].some(alias => alias?.toLowerCase() === lowerAlternateName))?.[0];
 
-    const datasetName: string | null = entries.find(([, aliases]) => aliases.includes(lowerAlternateName))?.[0] ?? null;
-
-    if (!datasetName || !(datasetName in ExternalDataset)) {
-      return null;
-    }
-
-    const dataset = ExternalDataset[datasetName as keyof typeof ExternalDataset];
-    if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
-      return dataset;
-    } else {
-      return null;
-    }
+    return datasetName ? ExternalDataset.datasetAt(datasetName) : null;
   }
 }
 

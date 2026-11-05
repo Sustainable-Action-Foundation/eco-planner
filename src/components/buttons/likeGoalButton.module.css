@@ -22,6 +22,15 @@
   color: var(--gray-50, gray);
 }
 
+.legend {
+  flex-basis: 100%;
+  text-align: left;
+}
+
+.legend > summary {
+  text-align: right;
+}
+
 .toggle {
   font-size: 13px;
   font-weight: 500;

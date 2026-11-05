@@ -5,6 +5,10 @@ import path from "node:path";
 import { cwd } from "node:process";
 import { allNamespaces, localeAliases, Locales, uniqueLocales } from "../../i18n.config";
 import { withLock } from "../lib/lock";
+import { visible } from "../lib/forms";
+import { switchLanguage } from "../lib/switch-language";
+
+const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 /*
  * The sidebar language switcher and the /tests/locale page. The browsers start
@@ -158,5 +162,37 @@ test.describe("Translations test page", () => {
 
     await chooseLanguage(page, Locales.svSE);
     await expectCompleteTranslations(page, Locales.svSE);
+  }));
+});
+
+test.describe("Language switch keeps client state", () => {
+  test.use({ storageState: adminFile });
+  test.describe.configure({ timeout: 240_000 });
+
+  /**
+   * The switch re-renders the server tree (router.refresh()) and the client text
+   * (i18next languageChanged); neither may remount the form the user is typing in.
+   */
+  test("typed goal form input survives a language switch", async ({ page }) => withLock(localeLock, async () => {
+    await page.goto("/goal/create");
+    await chooseLanguage(page, Locales.enSE);
+
+    const name = visible(page, "#goalName");
+    const nameLabel = visible(page, "label:has(#goalName)");
+    await expect(nameLabel).toContainText(localeString(Locales.enSE, "forms", "goal.goal_name"));
+    await name.fill("Behåll mig");
+    const description = visible(page, "#description [contenteditable]");
+    await description.click();
+    await page.keyboard.type("Beskrivning");
+    await expect(description).toContainText("Beskrivning");
+
+    await switchLanguage(page, localeAliases[Locales.svSE]);
+
+    // Client text and the server render both follow the switch...
+    await expect(nameLabel).toContainText(localeString(Locales.svSE, "forms", "goal.goal_name"));
+    await expect(page.locator("html")).toHaveAttribute("lang", Locales.svSE, { timeout: 60_000 });
+    // ...without touching what was typed
+    await expect(name).toHaveValue("Behåll mig");
+    await expect(description).toContainText("Beskrivning");
   }));
 });

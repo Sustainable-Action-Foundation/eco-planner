@@ -1,7 +1,7 @@
 import type { PxWebCompatTableMetadata, UpstreamFailureReporter } from "../apiTypes";
 import { ExternalDataset, isTransientStatus, retryAfterMs, sleep } from "../utility";
 import type { Sleep } from "../utility";
-import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
+import type { PxWebMetricDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
 /**
  * @param wait How to wait before retrying after a 429; injectable for tests.
@@ -96,7 +96,7 @@ export default async function getPxWebTableMetadata(
         id: dimensionName,
         name: dimensionName,
         label: data.dimension[dimensionName].label,
-        optional: (data.dimension[dimensionName] as PxWebStandardDimension).extension.elimination ?? false,
+        optional: (data.dimension[dimensionName]).extension.elimination ?? false,
         options: [],
       } satisfies PxWebCompatTimeDimension;
     } else {
@@ -105,7 +105,7 @@ export default async function getPxWebTableMetadata(
         id: dimensionName,
         name: dimensionName,
         label: data.dimension[dimensionName].label,
-        optional: (data.dimension[dimensionName] as PxWebStandardDimension).extension.elimination ?? false,
+        optional: (data.dimension[dimensionName]).extension.elimination ?? false,
         options: [],
       } satisfies PxWebCompatRegularDimension;
     }

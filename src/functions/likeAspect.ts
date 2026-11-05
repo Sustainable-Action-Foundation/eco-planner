@@ -6,8 +6,18 @@ export function isLikeAspect(value: unknown): value is LikeAspect {
   return (Object.values(LikeAspect) as unknown[]).includes(value);
 }
 
-/** The display name of a like aspect; `t` needs the common namespace */
+/** The letter an aspect goes by in conversation ("kategori C"): A–G in display order */
+export function likeAspectLetter(aspect: LikeAspect): string {
+  return String.fromCharCode(65 + Object.values(LikeAspect).indexOf(aspect));
+}
+
+/** The display name of a like aspect, letter first ("A. Egen verksamhet"); `t` needs the common namespace */
 export function likeAspectLabel(t: TFunction, aspect: LikeAspect): string {
+  return `${likeAspectLetter(aspect)}. ${likeAspectName(t, aspect)}`;
+}
+
+/** The display name of a like aspect without its letter; `t` needs the common namespace */
+export function likeAspectName(t: TFunction, aspect: LikeAspect): string {
   return {
     [LikeAspect.OwnOperations]: t("common:like_aspect.own_operations"),
     [LikeAspect.Ownership]: t("common:like_aspect.ownership"),

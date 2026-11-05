@@ -16,6 +16,13 @@ RUN apk update && apk upgrade && \
   && rm -rf /var/cache/apk/*
 
 
+# Extra CA certificates for server-side fetches. Stopgap added 2026-11-03: Energimyndigheten's
+# PxWeb API (api.pxexternal2.energimyndigheten.se) serves its leaf certificate without the
+# GlobalSign intermediate, which browsers fetch on their own but Node does not. Remove the
+# file and this variable once their chain is complete again.
+COPY docker/certs/ /usr/local/share/ca-certificates/extra/
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/extra/globalsign-gcc-r46-ov-2025.pem
+
 # Set working directory
 WORKDIR /app
 
@@ -118,6 +125,10 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=8081
 ENV HOSTNAME=0.0.0.0
+
+# Same extra CA certificates as the base stage (the runner does not build on it)
+COPY docker/certs/ /usr/local/share/ca-certificates/extra/
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/extra/globalsign-gcc-r46-ov-2025.pem
 
 # Copy public assets
 COPY ./public ./public

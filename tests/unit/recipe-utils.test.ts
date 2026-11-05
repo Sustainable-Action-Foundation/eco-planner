@@ -173,11 +173,11 @@ test.describe("cancelMatchingUnits", () => {
   });
 
   test("does not cancel different prefixes of one dimension and returns the same instance when nothing cancels", () => {
-    const ratio = evaluate("a / b", { a: mathjs.unit(1, "kWh"), b: mathjs.unit(1, "Wh") });
-    // mathjs already collapses a dimensionless ratio to a number, so build the mixed-prefix unit explicitly
-    expect(typeof ratio).toBe("number");
-    const mixed = mathjs.unit(1, "kWh / Wh");
-    expect(cancelMatchingUnits(mixed).formatUnits()).toBe("kWh / Wh");
+    // The instance runs with `predictable`, so a dimensionless ratio stays a Unit (it used to collapse to a number)
+    const ratio = evaluate("a / b", { a: mathjs.unit(1, "kWh"), b: mathjs.unit(1, "Wh") }) as MathJSUnit;
+    expect(mathjs.isUnit(ratio)).toBe(true);
+    expect(cancelMatchingUnits(ratio).formatUnits()).toBe("kWh / Wh");
+    expect(cancelMatchingUnits(ratio).toNumber()).toBeCloseTo(1);
 
     const plain = mathjs.unit(5, "kg");
     expect(cancelMatchingUnits(plain)).toBe(plain);
