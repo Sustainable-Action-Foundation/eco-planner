@@ -125,6 +125,10 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=8081
 ENV HOSTNAME=0.0.0.0
+# Keep idle connections longer than any client does (Node's default is 5 s). A client that
+# reuses a socket just as the server closes it sees "socket hang up"; the e2e suite's API
+# requests hit that race after quiet stretches. The standalone server reads this variable.
+ENV KEEP_ALIVE_TIMEOUT=65000
 
 # Same extra CA certificates as the base stage (the runner does not build on it)
 COPY docker/certs/ /usr/local/share/ca-certificates/extra/
