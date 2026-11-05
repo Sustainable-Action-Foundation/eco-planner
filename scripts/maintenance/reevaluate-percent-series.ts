@@ -34,7 +34,7 @@
  *
  * `--apply` rewrites the DateRecords of every x100 series (one nested update, i.e.
  * one transaction, per series) and bumps its updated_at. It refuses to run unless
- * DATABASE_URL points at localhost or REEVAL_I_HAVE_A_BACKUP=1 is set.
+ * REEVAL_I_HAVE_A_BACKUP=1 is set (a tunnelled server database looks local too).
  *
  * After a run on a server, restart the app container: the `use cache` readers
  * (tags database/dataSeries/goal/...) keep serving the old values until then.
@@ -100,10 +100,13 @@ const onlySeries = seriesArgIndex === -1
 
 const { DATABASE_URL } = process.env;
 if (!DATABASE_URL) throw new Error("DATABASE_URL is not defined");
-const dbHost = new URL(DATABASE_URL).hostname;
-const isLocal = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(dbHost);
-if (apply && !isLocal && process.env.REEVAL_I_HAVE_A_BACKUP !== "1") {
-  console.error(`Refusing --apply against ${dbHost}: take a fresh backup first, then set REEVAL_I_HAVE_A_BACKUP=1.`);
+// A tunnelled production database also answers on 127.0.0.1, so the host name cannot tell
+// local from remote: --apply always needs the explicit backup flag, and the target is printed.
+const dbUrl = new URL(DATABASE_URL);
+const dbTarget = `${dbUrl.hostname}:${dbUrl.port || "3306"}${dbUrl.pathname}`;
+console.log(`${apply ? "APPLYING to" : "Dry run against"} ${dbTarget}`);
+if (apply && process.env.REEVAL_I_HAVE_A_BACKUP !== "1") {
+  console.error(`Refusing --apply against ${dbTarget}: take a fresh backup first, then set REEVAL_I_HAVE_A_BACKUP=1.`);
   process.exit(2);
 }
 
@@ -324,7 +327,6 @@ function isCorrectable(classification: Classification): boolean {
 }
 
 async function main() {
-  console.info(`${apply ? "APPLY" : "Dry run"} against ${dbHost}`);
   const candidates = topologicalOrder(await loadCandidates());
 
   const results: Result[] = [];
