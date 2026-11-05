@@ -2,6 +2,7 @@
   "action": {
     "action_label": "$t(common:action_one, titleCase)",
     "categories": "Categories",
+    "roadmap_context": "Under $t(common:roadmap_version_one):",
     "create_new_effect": "$t(common:new.effect)",
     "edit_action": "$t(common:edit.action)",
     "effects_label": "$t(common:effect_other, titleCase)",
