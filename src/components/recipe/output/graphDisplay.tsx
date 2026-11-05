@@ -1,6 +1,7 @@
 "use client";
 
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
+import { graphTickFormatter } from "@/components/graph/functions/tickLabels";
 import { useRecipe } from "../context/recipeContext.use";
 import type { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
@@ -46,7 +47,7 @@ export function OutputGraph() {
     },
     yaxis: {
       labels: {
-        formatter: graphNumberFormatter,
+        formatter: graphTickFormatter,
       },
     },
   };

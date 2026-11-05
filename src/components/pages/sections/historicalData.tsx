@@ -89,9 +89,9 @@ export default async function CuratedHistoricalData({
   </>;
 }
 
-/** "Energimyndigheten (EN0105_3)", listing each distinct table the entry's series came from. */
-export function sourceAttribution(entry: CuratedHistoricalEntryData): string {
-  const tables = new Map(entry.series.map(series => [`${series.source.dataset}/${series.source.tableId}`, series.source]));
+/** "Energimyndigheten (EN0105_3)", listing each distinct table the entry's series came from (or failed to). */
+export function sourceAttribution(entry: Pick<CuratedHistoricalEntryData, "series" | "unavailable">): string {
+  const tables = new Map([...entry.series, ...entry.unavailable].map(series => [`${series.source.dataset}/${series.source.tableId}`, series.source]));
   return [...tables.values()]
     .map(source => `${ExternalDataset.getDatasetByAlternateName(source.dataset)?.fullName ?? source.dataset} (${source.tableId})`)
     .join(", ");

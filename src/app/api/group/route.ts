@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
   catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return Response.json({ message: t('api:group.name_taken') },
-        { status: 400 },
+        { status: 409 },
       );
     }
     console.error("Error creating group", { error });
@@ -161,7 +161,7 @@ export async function PUT(request: NextRequest) {
   catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return Response.json({ message: t('api:group.name_taken') },
-        { status: 400 },
+        { status: 409 },
       );
     }
     console.error("Error updating group", { error });

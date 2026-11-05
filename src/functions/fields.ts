@@ -44,7 +44,7 @@ const canonicalHeaderTypes: Record<string, ActionFieldType> = {
 
 /** The type a field with the given header starts out as (the user may override it) */
 export function defaultActionFieldType(header: string): ActionFieldType {
-  return canonicalHeaderTypes[header] ?? ActionFieldType.PARAGRAPH;
+  return Object.hasOwn(canonicalHeaderTypes, header) ? canonicalHeaderTypes[header] : ActionFieldType.PARAGRAPH;
 }
 
 /** Coerces an untrusted value (API input) to a valid ActionFieldType, falling back to PARAGRAPH */

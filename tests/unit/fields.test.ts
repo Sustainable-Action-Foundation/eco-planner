@@ -65,7 +65,6 @@ test.describe("defaultActionFieldType", () => {
   test("a header named after an Object.prototype member is still a user header", () => {
     // `canonicalHeaderTypes` is a plain object, so `["toString"]` finds the
     // inherited function and `??` never reaches the PARAGRAPH fallback
-    test.fail(true, "defaultActionFieldType leaks Object.prototype members (e.g. a header named 'toString' or 'constructor') instead of falling back to PARAGRAPH");
     for (const header of ["toString", "constructor", "hasOwnProperty", "__proto__"]) {
       expect(defaultActionFieldType(header), header).toBe(ActionFieldType.PARAGRAPH);
     }

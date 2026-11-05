@@ -1,7 +1,8 @@
 'use client';
 
 import findSiblings from "@/functions/findSiblings";
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
+import { graphTickFormatter } from "@/components/graph/functions/tickLabels";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
@@ -72,7 +73,7 @@ export default function SiblingGraph({
     },
     yaxis: {
       title: { text: goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing") },
-      labels: { formatter: graphNumberFormatter },
+      labels: { formatter: graphTickFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },

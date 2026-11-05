@@ -4,7 +4,7 @@ import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
-import { RecipeError } from "@/functions/recipe/types/errors";
+import { RecipeError, friendlyRecipeErrorMessage } from "@/functions/recipe/types/errors";
 import { editableDataSeriesWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -21,6 +21,13 @@ export async function POST(request: NextRequest) {
     readJsonObject(request),
   ]);
 
+  // Validate session (before the body, like the other routes)
+  if (!session.user?.id) {
+    return Response.json({ message: 'Unauthorized' },
+      { status: 401, headers: { 'Location': '/login' } },
+    );
+  }
+
   // Validate request
   if (typeof requestJson?.dataSeriesId !== 'string' || !requestJson.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
@@ -28,13 +35,6 @@ export async function POST(request: NextRequest) {
     );
   }
   const dataSeriesId = requestJson.dataSeriesId;
-
-  // Validate session
-  if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } },
-    );
-  }
 
   try {
     const accessContext = await getAccessContextFor(session.user);
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${dataSeriesId}:`, { err });
         if (err instanceof Error) {
-          throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
+          throw new RecipeError(`Failed to evaluate recipe: ${friendlyRecipeErrorMessage(errorMessage)}`);
         }
         else {
           throw new RecipeError('Failed to evaluate recipe due to an unknown error.');

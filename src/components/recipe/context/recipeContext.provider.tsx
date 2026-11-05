@@ -1,6 +1,6 @@
 "use client";
 
-import { RecipeError } from "@/functions/recipe/types/errors";
+import { RecipeError, friendlyRecipeErrorMessage } from "@/functions/recipe/types/errors";
 import type { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import type { RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
 import { externalSelectionKey } from "@/functions/recipe/extractors";
@@ -299,7 +299,7 @@ export function RecipeContextProvider({
         setResultingDataSeries(null);
         setResultingUnit(debouncedRecipe.unit); // declared unit survives even if recipe cannot be evaluated
         setWarnings(warnings);
-        setError(errorMessage);
+        setError(friendlyRecipeErrorMessage(errorMessage));
       })
       .finally(() => {
         if (!isEffectActive) return;
