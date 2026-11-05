@@ -19,7 +19,7 @@ export async function DELETE(_request: NextRequest) { return disabled(); }
 // ===========================================================================
 // Original implementation (disabled until further notice)
 // ===========================================================================
-// import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+// import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 // import { baseUrl } from "@/lib/baseUrl";
 // import serveTea from "@/lib/i18nServer";
 // import mailClient from "@/mailClient";
@@ -55,7 +55,7 @@ export async function DELETE(_request: NextRequest) { return disabled(); }
 //       { status: 401, headers: { 'Location': '/login' } },
 //     );
 //   }
-//   const accessContext = await getAccessContextById(session.user.id);
+//   const accessContext = await getAccessContextFor(session.user);
 //   if (!accessContext) {
 //     return Response.json({ message: t('api:common.unauthorized') },
 //       { status: 401, headers: { 'Location': '/login' } },
@@ -223,7 +223,7 @@ export async function DELETE(_request: NextRequest) { return disabled(); }
 //       { status: 401, headers: { 'Location': '/login' } },
 //     );
 //   }
-//   const accessContext = await getAccessContextById(session.user.id);
+//   const accessContext = await getAccessContextFor(session.user);
 //   if (!accessContext) {
 //     return Response.json({ message: t('api:common.unauthorized') },
 //       { status: 401, headers: { 'Location': '/login' } },

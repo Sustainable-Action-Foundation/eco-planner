@@ -6,6 +6,7 @@
 
 import { clientSafeGetOneRoadmapIteration, clientSafeGetRoadmapIterations } from "@/fetchers/client";
 import type { ClientMultiRoadmapInstance, ClientRoadmapIteration } from "@/types";
+import { HiddenRoadmaps } from "@/types/enums";
 
 export type RecipeRoadmapData = {
   roadmaps: ClientMultiRoadmapInstance[];
@@ -44,7 +45,8 @@ export async function getRecipeRoadmapData(): Promise<RecipeRoadmapData> {
   if (!cachedRoadmapDataPromise) {
     cachedAt = Date.now();
     cachedRoadmapDataPromise = (async () => {
-      const roadmaps = await clientSafeGetRoadmapIterations();
+      // Include: recipes reading goals of hidden roadmaps must keep resolving
+      const roadmaps = await clientSafeGetRoadmapIterations(HiddenRoadmaps.Include);
 
       const roadmapsWithData = await Promise.all(
         roadmaps.map(async (roadmap) => {

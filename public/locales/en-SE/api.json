@@ -43,7 +43,8 @@
     "iteration_updated": "Roadmap iteration updated",
     "iteration_deleted": "Roadmap iteration deleted",
     "failed_fetch_latest": "Failed to fetch latest roadmap iteration",
-    "failed_record_connection": "Failed to connect records. Probably invalid roadmap or data series reference(s)"
+    "failed_record_connection": "Failed to connect records. Probably invalid roadmap or data series reference(s)",
+    "version_conflict": "Another version was created at the same time. Please try again."
   },
   "group": {
     "manager_only": "Only the organization's managers can manage its groups",
@@ -79,7 +80,8 @@
   "goalLike": {
     "liked": "Goal liked",
     "not_found": "The goal does not exist or you do not have access to it",
-    "unliked": "Like removed"
+    "unliked": "Like removed",
+    "invalid_aspect": "Unknown kind of ability to act: {{aspect}}"
   },
   "attachment": {
     "not_found": "The post does not exist or you do not have permission to edit its documents",

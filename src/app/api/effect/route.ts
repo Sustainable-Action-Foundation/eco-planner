@@ -1,4 +1,5 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
+import { readJson } from "@/functions/readJson";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import { Recipe } from "@/functions/recipe/recipe";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
@@ -83,7 +84,7 @@ function mayEditEffectParents(parents: Pick<EffectParents, "action" | "goal">, a
 export async function POST(request: NextRequest) {
   const [session, effect] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
   // Get user and check permissions
   try {
     const [accessContext, action, goal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.actions.findUnique({
         where: { id: effect.actionId },
         select: effectParentsSelection.action.select,
@@ -201,7 +202,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, effect] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -228,7 +229,7 @@ export async function PUT(request: NextRequest) {
   // Get user and check permissions
   try {
     const [accessContext, currentEffect] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.effects.findUnique({
         where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
         select: {
@@ -336,7 +337,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, effect] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -368,7 +369,7 @@ export async function DELETE(request: NextRequest) {
   // Get user and check permissions
   try {
     const [accessContext, currentEffect] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.effects.findUnique({
         where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
         select: effectParentsSelection,

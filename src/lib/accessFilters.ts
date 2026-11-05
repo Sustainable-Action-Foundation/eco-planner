@@ -1,6 +1,7 @@
 import { AccessLevel, OrgRole, GoalListing, IterationStatus, Sharing } from "@/lib/prisma/generated";
 import type { Prisma, RoadmapType } from "@/lib/prisma/generated";
 import type { UserAccessContext } from "@/types";
+import { HiddenRoadmaps } from "@/types/enums";
 
 /*
  * Prisma `where`-clause builders for the access ladder — the query-side counterpart to accessChecker.
@@ -13,7 +14,21 @@ import type { UserAccessContext } from "@/types";
  * - RO grant / ORG sharing (members, not GUESTs) / PUBLIC sharing -> read
  * - Draft versions (status DRAFT) -> visible only with write access
  * - UNLISTED goals are readable but left out of listings unless writable (see listedGoalsWHERE)
+ * - Hidden roadmaps are readable but left out of listings and pickers (see listedRoadmapsWHERE)
+ *
+ * No builder returns the empty clause `{}`: Prisma drops an empty relation filter that is
+ * a branch of an OR (`OR: [{ hidden: false }, { access_control: {} }]` runs as `hidden: false`),
+ * which would quietly narrow the OR to its other branches. "Everything" is `everythingWHERE()`.
  */
+
+/**
+ * Matches every row: the super admin's rung on every ladder, and "no listing filter".
+ * `notIn: []` is true by construction and keeps the clause non-empty, so Prisma renders the
+ * branch wherever it sits (`1=1 AND <join> IS NOT NULL` inside a relation filter).
+ */
+export function everythingWHERE(): { id: { notIn: string[] } } {
+  return { id: { notIn: [] } };
+}
 
 /** Ids of orgs the user manages */
 export function managedOrgIds(ctx: UserAccessContext): string[] {
@@ -38,7 +53,7 @@ export function readableAccessControlWHERE(ctx: UserAccessContext | null): Prism
     return { sharing: Sharing.PUBLIC };
   }
   if (ctx.isSuperAdmin) {
-    return {};
+    return everythingWHERE();
   }
   return {
     OR: [
@@ -59,7 +74,7 @@ export function writableAccessControlWHERE(ctx: UserAccessContext | null): Prism
     return { org_id: { in: [] } };
   }
   if (ctx.isSuperAdmin) {
-    return {};
+    return everythingWHERE();
   }
   return {
     OR: [
@@ -81,6 +96,19 @@ export function visibleRoadmapIterationsWHERE(ctx: UserAccessContext | null): Pr
       { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
     ],
   };
+}
+
+/**
+ * Matches roadmaps that belong in listings: not hidden, or (for `HiddenRoadmaps.Writable`, the
+ * "show hidden" toggle) hidden but writable. Listing only, never access: combine it with an
+ * access filter, and keep it out of lookups by reference (recipes, parents, breadcrumbs).
+ */
+export function listedRoadmapsWHERE(ctx: UserAccessContext | null, hidden: HiddenRoadmaps): Prisma.RoadmapsWhereInput {
+  if (hidden === HiddenRoadmaps.Include) return everythingWHERE();
+  if (hidden === HiddenRoadmaps.Writable) {
+    return { OR: [{ hidden: false }, { access_control: writableAccessControlWHERE(ctx) }] };
+  }
+  return { hidden: false };
 }
 
 /**
@@ -132,7 +160,7 @@ export function editableActionsWHERE(ctx: UserAccessContext | null): Prisma.Acti
     return { org_id: { in: [] } };
   }
   if (ctx.isSuperAdmin) {
-    return {};
+    return everythingWHERE();
   }
   return {
     OR: [

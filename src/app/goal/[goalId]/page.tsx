@@ -13,7 +13,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import type { AccessControlled, Goal, MultiRoadmapInstance, RelatedGoal, SiblingGoal, UserAccessContext } from "@/types";
-import { AccessLevel } from "@/types/enums";
+import { AccessLevel, HiddenRoadmaps } from "@/types/enums";
 import { IterationStatus, RoadmapType } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -67,7 +67,7 @@ export async function generateMetadata(props: {
 /** The like button with the viewer's like state; per viewer, so it streams in on its own instead of holding up the page */
 async function GoalLikes({ goalId }: { goalId: string }) {
   const likes = await getGoalLikeSummary(goalId);
-  return <LikeGoalButton goalId={goalId} liked={likes.likedByViewer} likeCount={likes.likeCount} />;
+  return <LikeGoalButton goalId={goalId} liked={likes.likedByViewer} likeCount={likes.likeCount} aspects={likes.viewerAspects} />;
 }
 
 export default async function Page(
@@ -94,7 +94,8 @@ export default async function Page(
       siblingCandidates: goal ? await getGoalSiblings(goal.roadmap_iteration_id, goal.indicator_parameter) : [],
     })),
     typeof searchParams.secondaryGoal === "string" ? getOneGoal(searchParams.secondaryGoal) : null,
-    getRoadmapIterations(),
+    // Include: parent/child goal lookups follow roadmap relations, hidden or not
+    getRoadmapIterations(HiddenRoadmaps.Include),
   ]) satisfies [ // Did this cause of the nested promises so I wanna have some sanity here:3
     TFunction,
     UserAccessContext | null,
@@ -187,19 +188,19 @@ export default async function Page(
             <VisibilityBadges status={iteration.status} listing={goal.listing} />
           </div>
           <span className="block margin-0 font-weight-600" style={{ fontSize: '1.15rem' }}>{iteration.roadmap.name}</span> {/* TODO: Check semantics of this  */}
-          <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+          <div className="margin-block-25 flex justify-content-space-between align-items-flex-start margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
             <div className="flex gap-25 align-items-center">
               <IconBuildings strokeWidth={1.75} width={20} height={20} style={{ minWidth: '20px' }} />
               {iteration.roadmap.actor}
             </div>
-            <div className="flex gap-50 align-items-center">
+            <div className="flex gap-50 align-items-flex-start">
               {/* Signed-in readers can like the goal; the likes rank it on their org's landing page */}
               {accessContext ?
                 <Suspense fallback={null}>
                   <GoalLikes goalId={goal.id} />
                 </Suspense>
                 : null}
-              <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+              <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center padding-block-25" style={{ lineHeight: '1' }}>
                 {t("pages:roadmap_iteration.show_series")}
                 <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
               </Link>

@@ -25,6 +25,9 @@ export default async function Sidebar() {
   const canCreate = !!accessContext?.isSuperAdmin
     || (accessContext?.memberships.some(membership => membership.role !== OrgRole.GUEST) ?? false);
 
+  // The raw flag is set but the effective one is not: powers switched off on the profile page
+  const superAdminSuspended = user?.canToggleSuperAdmin === true && user.isSuperAdmin !== true;
+
   return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
@@ -41,10 +44,23 @@ export default async function Sidebar() {
       <div className={`${styles['sidebar-menu']} flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">
-              <IconUser aria-hidden='true' />
-              {t("components:sidebar.my_profile")}
-            </Link>
+            superAdminSuspended ?
+              // A suspended super admin is reminded on every page, also in the icon-only rail
+              <Link
+                href={`/@${user.username}`}
+                className={`margin-bottom-300 color-pureblack rounded ${styles.suspended}`}
+                title={t("components:sidebar.super_admin_suspended_hint")}
+                data-testid="super-admin-suspended"
+              >
+                <IconUser aria-hidden='true' />
+                {t("components:sidebar.my_profile")}
+                <span className={styles['suspended-text']}>{t("components:sidebar.super_admin_suspended")}</span>
+              </Link>
+              :
+              <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">
+                <IconUser aria-hidden='true' />
+                {t("components:sidebar.my_profile")}
+              </Link>
             :
             <Link href="/signup" className='margin-bottom-300 seagreen round color-purewhite'>
               <IconUserPlus aria-hidden='true' />

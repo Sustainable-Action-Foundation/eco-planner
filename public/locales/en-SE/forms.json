@@ -17,7 +17,14 @@
     "read_write": "Read and edit",
     "granted_groups_only_description": "Hidden from everyone except the groups given access below.",
     "org_members_description": "Every member of the organization can see it; groups below may also edit.",
-    "all_users_description": "Visible to anyone, logged in or not. Editing still follows the group access below."
+    "all_users_description": "Visible to anyone, logged in or not. Editing still follows the group access below.",
+    "org_sharing_hint": "For everyone in the organization to see it, choose “Everyone in the organization” above; no all-staff group is needed.",
+    "add_group": "Add a group …",
+    "remove_grant": "Remove access for {{group}}",
+    "level_for": "Access for {{group}}",
+    "no_grants": "No group has specific access.",
+    "no_grants_groups_sharing": "No group has access yet: only the organization's managers can see it.",
+    "all_groups_granted": "Every group in the organization has access."
   },
   "action": {
     "action_description": "Description",
@@ -256,7 +263,9 @@
     "no_chosen_geo_area": "No geographic area",
     "created_title": "The roadmap was created",
     "created_description": "Create its first $t(common:roadmap_version_one) to be able to fill it with goals and actions. Without a version the roadmap is not shown in the lists.",
-    "created_cta": "Create the first $t(common:roadmap_version_one)"
+    "created_cta": "Create the first $t(common:roadmap_version_one)",
+    "hidden": "Hide the roadmap",
+    "hidden_description": "Hidden roadmaps don't show up in lists, searches or pickers but can be reached by link. Permissions are unchanged."
   },
   "roadmap_iteration": {
     "bad_decoding": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",

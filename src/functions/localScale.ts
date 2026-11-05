@@ -39,5 +39,5 @@ export function scaleToLocal(goal: DateValues, local: DateValues): DateValues | 
   if (!anchor || anchor.goalValue === 0) return null;
 
   const factor = anchor.localValue / anchor.goalValue;
-  return Object.fromEntries(Object.entries(goal).map(([date, value]) => [date, value * factor])) as DateValues;
+  return Object.fromEntries<number>(Object.entries(goal).map(([date, value]) => [date, value * factor]));
 }

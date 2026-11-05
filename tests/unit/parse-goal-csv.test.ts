@@ -140,7 +140,6 @@ test.describe("csvToGoalList", () => {
 
   test("rejects a year value with trailing garbage", () => {
     // parseFloat("12abc") === 12 would silently import a typo as a value
-    test.fail(true, "csvToGoalList uses parseFloat, which accepts \"12abc\" as 12");
     expect(() => csvToGoalList(parseGoalCsv(buffer(`${headers}\nDemand;ton;12abc;2`)))).toThrow(/not a number/);
   });
 

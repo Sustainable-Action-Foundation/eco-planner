@@ -110,13 +110,27 @@ test.describe("pickDateValues", () => {
     expect(Number.isNaN(toNumber(pickDateValues(empty, VectorIndexPickerOptions.Median)))).toBe(true);
   });
 
-  test("a NaN entry poisons Mean, and Median neither throws nor sorts around it", () => {
+  test("Mean and Median leave NaN and Infinity entries out, whatever order they come in", () => {
     const withGap: DateValuesWithUnit = { unit: parseUnit("kg"), dateValues: { [isoYear(2020)]: 1, [isoYear(2021)]: NaN, [isoYear(2022)]: 3, [isoYear(2023)]: 2 } };
-    expect(Number.isNaN(toNumber(pickDateValues(withGap, VectorIndexPickerOptions.Mean)))).toBe(true);
-    // Sorting with NaN is not a total order, so the median is whatever lands in the middle; it must at least be a unit in kg
+    expect(toNumber(pickDateValues(withGap, VectorIndexPickerOptions.Mean))).toBe(2);
     const median = pickDateValues(withGap, VectorIndexPickerOptions.Median);
+    expect(toNumber(median)).toBe(2);
     expect(mathjs.isUnit(median) && median.formatUnits()).toBe("kg");
     expect(toNumber(pickDateValues(withGap, VectorIndexPickerOptions.First))).toBe(1);
+
+    // Sorting with NaN is not a total order: the same values in another insertion order gave another median
+    const otherOrder: DateValuesWithUnit = { unit: parseUnit("kg"), dateValues: { [isoYear(2023)]: 2, [isoYear(2022)]: 3, [isoYear(2021)]: NaN, [isoYear(2020)]: 1 } };
+    expect(toNumber(pickDateValues(otherOrder, VectorIndexPickerOptions.Median))).toBe(2);
+    expect(toNumber(pickDateValues(otherOrder, VectorIndexPickerOptions.Mean))).toBe(2);
+
+    const withInfinity: DateValuesWithUnit = { unit: UnitFlags.Unitless, dateValues: { [isoYear(2020)]: Infinity, [isoYear(2021)]: 4, [isoYear(2022)]: -Infinity, [isoYear(2023)]: 6, [isoYear(2024)]: 8 } };
+    expect(toNumber(pickDateValues(withInfinity, VectorIndexPickerOptions.Median))).toBe(6);
+    expect(toNumber(pickDateValues(withInfinity, VectorIndexPickerOptions.Mean))).toBe(6);
+
+    // Nothing finite left behaves like an empty series
+    const nothingFinite: DateValuesWithUnit = { unit: UnitFlags.Unitless, dateValues: { [isoYear(2020)]: NaN, [isoYear(2021)]: Infinity } };
+    expect(Number.isNaN(toNumber(pickDateValues(nothingFinite, VectorIndexPickerOptions.Mean)))).toBe(true);
+    expect(Number.isNaN(toNumber(pickDateValues(nothingFinite, VectorIndexPickerOptions.Median)))).toBe(true);
   });
 });
 
@@ -138,6 +152,12 @@ test.describe("transformDateValuesToVector / parseDateValuesFromVector", () => {
     const original: DateValuesWithUnit = { unit: parseUnit("kg"), dateValues: { [isoYear(2020)]: 1, [isoYear(2022)]: 3 } };
     const axis = [2020, 2021, 2022];
     expect(parseDateValuesFromVector(transformDateValuesToVector(original, axis), axis)).toEqual(original);
+  });
+
+  test("±Infinity entries are left out like NaN; the unit still counts them", () => {
+    const parsed = parseDateValuesFromVector([mathjs.unit(Infinity, "kg"), mathjs.unit(2, "kg"), mathjs.unit(-Infinity, "kg"), mathjs.unit(NaN, "kg")], [2020, 2021, 2022, 2023]);
+    expect(parsed.dateValues).toEqual({ [isoYear(2021)]: 2 });
+    expect(parsed.unit).toBe("kg");
   });
 
   test("length mismatch with the axis is an error", () => {
@@ -173,11 +193,11 @@ test.describe("cancelMatchingUnits", () => {
   });
 
   test("does not cancel different prefixes of one dimension and returns the same instance when nothing cancels", () => {
-    const ratio = evaluate("a / b", { a: mathjs.unit(1, "kWh"), b: mathjs.unit(1, "Wh") });
-    // mathjs already collapses a dimensionless ratio to a number, so build the mixed-prefix unit explicitly
-    expect(typeof ratio).toBe("number");
-    const mixed = mathjs.unit(1, "kWh / Wh");
-    expect(cancelMatchingUnits(mixed).formatUnits()).toBe("kWh / Wh");
+    // The instance runs with `predictable`, so a dimensionless ratio stays a Unit (it used to collapse to a number)
+    const ratio = evaluate("a / b", { a: mathjs.unit(1, "kWh"), b: mathjs.unit(1, "Wh") }) as MathJSUnit;
+    expect(mathjs.isUnit(ratio)).toBe(true);
+    expect(cancelMatchingUnits(ratio).formatUnits()).toBe("kWh / Wh");
+    expect(cancelMatchingUnits(ratio).toNumber()).toBeCloseTo(1);
 
     const plain = mathjs.unit(5, "kg");
     expect(cancelMatchingUnits(plain)).toBe(plain);
@@ -226,6 +246,8 @@ test.describe("dataSeriesToDateValues / dateValuesToDBDateRecord", () => {
       { data_series_id: "ds-1", timestamp: new Date(isoYear(2021)), value: 9 },
     ]);
     expect(dateValuesToDBDateRecord({ [isoYear(2020)]: 5 })[0]).not.toHaveProperty("data_series_id");
+    // The DB never gets a row for a year without a finite value
+    expect(dateValuesToDBDateRecord({ [isoYear(2020)]: Infinity, [isoYear(2021)]: 5, [isoYear(2022)]: NaN, [isoYear(2023)]: -Infinity }).map(row => row.value)).toEqual([5]);
     expect(() => dateValuesToDBDateRecord({ "not-an-iso": 1 } as unknown as DateValues)).toThrow("Invalid ISOIshDate key");
   });
 });

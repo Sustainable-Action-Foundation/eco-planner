@@ -86,6 +86,18 @@ export const HistoricalDataType = {
 } as const;
 export type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
 
+/**
+ * Which of the goal's historical-data pages the form serves. Lives here rather
+ * than in the "use client" form module so server pages can pass it as a prop.
+ */
+export const HistoricalFormMode = {
+  /** Adds historical data to a goal that has none (POST) */
+  Create: "CREATE",
+  /** Replaces the goal's existing historical data (PUT) */
+  Edit: "EDIT",
+} as const;
+export type HistoricalFormMode = (typeof HistoricalFormMode)[keyof typeof HistoricalFormMode];
+
 
 /** The graphs available for a goal. */
 export const GraphType = {
@@ -115,3 +127,33 @@ export const LikeScope = {
   County: "COUNTY",
 } as const;
 export type LikeScope = (typeof LikeScope)[keyof typeof LikeScope];
+
+/**
+ * The kinds of rådighet (ability to act) a like can be refined with: through
+ * which of these the liker's org can act on the goal. Optional on top of the
+ * like itself. A config list, not a DB enum (GoalLikeAspects.aspect is a
+ * string), so the set can change after review; values no longer listed here
+ * are ignored when read. Order is display order.
+ */
+export const LikeAspect = {
+  OwnOperations: "OWN_OPERATIONS",
+  Ownership: "OWNERSHIP",
+  AuthorityPlanning: "AUTHORITY_PLANNING",
+  MarketPower: "MARKET_POWER",
+  Enabling: "ENABLING",
+  InfluenceLocal: "INFLUENCE_LOCAL",
+  InfluenceUpward: "INFLUENCE_UPWARD",
+} as const;
+export type LikeAspect = (typeof LikeAspect)[keyof typeof LikeAspect];
+
+/**
+ * Which hidden roadmaps a roadmap or iteration query includes. Hiding is listing only, never access:
+ * listings and pickers exclude hidden roadmaps, the "show hidden" toggle adds back the ones the user
+ * can write to, and lookups by reference (recipes, parents, target versions) include them all.
+ */
+export const HiddenRoadmaps = {
+  Exclude: "EXCLUDE",
+  Writable: "WRITABLE",
+  Include: "INCLUDE",
+} as const;
+export type HiddenRoadmaps = (typeof HiddenRoadmaps)[keyof typeof HiddenRoadmaps];

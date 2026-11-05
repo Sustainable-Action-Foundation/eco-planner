@@ -104,7 +104,6 @@ test.describe("truncateText", () => {
   test("input without spaces keeps the whole prefix", () => {
     // `lastIndexOf(' ')` is -1 here, and `slice(0, -1)` then drops the last
     // character of the prefix instead of keeping it
-    test.fail(true, "truncateText drops the last character when the prefix has no space (slice(0, -1))");
     expect(truncateText("abcdefghij", 5)).toBe("abcde…");
   });
 

@@ -382,6 +382,8 @@
     "name_descending": "Name (A-Z)",
     "roadmap_type": "Roadmap type",
     "search_roadmaps": "Search $t(common:roadmap_one)",
+    "show_hidden": "Show hidden roadmaps",
+    "show_hidden_on": "Showing hidden roadmaps",
     "sort_by": "Sort by"
   },
   "roadmap_deleter": {
@@ -409,7 +411,9 @@
     "language": "Language",
     "language_alt": "Select language",
     "my_profile": "My account",
-    "toggle_menu_alt": "Toggle menu"
+    "toggle_menu_alt": "Toggle menu",
+    "super_admin_suspended": "Super admin off",
+    "super_admin_suspended_hint": "Your super admin mode is deactivated. Switch it back on from your profile page."
   },
   "signup": {
     "already_have_account": "Already have an account?",
@@ -453,7 +457,8 @@
     "listing_featured": "Featured",
     "status_current": "Status: {{state}}",
     "status_draft": "Draft",
-    "status_published": "Published"
+    "status_published": "Published",
+    "sharing": "Sharing"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",
@@ -482,7 +487,8 @@
   "visibility_badge": {
     "draft": "Draft",
     "unlisted": "Unlisted",
-    "featured": "Featured"
+    "featured": "Featured",
+    "hidden": "Hidden"
   },
   "sharing_line": {
     "public": "Visible to everyone",
@@ -496,7 +502,12 @@
   "like_button": {
     "failed": "Could not save the like: {{details}}",
     "like": "Like this goal",
-    "unlike": "Remove your like"
+    "unlike": "Remove your like",
+    "aspects_show": "Show ability-to-act categories",
+    "aspects_hide": "Hide ability-to-act categories",
+    "aspects_toggle": "Ability to act",
+    "aspects_toggle_count": "Ability to act ({{count}})",
+    "aspects_label": "In which ability-to-act categories can you affect this goal? Optional."
   },
   "logout_everywhere": {
     "title": "Log out everywhere",
@@ -513,5 +524,20 @@
     "continue": "Continue",
     "saved": "Your name is saved.",
     "failed": "The name could not be saved. Check the fields and try again."
+  },
+  "super_admin_toggle": {
+    "on": "Super admin mode is on",
+    "off": "Super admin mode is off",
+    "failed": "Could not change super admin mode. Please try again."
+  },
+  "hide_roadmap": {
+    "hide": "Hide roadmap",
+    "show": "Show roadmap",
+    "hide_title": "Hide the roadmap?",
+    "show_title": "Show the roadmap again?",
+    "hide_confirm": "{{name}} disappears from lists, searches and pickers. It can still be reached by link with the same permissions, and goals in other roadmaps computed from its goals keep working.",
+    "show_confirm": "{{name}} shows up in lists, searches and pickers again for everyone with access to it.",
+    "hidden_toast": "{{name}} is now hidden",
+    "shown_toast": "{{name}} is shown again"
   }
 }

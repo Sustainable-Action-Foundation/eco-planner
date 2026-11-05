@@ -44,7 +44,7 @@ const canonicalHeaderTypes: Record<string, ActionFieldType> = {
 
 /** The type a field with the given header starts out as (the user may override it) */
 export function defaultActionFieldType(header: string): ActionFieldType {
-  return canonicalHeaderTypes[header] ?? ActionFieldType.PARAGRAPH;
+  return Object.hasOwn(canonicalHeaderTypes, header) ? canonicalHeaderTypes[header] : ActionFieldType.PARAGRAPH;
 }
 
 /** Coerces an untrusted value (API input) to a valid ActionFieldType, falling back to PARAGRAPH */
@@ -125,6 +125,6 @@ export function actionContentDiffers(
   const originGroups = valuesByHeader(origin.fields);
   return [...valuesByHeader(copy.fields)].some(([header, values]) => {
     const originValues = originGroups.get(header);
-    return !originValues || originValues.length !== values.length || originValues.some((value, index) => value !== values[index]);
+    return originValues?.length !== values.length || originValues.some((value, index) => value !== values[index]);
   });
 }

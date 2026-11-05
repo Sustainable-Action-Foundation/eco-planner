@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
+import { readJson, readJsonObject } from "@/functions/readJson";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import accessChecker, { hasAdminAccess, hasEditAccess, hasViewAccess } from "@/lib/accessChecker";
@@ -9,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { AccessLevel as GrantLevel, OrgRole, RoadmapType, Sharing } from "@/lib/prisma/generated";
 import { Prisma } from "../../../../prisma/generated/client";
 import { getSession } from "@/lib/session";
-import type { AccessControlInput, UserAccessContext, JSONValue } from "@/types";
+import type { AccessControlInput, UserAccessContext } from "@/types";
 import { ClientError } from "@/types/consts";
 import { isRoadmapCreate, isRoadmapUpdate } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
@@ -67,7 +68,7 @@ async function resolveAccessInput(
 export async function POST(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
   let accessContext: UserAccessContext;
   try {
     const [fetchedContext, targetRoadmap] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       ...(
         roadmap.parentRoadmapId ?
           [
@@ -217,7 +218,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -248,7 +249,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Get user context, current roadmap, and target parent roadmap (if any)
     const [fetchedContext, currentRoadmap, targetRoadmap] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.roadmaps.findUnique({
         where: { id: roadmap.id },
         select: {
@@ -279,8 +280,9 @@ export async function PUT(request: NextRequest) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
 
-    // Sharing settings are manager-only: read-write grants must not be able to (re)publish content
-    if (roadmap.access !== undefined && !hasAdminAccess(currentAccess)) {
+    // Sharing settings are manager-only: read-write grants must not be able to (re)publish content.
+    // Hiding is a listing setting next to sharing, so it is manager-only too.
+    if ((roadmap.access !== undefined || roadmap.hidden !== undefined) && !hasAdminAccess(currentAccess)) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
 
@@ -364,6 +366,7 @@ export async function PUT(request: NextRequest) {
         parent_roadmap: roadmap.parentRoadmapId === undefined ? undefined
           : roadmap.parentRoadmapId === null ? { disconnect: true }
             : { connect: { id: roadmap.parentRoadmapId } },
+        hidden: roadmap.hidden,
         ...(resolvedAccess?.ok ? {
           access_control: {
             update: {
@@ -384,7 +387,9 @@ export async function PUT(request: NextRequest) {
     // Invalidate old cache; expire immediately so the follow-up navigation sees the update.
     // Sharing decides who may read everything under the roadmap; every access-filtered reader
     // (goals, actions, effects, series, likes) declares `roadmap` for that reason (caching.md),
-    // so this one tag also expires them when sharing or grants change.
+    // so this one tag also expires them when sharing or grants change. The same goes for
+    // hiding: every listing reader that filters on it (roadmaps, iterations, actions, likes,
+    // national goal matches) declares `roadmap`.
     revalidateTag('roadmap', { expire: 0 });
     // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
@@ -410,12 +415,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
-  if (!roadmap.id) {
+  if (typeof roadmap?.id !== 'string' || !roadmap.id) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
     );
@@ -430,7 +435,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const [accessContext, currentRoadmap] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.roadmaps.findUnique({
         where: { id: roadmap.id },
         select: { access_control: { select: accessControlSelection } },

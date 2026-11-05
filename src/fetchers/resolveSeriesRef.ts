@@ -12,7 +12,7 @@ import { localAnchor } from "@/functions/localScale";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import { parseSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
 import { parseUnit } from "@/functions/unit";
-import { UnitFlags } from "@/types/enums";
+import { HiddenRoadmaps, UnitFlags } from "@/types/enums";
 import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { SeriesRef } from "@/lib/seriesRef";
 import type { DateValues, GeoAreaRef, GoalPrefill, PrefilledSeries } from "@/types";
@@ -134,7 +134,7 @@ async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof cop
     indicatorParameter: goal.indicator_parameter,
     unit: goal.data_series.unit,
     dataSeriesId: goal.data_series.id,
-    dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
+    dateValues: Object.fromEntries<number>(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])),
     geoArea: goal.roadmap_iteration.roadmap.geo_area,
     roadmapType: goal.roadmap_iteration.roadmap.type,
     storedSuggestions: goal.recipe_suggestions.map(row => Recipe.from(row.recipe).serialize()),
@@ -143,7 +143,8 @@ async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof cop
 
 /** The areas the user could copy a goal into: those of the roadmaps they can edit. */
 async function editableRoadmapAreas(): Promise<GeoAreaRef[]> {
-  const [roadmaps, accessContext] = await Promise.all([getRoadmaps(), getUserAccessContext()]);
+  // Writable: a goal can be copied into a hidden roadmap opened directly, so its area counts too
+  const [roadmaps, accessContext] = await Promise.all([getRoadmaps(HiddenRoadmaps.Writable), getUserAccessContext()]);
   const areas = new Map<string, GeoAreaRef>();
   for (const roadmap of roadmaps) {
     if (roadmap.geo_area && hasEditAccess(accessChecker(roadmap, accessContext))) areas.set(roadmap.geo_area.code, roadmap.geo_area);

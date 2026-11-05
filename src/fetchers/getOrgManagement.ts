@@ -17,8 +17,6 @@ export type OrgManagement = {
     name: string,
   }[],
   groups: { id: string, name: string, memberIds: string[] }[],
-  /** Pending guest invites (they are deleted when accepted, so all rows are pending) */
-  invites: { token: string, email: string, createdAt: Date }[],
   /** The requester's own membership in the org, if any (super admins may have none); the UI locks changing one's own role */
   selfMembershipId: string | null,
 };
@@ -69,11 +67,6 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
           select: { id: true, name: true, memberships: { select: { membership_id: true } } },
           orderBy: { name: 'asc' },
         },
-        // NOTE: Guests are disabled until further notice; no invites are fetched.
-        // guest_invites: {
-        //   select: { token: true, email: true, created_at: true },
-        //   orderBy: { created_at: 'desc' },
-        // },
       },
     });
     if (!org) {
@@ -94,9 +87,6 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         name: group.name,
         memberIds: group.memberships.map(membership => membership.membership_id),
       })),
-      // NOTE: Guests are disabled until further notice; restore the mapping from
-      // org.guest_invites (and the select above) when they return.
-      invites: [],
       selfMembershipId: org.memberships.find(membership => membership.user.id === accessContext.id)?.id ?? null,
     };
   }

@@ -2,22 +2,24 @@ import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { listedRoadmapsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { MultiRoadmapInstance, UserAccessContext } from "@/types";
+import type { HiddenRoadmaps } from "@/types/enums";
 import { cacheTag } from "next/cache";
 
 /**
  * Gets all roadmap iterations the user has access to, as well as the count of goals for each iteration.
  *
  * Returns an empty array if no iterations are found or user does not have access to any. Also returns an empty array on error.
+ * @param hidden Which iterations of hidden roadmaps to include: `Exclude` for listings and pickers, `Include` for lookups by reference
  * @param iterationIds If provided, only iterations with these ids are returned
  * @returns Array of roadmap iterations
  */
-export async function getRoadmapIterations(iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
+export async function getRoadmapIterations(hidden: HiddenRoadmaps, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   const accessContext = await getUserAccessContext();
-  return uncachedFallback(() => getCachedRoadmapIterations(accessContext, iterationIds), [], "Error fetching roadmap iterations");
+  return uncachedFallback(() => getCachedRoadmapIterations(accessContext, hidden, iterationIds), [], "Error fetching roadmap iterations");
 }
 
 /**
@@ -25,7 +27,7 @@ export async function getRoadmapIterations(iterationIds?: string[]): Promise<Mul
  * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
-async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
+async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, hidden: HiddenRoadmaps, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   'use cache';
   // goal/action are included because the returned iterations carry goal and action counts
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
@@ -34,7 +36,11 @@ async function getCachedRoadmapIterations(accessContext: UserAccessContext | nul
     let iterations: MultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
       where: {
         ...(iterationIds ? { id: { in: iterationIds } } : {}), // If iterationIds is provided, filter by it
-        ...visibleRoadmapIterationsWHERE(accessContext),
+        // AND avoids clobbering the `roadmap` key inside the visibility filter
+        AND: [
+          visibleRoadmapIterationsWHERE(accessContext),
+          { roadmap: listedRoadmapsWHERE(accessContext, hidden) },
+        ],
       },
       include: multiRoadmapInclusionSelection,
     }) satisfies MultiRoadmapInstance[];

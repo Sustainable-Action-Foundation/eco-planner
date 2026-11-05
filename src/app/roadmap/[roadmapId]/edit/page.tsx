@@ -7,6 +7,7 @@ import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import { getOneRoadmap, getRoadmaps, getUserAccessContext } from "@/fetchers";
+import { HiddenRoadmaps } from "@/types/enums";
 import { getOrgOptions } from '@/fetchers/getOrgOptions';
 import type { Metadata } from "next";
 
@@ -43,7 +44,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     getSession(await cookies()),
     getUserAccessContext(),
     getOneRoadmap(params.roadmapId),
-    getRoadmaps(),
+    // Include: a hidden current parent must stay selectable (filtered below)
+    getRoadmaps(HiddenRoadmaps.Include),
     getOrgOptions(),
   ]);
 
@@ -67,7 +69,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           key={new Date(currentRoadmap.updated_at).getTime()}
           isSuperAdmin={session.user.isSuperAdmin}
           orgOptions={orgOptions}
-          parentRoadmapOptions={parentRoadmapOptions.filter(roadmap => roadmap.id !== currentRoadmap.id)}
+          parentRoadmapOptions={parentRoadmapOptions.filter(roadmap => roadmap.id !== currentRoadmap.id
+            && (!roadmap.hidden || roadmap.id === currentRoadmap.parent_roadmap_id))}
           currentRoadmap={currentRoadmap}
         />
       </div>

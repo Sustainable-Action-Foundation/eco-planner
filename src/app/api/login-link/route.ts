@@ -1,4 +1,5 @@
 import { after, type NextRequest } from "next/server";
+import { readJson } from "@/functions/readJson";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { readSession, sessionOptionsFor } from "@/lib/session";
@@ -13,7 +14,6 @@ import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import { displayName } from "@/functions/personName";
 import { OrgRole } from "@/lib/prisma/generated";
-import type { JSONValue } from "@/types";
 
 /*
  * Passwordless login: POST mails a one-time link, PATCH redeems it.
@@ -42,7 +42,7 @@ function invalidLink() {
 
 /** Requests a login link for an address. */
 export async function POST(request: NextRequest) {
-  const body = await (request.json() as Promise<JSONValue>).catch(() => null);
+  const body = await readJson(request);
   if (!body || typeof body !== "object" || Array.isArray(body) || typeof body.email !== "string") {
     return Response.json({ message: "Invalid body; email is required" }, { status: 400 });
   }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
 /** Redeems a login link: starts a session, creating the account on first login. */
 export async function PATCH(request: NextRequest) {
-  const body = await (request.json() as Promise<JSONValue>).catch(() => null);
+  const body = await readJson(request);
   if (!body || typeof body !== "object" || Array.isArray(body) || typeof body.token !== "string" || !body.token) {
     return Response.json({ message: "Invalid body; token is required" }, { status: 400 });
   }
@@ -175,6 +175,7 @@ export async function PATCH(request: NextRequest) {
     isLoggedIn: true,
     isSuperAdmin: user.is_super_admin,
     sessionVersion: user.session_version,
+    remember: remember,
   };
   await session.save();
 

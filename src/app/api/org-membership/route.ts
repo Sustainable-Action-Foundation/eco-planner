@@ -1,4 +1,5 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
+import { readJsonObject } from "@/functions/readJson";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
@@ -21,7 +22,7 @@ function managesOrg(accessContext: UserAccessContext, orgId: string): boolean {
 export async function PUT(request: NextRequest) {
   const [session, body, t] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ membershipId?: string, role?: string }>,
+    readJsonObject(request),
     serveTea("api"),
   ]);
 
@@ -30,13 +31,18 @@ export async function PUT(request: NextRequest) {
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext) {
     return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
   const role = body.role === OrgRole.MANAGER ? OrgRole.MANAGER
     : body.role === OrgRole.MEMBER ? OrgRole.MEMBER
       : null;

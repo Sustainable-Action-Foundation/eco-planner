@@ -1,8 +1,8 @@
 import { forgetProxySession, getSession, readSession } from "@/lib/session";
+import { readJson } from "@/functions/readJson";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
-import type { JSONValue } from "@/types";
 
 /**
  * Logs out. With `{ everywhere: true }` in the body, also invalidates every other
@@ -13,7 +13,7 @@ import type { JSONValue } from "@/types";
  * instead (a lost laptop, a leaver) and keeps their own.
  */
 export async function POST(request: NextRequest) {
-  const body = await (request.json() as Promise<JSONValue>).catch(() => null);
+  const body = await readJson(request);
   const options = body && typeof body === "object" && !Array.isArray(body) ? body : {};
   const everywhere = options.everywhere === true;
   const userId = typeof options.userId === "string" ? options.userId : null;

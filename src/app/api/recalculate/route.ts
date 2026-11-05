@@ -1,9 +1,10 @@
 import { getOneRecipe } from "@/fetchers";
+import { readJsonObject } from "@/functions/readJson";
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
-import { RecipeError } from "@/functions/recipe/types/errors";
+import { RecipeError, friendlyRecipeErrorMessage } from "@/functions/recipe/types/errors";
 import { editableDataSeriesWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -17,25 +18,26 @@ import type { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<{ dataSeriesId: string }>).catch(() => null),
+    readJsonObject(request),
   ]);
 
-  // Validate request
-  if (!requestJson?.dataSeriesId) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 },
-    );
-  }
-
-  // Validate session
+  // Validate session (before the body, like the other routes)
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
+  // Validate request
+  if (typeof requestJson?.dataSeriesId !== 'string' || !requestJson.dataSeriesId) {
+    return Response.json({ message: 'Missing required input parameters' },
+      { status: 400 },
+    );
+  }
+  const dataSeriesId = requestJson.dataSeriesId;
+
   try {
-    const accessContext = await getAccessContextById(session.user.id);
+    const accessContext = await getAccessContextFor(session.user);
 
     // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
     if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
     // Get the data series, requiring edit access via any of its dependent slots
     const dataSeries = await prisma.dataSeries.findUnique({
       where: {
-        id: requestJson.dataSeriesId,
+        id: dataSeriesId,
         AND: [editableDataSeriesWHERE(accessContext)],
       },
       select: {
@@ -73,9 +75,9 @@ export async function POST(request: NextRequest) {
     const evaluationResult = await recipe.evaluate(warnings, { dataSeriesGetter: clientSafeGetOneDataSeries })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
-        console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, { err });
+        console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${dataSeriesId}:`, { err });
         if (err instanceof Error) {
-          throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
+          throw new RecipeError(`Failed to evaluate recipe: ${friendlyRecipeErrorMessage(errorMessage)}`);
         }
         else {
           throw new RecipeError('Failed to evaluate recipe due to an unknown error.');
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     if (warnings.length > 0) {
       // If there are warnings, log them
-      console.warn(`Recalculate data series ${requestJson.dataSeriesId} with recipe "${recipe.name}" (${dbRecipe.id}) (${JSON.stringify(recipe)})\nproduced warnings:\n${warnings.join('\n')}`);
+      console.warn(`Recalculate data series ${dataSeriesId} with recipe "${recipe.name}" (${dbRecipe.id}) (${JSON.stringify(recipe)})\nproduced warnings:\n${warnings.join('\n')}`);
     }
 
     if (!isDateValues(evaluationResult.dateValues)) {
@@ -106,7 +108,7 @@ export async function POST(request: NextRequest) {
     };
 
     const updatedDataSeries = await prisma.dataSeries.update({
-      where: { id: requestJson.dataSeriesId },
+      where: { id: dataSeriesId },
       data: {
         // Values share a composite PK (data_series_id, timestamp), so clear before re-inserting
         values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },

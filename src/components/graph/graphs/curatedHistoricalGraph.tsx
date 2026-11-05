@@ -1,6 +1,7 @@
 "use client";
 
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
+import { graphTickFormatter } from "@/components/graph/functions/tickLabels";
 import { isISOIshDate } from "@/types/typeguards";
 import type { DateValues } from "@/types";
 import type { ApexOptions, ApexYAxis } from "apexcharts";
@@ -37,7 +38,7 @@ export default function CuratedHistoricalGraph({
   const axis = (unit: string | null, names: string[], opposite: boolean): ApexYAxis => ({
     seriesName: names,
     opposite,
-    labels: { formatter: graphNumberFormatter },
+    labels: { formatter: graphTickFormatter },
     ...(unit ? { title: { text: unit } } : {}),
   });
 

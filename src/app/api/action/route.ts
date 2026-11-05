@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
+import { readJsonObject } from "@/functions/readJson";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import { parseActionFieldType } from "@/functions/fields";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -55,13 +56,19 @@ async function resolveOriginActionId(
  * Handles POST requests to the action API
  */
 export async function POST(request: NextRequest) {
-  const [session, actionCreate] = await Promise.all([
+  const [session, body] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<ActionInput>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  const actionCreate = body as ActionInput;
   if (!actionCreate.name) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
@@ -89,7 +96,7 @@ export async function POST(request: NextRequest) {
   // Auth
   try {
     const [foundAccessContext, iteration, goal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       !actionCreate.iterationId
         ? null
         : prisma.roadmapIterations.findUnique({
@@ -252,13 +259,19 @@ export async function POST(request: NextRequest) {
  * Handles PUT requests to the action API
  */
 export async function PUT(request: NextRequest) {
-  const [session, action] = await Promise.all([
+  const [session, body] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<ActionInput>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  const action = body as ActionInput;
   if (!action.actionId || !action.name) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
@@ -282,7 +295,7 @@ export async function PUT(request: NextRequest) {
   // Auth
   try {
     const [foundAccessContext, currentAction] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.actions.findUnique({
         where: { id: action.actionId },
         select: {
@@ -397,12 +410,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, action] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>,
+    readJsonObject(request),
   ]);
   const t = await serveTea("api");
 
   // Validate request body
-  if (!action.id) {
+  if (typeof action?.id !== 'string' || !action.id) {
     return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
     );
@@ -417,7 +430,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const [accessContext, currentAction] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.actions.findUnique({
         where: { id: action.id },
         select: {

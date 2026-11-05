@@ -16,6 +16,13 @@ RUN apk update && apk upgrade && \
   && rm -rf /var/cache/apk/*
 
 
+# Extra CA certificates for server-side fetches. Stopgap added 2026-11-03: Energimyndigheten's
+# PxWeb API (api.pxexternal2.energimyndigheten.se) serves its leaf certificate without the
+# GlobalSign intermediate, which browsers fetch on their own but Node does not. Remove the
+# file and this variable once their chain is complete again.
+COPY docker/certs/ /usr/local/share/ca-certificates/extra/
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/extra/globalsign-gcc-r46-ov-2025.pem
+
 # Set working directory
 WORKDIR /app
 
@@ -118,6 +125,14 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=8081
 ENV HOSTNAME=0.0.0.0
+# Keep idle connections longer than any client does (Node's default is 5 s). A client that
+# reuses a socket just as the server closes it sees "socket hang up"; the e2e suite's API
+# requests hit that race after quiet stretches. The standalone server reads this variable.
+ENV KEEP_ALIVE_TIMEOUT=65000
+
+# Same extra CA certificates as the base stage (the runner does not build on it)
+COPY docker/certs/ /usr/local/share/ca-certificates/extra/
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/extra/globalsign-gcc-r46-ov-2025.pem
 
 # Copy public assets
 COPY ./public ./public

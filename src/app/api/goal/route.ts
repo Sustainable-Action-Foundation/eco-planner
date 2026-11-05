@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
+import { readJson } from "@/functions/readJson";
 import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
@@ -17,7 +18,7 @@ import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { getSession } from "@/lib/session";
-import type { BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue, LoginData, RecipeSuggestionsFields, UserAccessContext } from "@/types";
+import type { BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, LoginData, RecipeSuggestionsFields, UserAccessContext } from "@/types";
 import { GoalDataTarget } from "@/types/enums";
 import { ClientError } from "@/types/consts";
 import { isGoalCreate, isGoalUpdate } from "@/types/typeguards";
@@ -49,7 +50,7 @@ async function authorizeGoalWrite(
 
   try {
     const [accessContext, currentGoal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.goals.findUnique({
         where: { id: goalId },
         select: {
@@ -299,8 +300,56 @@ async function applyBaselineSection(tx: Prisma.TransactionClient, authorId: stri
   }
 }
 
-/** Applies the historical section: connects the recipe-materialized series, a payload-created series, or a verified id; else disconnects. */
+/**
+ * Deletes a series a goal slot just let go of, with its producing recipe, unless
+ * something else still needs it: another slot, or a recipe that reads it (orphaned
+ * recipes, deriving nothing and suggested by no goal, don't count and go with it).
+ */
+async function deleteReleasedSeries(tx: Prisma.TransactionClient, id: string): Promise<void> {
+  const found = await tx.dataSeries.findUnique({
+    where: { id },
+    select: {
+      recipe_used_id: true,
+      dependent_goal: { select: { id: true } },
+      dependent_baseline: { select: { id: true } },
+      dependent_historical: { select: { id: true } },
+      dependent_effect: { select: { action_id: true } },
+      dependent_recipes: { select: { id: true, derived_data_series: { select: { id: true } }, _count: { select: { suggested_by_goals: true } } } },
+    },
+  });
+  if (!found || found.dependent_goal || found.dependent_baseline || found.dependent_historical || found.dependent_effect) return;
+  if (found.dependent_recipes.some(recipe => !!recipe.derived_data_series || recipe._count.suggested_by_goals > 0)) return;
+
+  const orphanedRecipeIds = found.dependent_recipes.map(recipe => recipe.id);
+  if (orphanedRecipeIds.length) await tx.recipes.deleteMany({ where: { id: { in: orphanedRecipeIds } } });
+  await tx.dataSeries.delete({ where: { id } }); // values cascade
+  const recipe = await tx.recipes.findUnique({
+    where: { id: found.recipe_used_id },
+    select: { _count: { select: { suggested_by_goals: true } } },
+  });
+  if (recipe?._count.suggested_by_goals === 0) await tx.recipes.delete({ where: { id: found.recipe_used_id } });
+}
+
+/**
+ * Applies the historical section. A payload re-sent with the current series' own
+ * recipe updates that series in place (the recipe is 1:1 with it); any other
+ * payload becomes a fresh series. Without a payload the recipe-materialized series
+ * or a verified id is connected, and an explicit null clears the section. A series
+ * the goal lets go of is deleted along with its recipe when nothing else uses it.
+ */
 async function applyHistoricalSection(tx: Prisma.TransactionClient, authorId: string, orgId: string, goalId: string, section: HistoricalFields, externals: ResolvedExternals | null): Promise<void> {
+  const { historical: current } = await tx.goals.findUniqueOrThrow({
+    where: { id: goalId },
+    select: { historical: { select: { id: true, recipe_used_id: true } } },
+  });
+
+  // A recipe id other than the current series' own may not be one producing some other series:
+  // it would be rewritten below, and a recipe produces exactly one series.
+  if (section.historicalRecipeId && section.historicalRecipeId !== current?.recipe_used_id) {
+    const claimed = await tx.recipes.findUnique({ where: { id: section.historicalRecipeId }, select: { derived_data_series: { select: { id: true } } } });
+    if (claimed?.derived_data_series) throw new Error(ClientError.IllegalParent, { cause: 'goal' });
+  }
+
   const result = await upsertRecipe(tx, authorId, orgId, "historical", {
     recipe: section.historicalRecipe, recipeId: section.historicalRecipeId, resolved: externals,
   });
@@ -311,22 +360,37 @@ async function applyHistoricalSection(tx: Prisma.TransactionClient, authorId: st
 
   const hasPayload = !!section.historical && Object.keys(section.historical.dateValues).length > 0;
   if (hasPayload && section.historical) {
+    if (current && typeof result.recipeId === 'string' && result.recipeId === current.recipe_used_id) {
+      // Re-save of the current series: upsertRecipe already rewrote its recipe, now its values.
+      // Values-only input (no recipe sent) is manual entry, so its recipe becomes a fresh manual one.
+      await tx.dataSeries.update({
+        where: { id: current.id },
+        data: {
+          ...(section.historicalRecipe ? {} : { recipe_used: { update: { recipe: Recipe.fromManualDateValues(section.historical).serialize() } } }),
+          values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(section.historical.dateValues) } },
+          unit: serializeUnit(section.historical.unit), // db keeps the legacy convention
+        },
+      });
+      return;
+    }
     await tx.goals.update({ where: { id: goalId }, data: { historical: { disconnect: true } } });
     const id = await createDataSeries(tx, authorId, orgId, section.historical, result.recipeId);
     await tx.goals.update({ where: { id: goalId }, data: { historical: { connect: { id } } } });
+    if (current) await deleteReleasedSeries(tx, current.id);
     return;
   }
 
   const historicalDataSeriesId = resolvedHistoricalId ?? section.historicalId ?? null;
   if (historicalDataSeriesId) {
     // Verify only client-supplied ids; a recipe-materialized id provably exists and is fresh.
-    if (!resolvedHistoricalId) {
-      const { historical_id } = await tx.goals.findUniqueOrThrow({ where: { id: goalId }, select: { historical_id: true } });
-      await assertConnectableSeries(tx, historicalDataSeriesId, historical_id);
-    }
+    if (!resolvedHistoricalId) await assertConnectableSeries(tx, historicalDataSeriesId, current?.id);
     await tx.goals.update({ where: { id: goalId }, data: { historical: { connect: { id: historicalDataSeriesId } } } });
-  } else {
+    if (current && current.id !== historicalDataSeriesId) await deleteReleasedSeries(tx, current.id);
+  } else if (section.historicalId === null) {
+    // An explicit null (and nothing else to connect) means "no historical data": drop the current one.
+    // Anything left undefined (e.g. a listing-only full update) leaves the section untouched.
     await tx.goals.update({ where: { id: goalId }, data: { historical: { disconnect: true } } });
+    if (current) await deleteReleasedSeries(tx, current.id);
   }
 }
 
@@ -445,11 +509,15 @@ async function writeRecipeSuggestionsSection(authorId: string, orgId: string, go
  */
 async function createFullGoal(session: IronSession<LoginData>, authorId: string, formData: GoalCreateFull, t: TFunction): Promise<Response> {
   let orgId: string;
+  const sessionUser = session.user;
+  if (!sessionUser) {
+    return Response.json({ message: t('api:common.unauthorized') }, { status: 401, headers: { 'Location': '/login' } });
+  }
 
   // Auth control (edit access to the parent iteration's roadmap)
   try {
     const [accessContext, iteration] = await Promise.all([
-      getAccessContextById(authorId),
+      getAccessContextFor(sessionUser),
       prisma.roadmapIterations.findUnique({
         where: { id: formData.iterationId },
         select: {
@@ -661,7 +729,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
 export async function POST(request: NextRequest) {
   const [session, formData] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -715,7 +783,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -766,7 +834,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
+    readJson(request),
   ]);
   const t = await serveTea("api");
 
@@ -786,7 +854,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const [accessContext, currentGoal] = await Promise.all([
-      getAccessContextById(session.user.id),
+      getAccessContextFor(session.user),
       prisma.goals.findUnique({
         where: { id: goal.id },
         select: {

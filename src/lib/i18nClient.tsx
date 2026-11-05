@@ -38,10 +38,12 @@ export default function I18nProvider(
 ) {
   // This initialize state prevents the app from rendering (and rerendering forever) before the language is set
   const [isInitialized, setInitialized] = useState(false);
-  const [forceRender, setForceRender] = useState(0);
   const [locale, setLocale] = useState(lng);
 
-  // Handler for changing the language on locale change
+  // Handler for changing the language on locale change. react-i18next's hooks (useTranslation,
+  // Trans) subscribe to the instance's languageChanged event and re-render themselves with the
+  // new text, so nothing below is keyed or remounted: a remount here would wipe every form the
+  // user is in the middle of filling out (the language switcher sits in the sidebar of each page).
   useEffect(() => {
     const setI18nLanguage = async () => {
       await i18nClient.changeLanguage(locale);
@@ -51,22 +53,12 @@ export default function I18nProvider(
     void setI18nLanguage();
   }, [locale]);
 
-  // Handler for rerendering
-  useEffect(() => {
-    // Define a listener for language changes
-    const localeChangeListener = () => setForceRender((prev) => prev + 1);
-    // Set and clean up the listener
-    window.addEventListener("i18n-language-changed", localeChangeListener);
-    return () => window.removeEventListener("i18n-language-changed", localeChangeListener);
-  }, []);
-
   if (!isInitialized) return null;
 
   return (
     <LocaleContext.Provider value={locale}>
       <LocaleSetterContext.Provider value={setLocale}>
-        {/* The key will be updated on language switch to force a rerender */}
-        <I18nextProvider key={`i18n-provider-force-update-${forceRender}`} i18n={i18nClient}>
+        <I18nextProvider i18n={i18nClient}>
           {children}
         </I18nextProvider>
       </LocaleSetterContext.Provider>

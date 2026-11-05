@@ -9,7 +9,7 @@ import { isDateValuesWithUnit } from "@/types/typeguards";
 import { ActionFieldType, ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider, waitForRecipeFormSyncs } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
@@ -136,13 +136,29 @@ export default function ActionForm({
     );
   }
 
-  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await submit(event);
+    }
+    catch (err) {
+      setIsSubmitting(false);
+      throw err;
+    }
+  }
+
+  /** The submit proper; every early return and the API's error path hand the button back. */
+  async function submit(event: React.ChangeEvent<HTMLFormElement>) {
+    // The recipe context evaluates on a debounce; wait for its FormSync output
+    // to settle so a submit right after an edit doesn't read a stale series.
+    await waitForRecipeFormSyncs(event.target);
 
     // TAG-headed fields are managed by the dedicated tags input
     if (fields.some(field => field.header.trim() === ActionFieldHeaders.Tag)) {
       addToast(t("forms:action.tag_header_forbidden"), "error");
+      setIsSubmitting(false);
       return;
     }
 
@@ -173,6 +189,7 @@ export default function ActionForm({
         event.target.reportValidity();
         addToast(t("common:errors.something_went_wrong"), "error");
         console.error("Failed to parse data series, invalid JSON or incorrect format.");
+        setIsSubmitting(false);
         return;
       }
     }
@@ -182,7 +199,10 @@ export default function ActionForm({
     const notify = { t, language: i18n.language, addToast };
     const files = currentAction ? [] : chosenFiles(new FormData(event.target).getAll(ActionFormName.Attachments));
     const attachments = acceptableFiles(files, 0, notify);
-    if (attachments?.length !== files.length) return;
+    if (attachments?.length !== files.length) {
+      setIsSubmitting(false);
+      return;
+    }
 
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
@@ -206,7 +226,7 @@ export default function ActionForm({
           ),
         ...tags
           .filter(tag => !tagsMarkedForDeletion.includes(tag))
-          .map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
+          .map(value => ({ header: ActionFieldHeaders.Tag, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
       ],
       parentActionId: currentAction?.parent_action_id ?? undefined,
       // On edit, an empty picker unlinks; on create, it simply links nothing
@@ -220,7 +240,6 @@ export default function ActionForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    setIsSubmitting(true);
     if (attachments.length === 0) {
       formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
       return;
@@ -236,7 +255,7 @@ export default function ActionForm({
   let positionIndex = 1;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={(event) => { void handleSubmit(event); }}>
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 

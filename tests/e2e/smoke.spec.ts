@@ -98,6 +98,8 @@ const routes: Route[] = [
   { name: "/effect/<actionId>/<goalId>/edit", url: f => `/effect/${f.actionId}/${f.goalId}/edit`, anonymous: login, anita: noAccess, admin: ok },
   { name: "/org/<id>/groups", url: f => `/org/${f.orgId}/groups`, anonymous: notFound, anita: notFound, admin: ok },
   { name: "/org/<id>/historical-data/<entryKey>", url: f => `/org/${f.placeOrgId}/historical-data/${curatedEntryKey}`, anonymous: notFound, anita: notFound, admin: ok },
+  // anita's org has no geo area, so no area's likes overview is hers
+  { name: "/likes/<areaCode>", url: () => `/likes/${placeOrg?.geoCode ?? ""}`, anonymous: login, anita: notFound, admin: ok },
   { name: "/invite/<token>", url: () => "/invite/00000000-0000-0000-0000-000000000000", anonymous: notFound, anita: notFound, admin: notFound },
   { name: "/tests/locale", url: () => "/tests/locale", anonymous: { kind: "ok", landmark: "h1" }, anita: { kind: "ok", landmark: "h1" }, admin: { kind: "ok", landmark: "h1" } },
   // /tests/tiptap is left out: the dev test bed logs a setState-in-render (TipTapPage → TextEditor) on load

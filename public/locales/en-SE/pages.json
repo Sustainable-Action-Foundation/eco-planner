@@ -201,7 +201,13 @@
       "title": "Goals the organization wants to work on",
       "total_likes_one": "{{count}} like in total",
       "total_likes_other": "{{count}} likes in total",
-      "total_likes_title": "Likes from everyone, including other organizations"
+      "total_likes_title": "Likes from everyone, including other organizations",
+      "aspect_filter_label": "Filter by category",
+      "aspect_all": "All categories",
+      "aspects_label": "Ability-to-act categories according to the likes",
+      "aspect_count": "{{aspect}}: {{count}}",
+      "empty_aspect": "No liked goals in category {{aspect}} yet.",
+      "overview_link": "Overview for {{area}}"
     },
     "national_goals": {
       "copy": "Use in roadmap",
@@ -254,7 +260,9 @@
     "sessions_description_self": "You stay signed in for 30 days after each login, or a year if you chose \"Remember me\". If you signed in on a shared or lost computer you can log out everywhere: every device is signed out, including this one, and the next login link works as usual.",
     "sessions_description_other": "As an administrator you can sign {{name}} out of every device. They can sign in again with a new login link.",
     "name": "Your name",
-    "name_description": "Shown wherever you are named, for example as the author of actions and comments."
+    "name_description": "Shown wherever you are named, for example as the author of actions and comments.",
+    "super_admin": "Super admin mode",
+    "super_admin_description": "As a super admin you see and may change everything in the tool. Deactivate it to see the tool as a regular user: you then get only what your organisation memberships allow. The setting applies to this browser until you switch it back on or log in again."
   },
   "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",
@@ -305,6 +313,8 @@
     "name_label": "Group name",
     "members_legend": "Members",
     "create_group": "Create group",
+    "new_group": "New group",
+    "everyone_hint": "No all-staff group is needed: roadmaps shared with “Everyone in the organization” already reach every member. Groups are for granting edit rights or sharing with part of the organization.",
     "no_groups": "This organization has no groups yet.",
     "saved_toast": "Group \"{{name}}\" saved",
     "created_toast": "Group \"{{name}}\" created",
@@ -321,13 +331,10 @@
     "role_updated_toast": "Updated {{name}}'s role",
     "member_count_one": "{{count}} member",
     "member_count_other": "{{count}} members",
-    "invite_heading": "Invite guests",
-    "invite_description": "Guests are outside contributors: they only see what their groups are explicitly granted. The invitee gets an email with a link to join.",
-    "invite_email_label": "Email address",
-    "invite_send": "Send invite",
-    "invite_sent_toast": "Invite sent to {{email}}",
-    "invite_revoked_toast": "Invite to {{email}} revoked",
-    "invite_revoke": "Revoke",
+    "filter_groups": "Search groups or members",
+    "filter_members": "Search members",
+    "no_matches": "Nothing matches the search.",
+    "no_group_members": "The group has no members yet.",
     "home_org": "from {{orgs}}",
     "home_org_none": "no organization of their own"
   },
@@ -346,6 +353,8 @@
     "new_goal": "New goal from this data",
     "new_goal_description": "Opens the goal form with the series filled in.",
     "series_legend": "Series",
+    "source_unavailable": "The source ({{source}}) is not answering right now. Try again later.",
+    "source_unavailable_series": "{{series}}: the source ({{source}}) is not answering right now. Try again later.",
     "subtitle": "Historical data for {{area}}",
     "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
@@ -354,5 +363,16 @@
   "welcome": {
     "title": "Welcome!",
     "description": "You are signed in. Tell us your name so your colleagues can see who wrote what. We only ask this once; signing in is always just your email address."
+  },
+  "likes_area": {
+    "breadcrumb": "Liked goals",
+    "heading": "Liked goals in {{area}}",
+    "description": "Goals liked by members of the organizations in {{area}}, most liked first, with how many organizations stand behind them and through which ability to act they can affect them.",
+    "description_county": "Goals liked by members of the organizations in {{area}} and the county's municipalities, most liked first, with how many organizations stand behind them and through which ability to act they can affect them.",
+    "orgs_one": "{{count}} organization included",
+    "orgs_other": "{{count}} organizations included",
+    "related": "See also",
+    "county_link": "All of {{area}}",
+    "goals_title": "Most liked goals"
   }
 }

@@ -6,18 +6,23 @@ import accessChecker, { hasEditAccess, hasViewAccess } from "../../src/lib/acces
 import {
   allGroupIds,
   editableActionsWHERE,
+  editableAttachmentsWHERE,
   editableDataSeriesWHERE,
+  everythingWHERE,
   listedGoalsWHERE,
+  listedRoadmapsWHERE,
   managedOrgIds,
   memberOrgIds,
   publishedIterationsOfTypeWHERE,
   readableAccessControlWHERE,
   visibleActionsWHERE,
+  visibleAttachmentsWHERE,
   visibleDataSeriesWHERE,
   visibleRoadmapIterationsWHERE,
   writableAccessControlWHERE,
 } from "../../src/lib/accessFilters";
-import { isGoalListed } from "../../src/lib/listing";
+import { isGoalListed, isRoadmapListed } from "../../src/lib/listing";
+import { HiddenRoadmaps } from "../../src/types/enums";
 import { AccessLevel as GrantLevel, GoalListing, IterationStatus, RoadmapType, Sharing } from "../../src/lib/prisma/generated";
 import type { AccessControlInfo } from "../../src/types";
 import { accessControls, contexts, IDLE_GROUP, ORG, OTHER_ORG, RO_GROUP, RW_GROUP, type AccessControlName, type ContextName } from "../lib/access-contexts";
@@ -26,7 +31,7 @@ import { accessControls, contexts, IDLE_GROUP, ORG, OTHER_ORG, RO_GROUP, RW_GROU
  * accessFilters.ts builds Prisma WHERE clauses that must agree with
  * accessChecker; nothing in the code enforces that. This runs the WHERE
  * objects through a tiny interpreter of the Prisma subset they use (equality,
- * `in`, `not`, `some`, nested relations, OR) over the same fixtures the
+ * `in`, `notIn`, `not`, `some`, nested relations, OR) over the same fixtures the
  * checker test uses, and demands identical verdicts.
  */
 
@@ -44,6 +49,7 @@ function matches(where: unknown, record: unknown): boolean {
     if (condition === null || typeof condition !== "object") return value === condition;
     const operator = condition as Where;
     if ("in" in operator) return (operator.in as unknown[]).includes(value);
+    if ("notIn" in operator) return !(operator.notIn as unknown[]).includes(value);
     if ("not" in operator) return value !== operator.not;
     if ("some" in operator) return Array.isArray(value) && value.some(item => matches(operator.some, item));
     // Nested relation: a null relation never matches a relation filter
@@ -66,12 +72,15 @@ const iterations = accessControlNames.flatMap(acName =>
 );
 
 test.describe("the interpreter understands the Prisma subset", () => {
-  test("equality, in, not, some, nesting, OR and the empty clause", () => {
+  test("equality, in, notIn, not, some, nesting, OR and the empty clause", () => {
     expect(matches({}, { anything: 1 })).toBe(true);
     expect(matches({ a: 1 }, { a: 1 })).toBe(true);
     expect(matches({ a: 1 }, { a: 2 })).toBe(false);
     expect(matches({ a: { in: [1, 2] } }, { a: 2 })).toBe(true);
     expect(matches({ a: { in: [] } }, { a: 2 })).toBe(false);
+    expect(matches({ a: { notIn: [1, 2] } }, { a: 2 })).toBe(false);
+    expect(matches({ a: { notIn: [] } }, { a: 2 })).toBe(true);
+    expect(matches({ a: { notIn: [] } }, {})).toBe(true);
     expect(matches({ a: { not: 1 } }, { a: 2 })).toBe(true);
     expect(matches({ list: { some: { x: 1 } } }, { list: [{ x: 0 }, { x: 1 }] })).toBe(true);
     expect(matches({ list: { some: { x: 1 } } }, { list: [] })).toBe(false);
@@ -123,10 +132,49 @@ test.describe("readable / writable access controls agree with accessChecker", ()
     expect(writableAccessControlWHERE(null)).toEqual({ org_id: { in: [] } });
   });
 
-  test("super admins get the empty clause (everything)", () => {
-    expect(readableAccessControlWHERE(contexts.superAdmin)).toEqual({});
-    expect(writableAccessControlWHERE(contexts.superAdmin)).toEqual({});
-    expect(editableActionsWHERE(contexts.superAdmin)).toEqual({});
+  test("super admins get the everything clause, never the empty one", () => {
+    // Prisma drops an empty `{}` relation filter from an OR (see everythingWHERE): the
+    // super admin's rung must stay a clause the OR keeps
+    expect(everythingWHERE()).toEqual({ id: { notIn: [] } });
+    expect(readableAccessControlWHERE(contexts.superAdmin)).toEqual(everythingWHERE());
+    expect(writableAccessControlWHERE(contexts.superAdmin)).toEqual(everythingWHERE());
+    expect(editableActionsWHERE(contexts.superAdmin)).toEqual(everythingWHERE());
+    expect(listedRoadmapsWHERE(contexts.superAdmin, HiddenRoadmaps.Writable)).toEqual({ OR: [{ hidden: false }, { access_control: everythingWHERE() }] });
+    for (const contextName of contextNames) {
+      expect(listedRoadmapsWHERE(contexts[contextName], HiddenRoadmaps.Include), contextName).toEqual(everythingWHERE());
+    }
+  });
+
+  test("no builder emits an empty object anywhere in its clause", () => {
+    // An empty object is harmless on its own but vanishes as an OR branch or relation
+    // filter, so none may appear at any depth, for any context
+    const emptyObjects = (where: unknown, path = "where"): string[] => {
+      if (Array.isArray(where)) return where.flatMap((item, index) => emptyObjects(item, `${path}[${index}]`));
+      if (where === null || typeof where !== "object") return [];
+      const entries = Object.entries(where as Where);
+      if (entries.length === 0) return [path];
+      return entries.flatMap(([key, value]) => emptyObjects(value, `${path}.${key}`));
+    };
+    for (const ctx of [null, ...contextNames.map(name => contexts[name])]) {
+      const label = ctx === null ? "anonymous" : contextNames.find(name => contexts[name] === ctx);
+      const clauses: Record<string, unknown> = {
+        readableAccessControlWHERE: readableAccessControlWHERE(ctx),
+        writableAccessControlWHERE: writableAccessControlWHERE(ctx),
+        visibleRoadmapIterationsWHERE: visibleRoadmapIterationsWHERE(ctx),
+        publishedIterationsOfTypeWHERE: publishedIterationsOfTypeWHERE(ctx, RoadmapType.NATIONAL),
+        listedGoalsWHERE: listedGoalsWHERE(ctx),
+        visibleActionsWHERE: visibleActionsWHERE(ctx),
+        editableActionsWHERE: editableActionsWHERE(ctx),
+        editableDataSeriesWHERE: editableDataSeriesWHERE(ctx),
+        visibleDataSeriesWHERE: visibleDataSeriesWHERE(ctx),
+        visibleAttachmentsWHERE: visibleAttachmentsWHERE(ctx),
+        editableAttachmentsWHERE: editableAttachmentsWHERE(ctx),
+        ...Object.fromEntries(Object.values(HiddenRoadmaps).map(mode => [`listedRoadmapsWHERE(${mode})`, listedRoadmapsWHERE(ctx, mode)])),
+      };
+      for (const [name, clause] of Object.entries(clauses)) {
+        expect(emptyObjects(clause, name), `${label}: ${name}`).toEqual([]);
+      }
+    }
   });
 
   test("the member clauses carry exactly the ladder's rungs", () => {
@@ -232,6 +280,34 @@ test.describe("listed goals agree with isGoalListed", () => {
   });
 });
 
+test.describe("listed roadmaps agree with isRoadmapListed", () => {
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      for (const mode of Object.values(HiddenRoadmaps)) {
+        const listed = listedRoadmapsWHERE(contexts[contextName], mode);
+        for (const acName of accessControlNames) {
+          const level = accessChecker({ access_control: accessControls[acName] }, contexts[contextName]);
+          // The WHERE is applied on top of the access filter, so only compare readable roadmaps
+          if (!hasViewAccess(level)) continue;
+          for (const hidden of [false, true]) {
+            const roadmap = { hidden, access_control: accessControls[acName] };
+            expect(matches(listed, roadmap), `${contextName} ${mode} lists ${hidden ? "hidden" : "listed"} roadmap of ${acName}`).toBe(isRoadmapListed(roadmap, level, mode));
+          }
+        }
+      }
+    });
+  }
+
+  test("hiding never touches the access filters", () => {
+    // Visibility ≠ listing: a hidden roadmap's versions stay visible to everyone who may read them
+    for (const contextName of contextNames) {
+      for (const where of [visibleRoadmapIterationsWHERE(contexts[contextName]), readableAccessControlWHERE(contexts[contextName]), visibleDataSeriesWHERE(contexts[contextName])]) {
+        expect(JSON.stringify(where), contextName).not.toContain('"hidden"');
+      }
+    }
+  });
+});
+
 test.describe("actions", () => {
   for (const contextName of contextNames) {
     test(`${contextName}: visibility and editability of actions under iterations`, () => {
@@ -259,6 +335,27 @@ test.describe("actions", () => {
     expect(matches(editableActionsWHERE(null), roadmapless)).toBe(false);
     expect(editableActionsWHERE(null)).toEqual({ org_id: { in: [] } });
   });
+});
+
+test.describe("attachments derive their access from the object they hang off", () => {
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      const visible = visibleAttachmentsWHERE(contexts[contextName]);
+      const editable = editableAttachmentsWHERE(contexts[contextName]);
+      for (const iteration of iterations) {
+        const level = accessChecker(iteration, contexts[contextName]);
+        const slots = {
+          action: { action: { org_id: ORG, roadmap_iteration: iteration }, goal: null, roadmap_iteration: null },
+          goal: { action: null, goal: { roadmap_iteration: iteration }, roadmap_iteration: null },
+          roadmap_iteration: { action: null, goal: null, roadmap_iteration: iteration },
+        };
+        for (const [slot, attachment] of Object.entries(slots)) {
+          expect(matches(visible, attachment), `${contextName} sees ${slot} document in ${iteration.name}`).toBe(hasViewAccess(level));
+          expect(matches(editable, attachment), `${contextName} removes ${slot} document in ${iteration.name}`).toBe(hasEditAccess(level));
+        }
+      }
+    });
+  }
 });
 
 test.describe("data series derive their access from the dependent slot", () => {

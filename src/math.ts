@@ -1,7 +1,13 @@
 import type { UnitDefinition } from 'mathjs';
 import { create, all, Unit as MathJSUnit } from 'mathjs';
 
-const mathjs = create(all);
+// `predictable`: a dimensionless unit stays a Unit through multiplication and
+// division instead of collapsing into a bare number. Without it mathjs turns
+// `90 procent * 0.5` into the number 0.45 (its SI value), which the evaluator
+// then relabels as 0.45 procent, 100x too small (see tests/unit/recipe-percent).
+// The option also makes e.g. `sqrt(-4)` NaN instead of complex, which the
+// evaluator treats as "no value" rather than failing on an unsupported type.
+const mathjs = create(all, { predictable: true });
 
 /**
  * Units beyond what mathjs ships with. Three kinds:
@@ -90,7 +96,10 @@ const customUnits: Record<string, UnitDefinition> = {
     prefixes: 'long', // kilowattimme, megawattimmar, gigawattimmar
     aliases: ['wattimmar'],
   },
-  // mathjs has no percent unit of its own; a dimensionless hundredth
+  // mathjs has no percent unit of its own; a dimensionless hundredth. Only
+  // survives arithmetic because the instance is created with `predictable`
+  // (see above); the evaluator converts the result into the goal's declared
+  // unit, so `90 procent * 50 procent` (procent^2) still comes out as 45 procent.
   "procent": {
     definition: '0.01',
     prefixes: 'none',

@@ -1,6 +1,7 @@
 import findTypeFromId from "@/functions/findTypeFromId";
+import { readJson } from "@/functions/readJson";
 import { attachmentContentType, AttachmentRejection, MaxAttachmentBytes, MaxAttachmentsPerObject, rejectAttachment, sanitizeAttachmentName } from "@/functions/attachments";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { editableActionsWHERE, editableAttachmentsWHERE, writableAccessControlWHERE } from "@/lib/accessFilters";
 import { isAttachmentParent, type AttachmentParent } from "@/lib/attachments";
 import serveTea from "@/lib/i18nServer";
@@ -8,7 +9,7 @@ import { deleteStoredObjects, isObjectStorageConfigured, putStoredObject } from 
 import { prisma } from "@/lib/prisma";
 import { consumeToken } from "@/lib/rateLimit";
 import { getSession } from "@/lib/session";
-import type { JSONValue, UserAccessContext } from "@/types";
+import type { UserAccessContext } from "@/types";
 import { isStandardObject } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -49,7 +50,7 @@ async function mayEditParent(parent: AttachmentParent, id: string, ctx: UserAcce
 /** The session's access context, or null for anonymous and stale sessions (which get logged out). */
 async function requireUser(session: Awaited<ReturnType<typeof getSession>>): Promise<UserAccessContext | null> {
   if (!session.user?.isLoggedIn || !session.user.id) return null;
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
     session.destroy();
     return null;
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, body, t] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<JSONValue>).catch(() => null),
+    readJson(request),
     serveTea("api"),
   ]);
 

@@ -10,9 +10,11 @@ import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
 import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
+import { HiddenRoadmaps } from "@/types/enums";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { usernameFromParam } from "@/functions/username";
 import LogoutEverywhereButton from "@/components/buttons/logoutEverywhereButton";
+import SuperAdminToggle from "@/components/buttons/superAdminToggle";
 import NameForm from "@/components/form/forms/nameForm";
 import { displayName } from "@/functions/personName";
 import type { Metadata } from "next";
@@ -60,8 +62,9 @@ export default async function Page(
 
   // If user is on their own page, also get all roadmaps/iterations they have edit access to
   const [iterations, roadmaps] = await Promise.all([
-    (session.user?.username === username) ? getRoadmapIterations() : [],
-    (session.user?.username === username) ? getRoadmaps() : [],
+    // The user's own workbench: hidden roadmaps they can edit belong here
+    (session.user?.username === username) ? getRoadmapIterations(HiddenRoadmaps.Writable) : [],
+    (session.user?.username === username) ? getRoadmaps(HiddenRoadmaps.Writable) : [],
   ]);
 
   const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, accessContext)));
@@ -117,7 +120,8 @@ export default async function Page(
   toggleRoadmaps();
 
   const ownPage = session.user?.username === username;
-  // Super admins can log another user out everywhere (a lost laptop, a leaver)
+  // Super admins can log another user out everywhere (a lost laptop, a leaver); the
+  // effective flag, so not while they have suspended their powers
   const canRevokeOther = !ownPage && session.user?.isSuperAdmin === true;
   const name = displayName(userdata);
 
@@ -131,6 +135,14 @@ export default async function Page(
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:profile.name")}</h2>
         <p>{t("pages:profile.name_description")}</p>
         <NameForm firstName={userdata.first_name} lastName={userdata.last_name} />
+      </section>
+      : null}
+
+    {ownPage && session.user?.canToggleSuperAdmin ?
+      <section className='margin-block-300' data-testid="super-admin-section">
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:profile.super_admin")}</h2>
+        <p>{t("pages:profile.super_admin_description")}</p>
+        <SuperAdminToggle active={session.user.isSuperAdmin === true} />
       </section>
       : null}
 

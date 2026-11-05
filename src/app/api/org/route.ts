@@ -1,4 +1,5 @@
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
+import { readJsonObject } from "@/functions/readJson";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
@@ -27,7 +28,7 @@ function managesOrg(accessContext: UserAccessContext, orgId: string): boolean {
 export async function PUT(request: NextRequest) {
   const [session, body, t] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ orgId?: string, name?: string, geoAreaCode?: string | null }>,
+    readJsonObject(request),
     serveTea("api"),
   ]);
 
@@ -36,13 +37,18 @@ export async function PUT(request: NextRequest) {
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext) {
     return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
   const name = typeof body.name === 'string' ? body.name.trim() : '';
   // undefined leaves the area alone, null (or an empty code) clears it
   const geoAreaCode = body.geoAreaCode === undefined ? undefined : (typeof body.geoAreaCode === 'string' && body.geoAreaCode ? body.geoAreaCode : null);

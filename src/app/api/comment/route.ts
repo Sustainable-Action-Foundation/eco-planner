@@ -1,9 +1,9 @@
 import findTypeFromId from "@/functions/findTypeFromId";
-import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { readJson } from "@/functions/readJson";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { readableAccessControlWHERE, visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import type { JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const comment = await request.json() as JSONValue;
+  const comment = await readJson(request);
   if (typeof comment !== "object" || comment == null || Array.isArray(comment) || typeof comment.commentText !== "string" || typeof comment.objectId !== "string") {
     return Response.json({ message: 'Invalid request body' },
       { status: 400 },
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Commenting requires view access to the commented object (signed-in is already checked)
-  const accessContext = await getAccessContextById(session.user.id);
+  const accessContext = await getAccessContextFor(session.user);
   if (!accessContext) {
     return Response.json({ message: 'Unauthenticated, only registered users can comment' },
       { status: 401 },

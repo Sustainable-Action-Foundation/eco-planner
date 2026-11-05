@@ -1,10 +1,10 @@
 import { connection } from "next/server";
+import { readJson } from "@/functions/readJson";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { readSession, sessionOptionsFor } from "@/lib/session";
 import { usernameKey } from "@/functions/username";
-import type { JSONValue } from "@/types";
 
 /**
  * Test-only: starts a session for a seeded user by username, without a mail round
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Not found" }, { status: 404 });
   }
 
-  const body = await (request.json() as Promise<JSONValue>).catch(() => null);
+  const body = await readJson(request);
   if (!body || typeof body !== "object" || Array.isArray(body) || typeof body.username !== "string") {
     return Response.json({ message: "Invalid body; username is required" }, { status: 400 });
   }
@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     isLoggedIn: true,
     isSuperAdmin: user.is_super_admin,
     sessionVersion: user.session_version,
+    remember: body.remember === true,
   };
   await session.save();
 

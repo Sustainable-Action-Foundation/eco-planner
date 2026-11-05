@@ -2,13 +2,14 @@ import "server-only";
 import { getCuratedHistoricalEntries } from "@/fetchers/getCuratedHistoricalData";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { publishedIterationsOfTypeWHERE } from "@/lib/accessFilters";
+import { listedRoadmapsWHERE, publishedIterationsOfTypeWHERE } from "@/lib/accessFilters";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import { prisma } from "@/lib/prisma";
 import { GoalListing, RoadmapType } from "@/lib/prisma/generated";
 import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { NationalGoalMapping } from "@/lib/curatedHistoricalData";
 import type { DateValues, UserAccessContext } from "@/types";
+import { HiddenRoadmaps } from "@/types/enums";
 import type { TFunction } from "i18next";
 import { cacheTag } from "next/cache";
 
@@ -66,7 +67,7 @@ export async function getNationalGoalMatches(t: TFunction, geoArea: CuratedGeoAr
         indicatorParameter: goal.indicator_parameter,
         unit: goal.data_series.unit || null,
         dataSeriesId: goal.data_series.id,
-        dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
+        dateValues: Object.fromEntries<number>(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])),
       },
       roadmap: {
         id: goal.roadmap_iteration.roadmap.id,
@@ -107,6 +108,8 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
         listing: { not: GoalListing.UNLISTED },
         data_series: { isNot: null },
         roadmap_iteration: publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL),
+        // Hidden national roadmaps aren't offered for copying (their goals still resolve by reference)
+        AND: [{ roadmap_iteration: { roadmap: listedRoadmapsWHERE(accessContext, HiddenRoadmaps.Exclude) } }],
       },
       select: {
         id: true,

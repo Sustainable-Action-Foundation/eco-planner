@@ -132,5 +132,22 @@
     "yes": "Yes",
     "move_up": "Move up",
     "move_down": "Move down"
+  },
+  "like_aspect": {
+    "own_operations": "Own operations",
+    "own_operations_description": "The municipality's own buildings, vehicles, lighting and purchases of electricity and fuel. It decides and acts on its own.",
+    "ownership": "Ownership (companies)",
+    "ownership_description": "Energy, housing, water and transport companies steered through owner directives, investment decisions and corporate governance. Large but mediated control, bounded by the companies' own goals and commercial terms.",
+    "authority_planning": "Authority and planning",
+    "authority_planning_description": "Comprehensive and detailed plans, land allocation, supervision and permits. Formal but legally bounded; land and development agreements are often the practical tool.",
+    "market_power": "Procurement",
+    "market_power_description": "Steering through purchasing power: procurement requirements, conditions on land sales and allocation, financing. Between direct and indirect control.",
+    "enabling": "Enabling",
+    "enabling_description": "The municipality creates the conditions while others decide: charging infrastructure, cycle networks, district heating, advice, test beds, partnerships and climate contracts.",
+    "influence_local": "Local influence",
+    "influence_local_description": "Influencing residents, businesses and civil society by leading by example, communication and inspiration.",
+    "influence_upward": "Upward influence",
+    "influence_upward_description": "Influencing the framework set by the state, region, EU, grid owners and the transmission operator, such as grid capacity, permitting and regulation.",
+    "legend_summary": "What do the categories mean?"
   }
 }

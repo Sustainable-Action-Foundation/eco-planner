@@ -16,7 +16,7 @@ export { getRoadmapIterationByVersion } from "./getRoadmapIterationByVersion";
 export { getRoadmapIterations } from "./getRoadmapIterations";
 export { getRoadmaps } from "./getRoadmaps";
 export { getRoadmapSubset } from "./getRoadmapSubset";
-export { getUserAccessContext, getAccessContextById } from "./getUserAccessContext";
+export { getUserAccessContext, getAccessContextFor } from "./getUserAccessContext";
 export { getUserInfo } from "./getUserInfo";
 export { getGuestInvite } from "./getGuestInvite";
 export { getOrgManagement } from "./getOrgManagement";

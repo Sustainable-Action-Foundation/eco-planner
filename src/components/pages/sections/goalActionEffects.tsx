@@ -119,6 +119,7 @@ export default function GoalActionEffectList({
                 // The embedded effect carries everything ControlsMenu reads at runtime,
                 // but goal-embedded effects only expose the action relation, so we
                 // assert the menu-entry shape directly (same as the action page's table).
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- eslint sees the union as assignable, tsc does not
                 object={effect as unknown as EffectMenuEntry}
               />
             </div>
