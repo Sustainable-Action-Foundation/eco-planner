@@ -87,9 +87,9 @@ export default async function Page(
       ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)
       : null;
 
-    const { geo_area: _geoArea, iterations: _iterations, child_roadmaps: _children, comments: _comments, author: _author, access_control, ...roadmapColumns } = roadmap;
+    const { geo_area, iterations: _iterations, child_roadmaps: _children, comments: _comments, author: _author, access_control, ...roadmapColumns } = roadmap;
     return [...(latestPublished ? [latestPublished] : []), ...drafts]
-      .map(iteration => ({ ...iteration, roadmap: { ...roadmapColumns, access_control } }));
+      .map(iteration => ({ ...iteration, roadmap: { ...roadmapColumns, access_control, geo_area } }));
   });
   // Same base order the iteration query used to give (id breaks ties between same-named roadmaps)
   iterations.sort((a, b) => roadmapIterationSorter(a, b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

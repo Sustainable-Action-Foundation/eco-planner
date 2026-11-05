@@ -17,6 +17,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import { iterationPath } from "@/functions/versionSlug";
 import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import type { Metadata } from "next";
 
@@ -49,7 +50,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 export default async function Page(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params;
   const [t, accessContext, action] = await Promise.all([
-    serveTea(["pages", "forms"]),
+    serveTea(["pages", "forms", "common"]),
     getUserAccessContext(),
     getOneAction(params.actionId),
   ]);
@@ -92,6 +93,15 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <section className="margin-block-300 container">
           <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
           <h1 className="margin-0">{action.name}</h1>
+          {/* The action's own name is the heading; the roadmap version it belongs to is context under it */}
+          {action.roadmap_iteration ?
+            <p className="margin-block-25" style={{ color: 'gray' }} data-testid="action-roadmap-context">
+              {t("pages:action.roadmap_context")}{" "}
+              <Link href={iterationPath(action.roadmap_iteration.roadmap_id, action.roadmap_iteration.version)}>
+                {t("common:roadmap_version_name", { name: action.roadmap_iteration.roadmap.name, version: action.roadmap_iteration.version })}
+              </Link>
+            </p>
+            : null}
           {tags.length > 0 &&
             <ul className="flex gap-25 margin-block-25 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
               {tags.map(tag => (
@@ -138,10 +148,21 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <ActionNeighbours action={action} />
 
         <section className="margin-block-300">
-          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:action.effects_label")}</h2>
-          <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
-            <Link href={`/effect/create?actionId=${action.id}`} className="button color-purewhite pureblack round font-weight-bold">{t("pages:action.create_new_effect")}</Link>
-          </menu>
+          {/* Same header row as the goal page's action and effect sections */}
+          <div
+            className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
+            style={{ borderBottom: '1px solid var(--gray)' }}>
+            <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>{t("pages:action.effects_label")}</h2>
+            {hasEditAccess(accessLevel) &&
+              <Link
+                href={`/effect/create?actionId=${action.id}`}
+                className="button smooth seagreen color-purewhite"
+                data-testid="action-new-effect"
+                style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
+                {t("pages:action.create_new_effect")}
+              </Link>
+            }
+          </div>
           <EffectTable object={action} accessLevel={accessLevel} />
         </section>
       </main>

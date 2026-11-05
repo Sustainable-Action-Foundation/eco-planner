@@ -247,7 +247,8 @@ test.describe("Action lifecycle", () => {
     const actionSelect = visible(page, "#actionId");
     // The pickers' option lists are cached; the foreign action is only moments old
     await reloadUntil(page, async () => {
-      const roadmapOption = await roadmapSelect.locator("option").filter({ hasText: `Sandbox ${sandbox.label} (v1)` }).getAttribute("value", { timeout: 5_000 });
+      // Options read "<name> (<area or org>) (v<n>): <action count>"
+      const roadmapOption = await roadmapSelect.locator("option").filter({ hasText: `Sandbox ${sandbox.label} (` }).filter({ hasText: "(v1)" }).getAttribute("value", { timeout: 5_000 });
       expect(roadmapOption).toBeTruthy();
       await roadmapSelect.selectOption(roadmapOption ?? "");
       // Options read "<name>; <effect count>", loaded by a server action once the version is picked

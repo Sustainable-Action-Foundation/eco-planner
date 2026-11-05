@@ -715,6 +715,12 @@ export function AdminPanel(
                 <>
                   {iteration ? <IterationStatusControls iteration={iteration} timestamp={timestamp} /> : null}
                   <nav className="display-contents">
+                    {/* Editing the thing itself comes first, creating things under it after, deleting last */}
+                    {links.editLink ? <Link href={links.editLink} className={panelItemClass} data-testid="admin-panel-edit">
+                      <span>{t("components:table_menu.edit")}</span>
+                      <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link> : null
+                    }
                     {links.creationLink ? <Link href={links.creationLink} className={panelItemClass}>
                       <span>{links.creationDescription}</span>
                       <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
@@ -723,11 +729,6 @@ export function AdminPanel(
                     {links.creationLink2 ? <Link href={links.creationLink2} className={panelItemClass} data-testid="admin-panel-new-action">
                       <span>{links.creationDescription2 || links.creationLink2}</span>
                       <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </Link> : null
-                    }
-                    {links.editLink ? <Link href={links.editLink} className={panelItemClass} data-testid="admin-panel-edit">
-                      <span>{t("components:table_menu.edit")}</span>
-                      <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                     </Link> : null
                     }
                     {roadmapSettings ? <Link href={sharingLink(roadmapSettings.id)} className={panelItemClass} data-testid="roadmap-sharing-link">

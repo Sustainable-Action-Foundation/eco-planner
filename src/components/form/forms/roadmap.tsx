@@ -19,6 +19,7 @@ import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete"
 import ConfigureAccess from "../sections/access";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export default function RoadmapForm({
   isSuperAdmin,
@@ -29,7 +30,7 @@ export default function RoadmapForm({
   isSuperAdmin?: boolean,
   /** Orgs the user can create in / manage, with their groups (see getOrgOptions) */
   orgOptions: OrgOption[],
-  parentRoadmapOptions?: Pick<Roadmap, "id" | "name">[],
+  parentRoadmapOptions?: Pick<Roadmap, "id" | "name" | "geo_area" | "access_control">[],
   currentRoadmap?: Roadmap,
 }) {
   const { t } = useTranslation(["forms", "common"]);
@@ -312,7 +313,7 @@ export default function RoadmapForm({
                     const selected = parentRoadmapOptions.find(
                       (roadmap) => roadmap.id === currentRoadmap.parent_roadmap_id,
                     );
-                    return selected ? { name: selected.name, value: selected.id } : false;
+                    return selected ? { name: roadmapPickerLabel(selected), value: selected.id } : false;
                   })()
                   : { name: t("forms:roadmap.relationship_no_chosen"), value: "" }
                 : false
@@ -320,7 +321,7 @@ export default function RoadmapForm({
             options={[
               { name: t("forms:roadmap.relationship_no_chosen"), value: "" },
               ...parentRoadmapOptions.map((roadmap) => ({
-                name: roadmap.name,
+                name: roadmapPickerLabel(roadmap),
                 value: roadmap.id,
               })),
             ]}

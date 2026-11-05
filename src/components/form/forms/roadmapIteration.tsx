@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { RoadmapIterationFormName } from "@/types/form-names";
 import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
 import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
@@ -32,7 +33,7 @@ export default function RoadmapIterationForm({
   defaultRoadmapId,
 }: {
   /** Roadmaps the user can create iterations under */
-  roadmapAlternatives?: (Pick<Roadmap, "id" | "name" | "parent_roadmap_id"> & {
+  roadmapAlternatives?: (Pick<Roadmap, "id" | "name" | "parent_roadmap_id" | "geo_area" | "access_control"> & {
     iterations: { id: string, version: number }[],
   })[],
   currentIteration?: RoadmapIteration,
@@ -159,7 +160,7 @@ export default function RoadmapIterationForm({
 
   const roadmapOptions = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
-      name: roadmap.name,
+      name: roadmapPickerLabel(roadmap),
       value: roadmap.id,
     }));
   }, [roadmapAlternatives]);

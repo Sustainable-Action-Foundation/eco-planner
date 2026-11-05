@@ -23,6 +23,7 @@ import { UnitFlags } from "@/types/enums";
 import { IconPilcrow, IconWriting, IconCalendar, IconCaretRightFilled, IconLoader2 } from "@tabler/icons-react";
 import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
 import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export default function ActionForm({
   goalId,
@@ -268,7 +269,7 @@ export default function ActionForm({
               <option value="" disabled={true}>{t("forms:action.relationship_no_chosen")}</option>
               {roadmaps.map(iteration => (
                 <option key={iteration.id} value={iteration.id}>
-                  {`${iteration.roadmap.name} (v${iteration.version}): ${t("common:count.action", { count: iteration._count.actions })}`}
+                  {`${roadmapPickerLabel(iteration.roadmap)} (v${iteration.version}): ${t("common:count.action", { count: iteration._count.actions })}`}
                 </option>
               ))}
             </select>
