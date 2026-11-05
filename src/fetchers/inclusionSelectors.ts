@@ -211,6 +211,8 @@ export const multiRoadmapInclusionSelection = {
   roadmap: {
     include: {
       access_control: { select: accessControlSelection },
+      // Pickers label the roadmap with its area (see `roadmapPickerLabel`)
+      geo_area: { select: { code: true, name: true, type: true } },
     },
   },
   author: { select: { id: true, username: true, first_name: true, last_name: true } },
@@ -238,7 +240,9 @@ export const clientSafeMultiRoadmapSelection = {
       type: true,
       actor: true,
       parent_roadmap_id: true,
-      access_control: { select: { sharing: true } },
+      // The org name and area label the roadmap in pickers (see `roadmapPickerLabel`)
+      access_control: { select: { sharing: true, org: { select: { name: true } } } },
+      geo_area: { select: { name: true } },
     },
   },
 } satisfies Prisma.RoadmapIterationsSelect;

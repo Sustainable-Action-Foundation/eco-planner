@@ -19,6 +19,7 @@ import { BaselineType, HiddenRoadmaps } from "@/types/enums";
 
 import { Trans } from "react-i18next/TransWithoutContext";
 import i18next from "i18next";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export default function BaselineSeriesSection({
   goal,
@@ -290,7 +291,7 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
         setTreeItems(
           iterationList.map((iteration): TreeItem => ({
             value: iteration.id,
-            name: `${iteration.roadmap.name} (v${iteration.version}): ${t("common:count.goal", { count: iteration._count.goals })}`,
+            name: `${roadmapPickerLabel(iteration.roadmap)} (v${iteration.version}): ${t("common:count.goal", { count: iteration._count.goals })}`,
             expanded: false,
             onExpand: async () => {
               const iterationData = await clientSafeGetOneRoadmapIteration(iteration.id).catch(() => null);

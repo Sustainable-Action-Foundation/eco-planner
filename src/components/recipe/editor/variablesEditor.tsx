@@ -9,6 +9,7 @@ import { VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, Variab
 import type { ClientRoadmapIteration } from "@/types";
 import { RecipeEditorPermissions } from "@/types/consts";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export function VariablesEditor({
   permissions: incomingPermissions,
@@ -32,7 +33,7 @@ export function VariablesEditor({
         setAvailableRoadmaps(
           roadmaps.map((roadmap) => ({
             id: roadmap.id,
-            name: t("common:roadmap_version_name", { name: roadmap.roadmap.name, version: roadmap.version }),
+            name: t("common:roadmap_version_name", { name: roadmapPickerLabel(roadmap.roadmap), version: roadmap.version }),
           })),
         );
 
