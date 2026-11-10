@@ -90,7 +90,7 @@ export default function OrgBanner({ org }: { org: OrgManagement["org"] }) {
       {/* The preview has the hero's shape and colour, so a transparent or narrow image shows as it will land */}
       <div className="rounded position-relative overflow-hidden margin-bottom-50" style={{ aspectRatio: previewAspect, maxWidth: '40rem', backgroundColor: 'var(--seagreen)' }}>
         {org.bannerUrl ?
-          <Image src={org.bannerUrl} alt={t("pages:org_groups.banner_preview_alt", { org: org.name })} fill={true} unoptimized={true} style={{ objectFit: 'cover' }} data-testid="org-banner-preview" />
+          <Image src={org.bannerUrl} alt={t("pages:org_groups.banner_preview_alt", { org: org.name })} fill={true} unoptimized={true} priority={true} style={{ objectFit: 'cover' }} data-testid="org-banner-preview" />
           : <p className="margin-0 padding-100 color-purewhite font-weight-500" data-testid="org-banner-none">{t("pages:org_groups.banner_none")}</p>}
       </div>
 
