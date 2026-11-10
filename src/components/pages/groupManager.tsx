@@ -179,6 +179,8 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
             id: "org-area",
             name: "org-area",
             placeholder: t("forms:combobox.select_or_leave"),
+            // Grow with the row instead of shrinking to the longest option; wrap under on narrow screens
+            style: { flex: "1 1 24rem", minWidth: "min(100%, 24rem)" },
           }}
           defaultValue={current ?? false}
           options={[{ name: t("pages:org_groups.area_none"), value: "" }, ...areaOptions]}
