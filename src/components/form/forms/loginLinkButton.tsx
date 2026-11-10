@@ -20,17 +20,24 @@ export default function LoginLinkButton() {
   const [state, setState] = useState<State>({ kind: "loading" });
 
   useEffect(() => {
-    const token = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("t");
-    if (token) {
-      // Keep the token out of the history and out of anything that reads location later
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
-      setState({ kind: "ready", token });
+    function readToken() {
+      const token = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("t");
+      if (token) {
+        // Keep the token out of the history and out of anything that reads location later
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        setState({ kind: "ready", token });
+      }
+      else {
+        // Only a first look without a token means "missing": React may run this effect again
+        // (dev strict mode) after the hash has already been scrubbed above
+        setState(previous => previous.kind === "loading" ? { kind: "missing" } : previous);
+      }
     }
-    else {
-      // Only a first look without a token means "missing": React may run this effect again
-      // (dev strict mode) after the hash has already been scrubbed above
-      setState(previous => previous.kind === "loading" ? { kind: "missing" } : previous);
-    }
+    readToken();
+    // A second link opened in a tab already on this page only changes the fragment, which
+    // is no navigation: pick the new token up instead of redeeming the stale one
+    window.addEventListener("hashchange", readToken);
+    return () => window.removeEventListener("hashchange", readToken);
   }, []);
 
   function redeem(token: string) {
