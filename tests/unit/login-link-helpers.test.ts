@@ -1,7 +1,7 @@
 import { expect, test } from "playwright/test";
 
 import { hashToken, loginTokenTtlMs, looksLikeEmail, mintToken } from "../../src/lib/authToken";
-import { isAllowedDomain, isValidDomain, orgDomainCandidates } from "../../src/functions/enrollment";
+import { isAllowedDomain, isSuperAdminDomain, isValidDomain, orgDomainCandidates, superAdminDomains } from "../../src/functions/enrollment";
 import { deriveUsername, isValidUsername, usernameMaxLength } from "../../src/functions/username";
 import { allowedDomains, orgDomainAliases } from "../../src/lib/allowedDomains";
 
@@ -63,6 +63,19 @@ test.describe("domain enrollment", () => {
     if (alias && canonical) {
       expect(orgDomainCandidates(alias)[0]).toBe(canonical);
     }
+  });
+});
+
+test.describe("super admin domains", () => {
+  test("SUPER_ADMIN_DOMAINS is parsed leniently and matches domains and their subdomains", () => {
+    expect(superAdminDomains(undefined)).toEqual([]);
+    expect(superAdminDomains(" Sustainable-Action.ngo, sustainable-action.org ,,not a domain")).toEqual(["sustainable-action.ngo", "sustainable-action.org"]);
+    const domains = superAdminDomains("sustainable-action.ngo");
+    expect(isSuperAdminDomain("sustainable-action.ngo", domains)).toBe(true);
+    expect(isSuperAdminDomain("mail.sustainable-action.ngo", domains)).toBe(true);
+    expect(isSuperAdminDomain("sustainable-action.org", domains)).toBe(false);
+    expect(isSuperAdminDomain("evilsustainable-action.ngo", domains)).toBe(false);
+    expect(isSuperAdminDomain("boden.se", [])).toBe(false);
   });
 });
 

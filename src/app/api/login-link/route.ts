@@ -155,6 +155,7 @@ export async function PATCH(request: NextRequest) {
         username_lower: usernameKey(username),
         email,
         is_verified: true,
+        is_super_admin: enrollment.superAdmin,
         ...(enrollment.orgId ? {
           memberships: { create: { org: { connect: { id: enrollment.orgId } }, role: OrgRole.MEMBER } },
         } : {}),
