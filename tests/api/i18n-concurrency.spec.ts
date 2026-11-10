@@ -30,9 +30,18 @@ const probes: { url: string, marker: (locale: Probed) => string }[] = [
   { url: "/?org=public", marker: locale => pagesFile(locale).home.search_roadmaps.split("$t(")[0].trim() },
 ];
 
+/**
+ * The served document without its scripts: the markup the server rendered. The scripts carry
+ * the locale's translations for the client (keyed by English identifiers) next to the page
+ * data, so a marker found there says nothing about the language the page was rendered in.
+ */
+function renderedMarkup(html: string): string {
+  return html.replace(/<script\b[\s\S]*?<\/script>/g, "");
+}
+
 async function fetchIn(request: APIRequestContext, url: string, locale: Probed) {
   const response = await request.get(url, { headers: { "accept-language": locale } });
-  return { status: response.status(), body: await response.text() };
+  return { status: response.status(), body: renderedMarkup(await response.text()) };
 }
 
 test("overlapping requests in different languages each render in their own language", async ({ anita }) => {
