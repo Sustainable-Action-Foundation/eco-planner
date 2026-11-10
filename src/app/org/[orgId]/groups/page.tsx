@@ -6,6 +6,10 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+// Pages are validated for instant navigation even under the root layout's opt-out, and the
+// metadata here needs the request (params, locale), so this page opts out as well.
+export const instant = false;
+
 export async function generateMetadata(props: { params: Promise<{ orgId: string }> }): Promise<Metadata> {
   const [t, params] = await Promise.all([serveTea("metadata"), props.params]);
   return await buildMetadata({
