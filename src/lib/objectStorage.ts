@@ -131,6 +131,43 @@ export async function storedObjectExists(key: string): Promise<boolean> {
   }
 }
 
+export type StoredObject = {
+  /** The file's bytes, to pass on as a response body */
+  body: ReadableStream<Uint8Array>;
+  contentLength: number | null;
+  contentType: string | null;
+  etag: string | null;
+  lastModified: Date | null;
+};
+
+/**
+ * Streams the file behind `key` for the app to serve itself, for images shown inline
+ * on pages (a presigned link can't be cached by the browser, its signature changes
+ * every time). Resolves null when there is no such object; throws on other failures.
+ */
+export async function getStoredObject(key: string): Promise<StoredObject | null> {
+  const store = storage();
+  if (!store) throw new Error("Object storage is not configured");
+  try {
+    const result = await store.client.send(new GetObjectCommand({ Bucket: store.bucket, Key: key }));
+    if (!result.Body) return null;
+    return {
+      // The SDK types the stream loosely; S3 hands back bytes
+      body: result.Body.transformToWebStream() as ReadableStream<Uint8Array>,
+      contentLength: result.ContentLength ?? null,
+      contentType: result.ContentType ?? null,
+      etag: result.ETag ?? null,
+      lastModified: result.LastModified ?? null,
+    };
+  } catch (error) {
+    const status = typeof error === "object" && error && "$metadata" in error
+      ? (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
+      : undefined;
+    if (status === 404 || (error instanceof Error && (error.name === "NoSuchKey" || error.name === "NotFound"))) return null;
+    throw error;
+  }
+}
+
 /**
  * A short-lived link that downloads the stored file under its original name.
  * Served as an attachment (never inline) so nothing uploaded renders as a page.

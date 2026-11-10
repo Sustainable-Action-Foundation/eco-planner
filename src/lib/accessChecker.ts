@@ -88,3 +88,16 @@ export function hasViewAccess(accessLevel: AccessLevel): boolean {
 export function hasCommentAccess(accessLevel: AccessLevel, userAccessContext: UserAccessContext | null | undefined): boolean {
   return hasViewAccess(accessLevel) && !!userAccessContext;
 }
+
+/** Whether the user administers the org: its managers and super admins. */
+export function managesOrg(userAccessContext: UserAccessContext | null | undefined, orgId: string): boolean {
+  if (!userAccessContext) return false;
+  return userAccessContext.isSuperAdmin
+    || userAccessContext.memberships.some(membership => membership.orgId === orgId && membership.role === OrgRole.MANAGER);
+}
+
+/** Whether the user sees the org's landing page: any membership, or the super-admin override. */
+export function seesOrg(userAccessContext: UserAccessContext | null | undefined, orgId: string): boolean {
+  if (!userAccessContext) return false;
+  return userAccessContext.isSuperAdmin || userAccessContext.memberships.some(membership => membership.orgId === orgId);
+}
