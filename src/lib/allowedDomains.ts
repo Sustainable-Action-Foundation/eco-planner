@@ -302,6 +302,9 @@ export const allowedDomains = [
    */
   "bodenbo.se",
   "bodenbusinessagency.com",
+  "bodenbusinesspark.com",
+  "bodenevent.se",
+  "bodensnaringsfastigheter.se",
   "restprodukter.se",
 
   /*
