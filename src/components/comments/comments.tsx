@@ -10,6 +10,7 @@ import Link from "next/link";
 import formSubmitter from "@/functions/formSubmitter";
 import { displayName } from "@/functions/personName";
 import { useIsClient } from "@/functions/useClientState";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function Comments({ comments, objectId }: { comments?: (CommentModel & { author: { id: string, username: string, first_name?: string | null, last_name?: string | null } | null })[], objectId: string }) {
   const { t } = useTranslation(["components", "common"]);
@@ -80,14 +81,14 @@ export default function Comments({ comments, objectId }: { comments?: (CommentMo
   return (
     <div className="container-text">
         <h2>{t("components:comments.comment_count", { count: comments?.length ?? 0 })}</h2>
-        <form onSubmit={handleSubmit}>
+        <HydratedForm onSubmit={handleSubmit}>
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable={true} aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleBlur} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
           <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
             <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("common:tsx.cancel")}</button>
             <button type="submit" disabled={!editedContent} className={`${styles.button} ${styles.comment}`}>{t("components:comments.send")}</button>
           </div>
-        </form>
+        </HydratedForm>
         {comments?.map((comment) => (
           <div key={comment.id}>
             <div className="flex align-items-center gap-50 margin-top-200">

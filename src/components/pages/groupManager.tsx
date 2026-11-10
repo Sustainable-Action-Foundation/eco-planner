@@ -15,6 +15,7 @@ import type { Option } from "@/components/types";
 import type { OrgManagement } from "@/fetchers/getOrgManagement";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { TFunction } from "i18next";
+import HydratedForm from "@/components/form/hydratedForm";
 
 /** Section headings stay in view while their long lists scroll by */
 const headingClass = "font-size-125 position-sticky padding-block-50 margin-bottom-0 neutral-background";
@@ -110,7 +111,7 @@ function RenameOrg({ org }: { org: OrgManagement["org"] }) {
   }
 
   return (
-    <form onSubmit={rename} className="flex gap-50 flex-wrap-wrap align-items-flex-end" data-testid="org-rename-form">
+    <HydratedForm onSubmit={rename} className="flex gap-50 flex-wrap-wrap align-items-flex-end" data-testid="org-rename-form">
       <label className="font-weight-500">
         {t("pages:org_groups.org_name_label")}
         <input
@@ -125,7 +126,7 @@ function RenameOrg({ org }: { org: OrgManagement["org"] }) {
       <button type="submit" className="seagreen color-purewhite" disabled={isLoading || unchanged} data-testid="org-rename-save">
         {t("common:tsx.save")}
       </button>
-    </form>
+    </HydratedForm>
   );
 }
 
@@ -167,7 +168,7 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
   }
 
   return (
-    <form onSubmit={save} className="margin-top-100" data-testid="org-area-form">
+    <HydratedForm onSubmit={save} className="margin-top-100" data-testid="org-area-form">
       <label className="font-weight-500" htmlFor="org-area">{t("pages:org_groups.area_label")}</label>
       <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.area_description")}</p>
       <div className="flex gap-50 flex-wrap-wrap align-items-flex-end">
@@ -185,7 +186,7 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
           {t("common:tsx.save")}
         </button>
       </div>
-    </form>
+    </HydratedForm>
   );
 }
 
@@ -403,7 +404,7 @@ function GroupEditor({
   }
 
   return (
-    <form onSubmit={save} className="margin-block-100 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-editor" data-group-id={group.id}>
+    <HydratedForm onSubmit={save} className="margin-block-100 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-editor" data-group-id={group.id}>
       <label className="font-weight-500">
         {t("pages:org_groups.name_label")}
         <input
@@ -448,7 +449,7 @@ function GroupEditor({
           {deleteArmed ? t("pages:org_groups.confirm_delete") : t("common:tsx.delete")}
         </button>
       </div>
-    </form>
+    </HydratedForm>
   );
 }
 
@@ -491,7 +492,7 @@ function CreateGroup({
   }
 
   return (
-    <form onSubmit={create} className="margin-block-100 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-create">
+    <HydratedForm onSubmit={create} className="margin-block-100 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-create">
       <h3 className="margin-top-0 font-size-125">{t("pages:org_groups.create_group")}</h3>
       <label className="font-weight-500">
         {t("pages:org_groups.name_label")}
@@ -529,6 +530,6 @@ function CreateGroup({
           {t("common:tsx.close")}
         </button>
       </div>
-    </form>
+    </HydratedForm>
   );
 }
