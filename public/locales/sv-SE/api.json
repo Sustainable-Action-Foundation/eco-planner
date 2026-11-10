@@ -59,7 +59,14 @@
     "name_taken": "En organisation med det namnet finns redan",
     "renamed": "Organisationen bytte namn",
     "area_updated": "Organisationens område uppdaterat",
-    "unknown_area": "Okänt område"
+    "unknown_area": "Okänt område",
+    "banner_uploaded": "Omslagsbilden sparad",
+    "banner_removed": "Omslagsbilden borttagen",
+    "banner_none": "Organisationen har ingen omslagsbild",
+    "banner_missing": "Omslagsbilden finns inte längre i fillagringen. En ansvarig kan ta bort den.",
+    "banner_too_large": "Bilden är större än gränsen på {{maxSize}} MB",
+    "banner_type_not_allowed": "Den filtypen kan inte användas som omslagsbild",
+    "banner_unreadable": "Filen kunde inte läsas som en bild"
   },
   "orgMembership": {
     "not_found": "Medlemskapet hittades inte",

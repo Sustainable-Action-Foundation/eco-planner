@@ -495,6 +495,10 @@ model Orgs {
   geo_area_code String?
   geo_area      GeoAreas? @relation(fields: [geo_area_code], references: [code], onDelete: SetNull)
 
+  /// When the org's landing banner was last uploaded; null means none. The image itself
+  /// lives in the bucket under a key derived from the id (see functions/orgBanner.ts)
+  banner_updated_at DateTime?
+
   memberships     OrgMemberships[]
   groups          Groups[]         @relation("org_groups")
   access_controls AccessControls[]

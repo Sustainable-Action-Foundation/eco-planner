@@ -100,6 +100,7 @@
     "react-dom": "^19.3.1",
     "react-i18next": "^17.1.9",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
     "use-debounce": "^10.1.1"
   },
   "devDependencies": {

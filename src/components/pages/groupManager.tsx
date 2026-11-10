@@ -9,6 +9,7 @@ import SelectMultipleSearch from "@/components/form/elements/combobox/selectMult
 import SelectSingleSearch from "@/components/form/elements/combobox/selectSingleSearch";
 import { IconPlus } from "@tabler/icons-react";
 import ListFilter, { matchesFilter } from "@/components/form/filters/listFilter";
+import OrgBanner from "@/components/pages/orgBanner";
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import { areaSorter } from "@/lib/sorters";
 import type { Option } from "@/components/types";
@@ -62,6 +63,8 @@ export default function GroupManager({ management }: { management: OrgManagement
         <RenameOrg key={management.org.name} org={management.org} />
         {/* Keyed on the area for the same reason */}
         <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
+        {/* And on the banner's versioned URL */}
+        <OrgBanner key={management.org.bannerUrl ?? "none"} org={management.org} />
       </section>
 
       <section className="margin-bottom-300">
@@ -176,6 +179,8 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
             id: "org-area",
             name: "org-area",
             placeholder: t("forms:combobox.select_or_leave"),
+            // A fixed comfortable width instead of the longest option's; full width on narrow screens
+            style: { width: "min(100%, 24rem)" },
           }}
           defaultValue={current ?? false}
           options={[{ name: t("pages:org_groups.area_none"), value: "" }, ...areaOptions]}

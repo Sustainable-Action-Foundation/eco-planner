@@ -3,9 +3,17 @@ import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import { displayName } from "@/functions/personName";
+import { orgBannerPath } from "@/functions/orgBanner";
 
 export type OrgManagement = {
-  org: { id: string, name: string, /** SCB code of the area the org is placed in */ geoAreaCode: string | null },
+  org: {
+    id: string,
+    name: string,
+    /** SCB code of the area the org is placed in */
+    geoAreaCode: string | null,
+    /** Where the landing banner is served from (versioned), or null when the org has none */
+    bannerUrl: string | null,
+  },
   /** All memberships of the org (group membership hangs off these, not off users) */
   members: {
     membershipId: string,
@@ -42,6 +50,7 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         id: true,
         name: true,
         geo_area_code: true,
+        banner_updated_at: true,
         memberships: {
           select: {
             id: true,
@@ -74,7 +83,12 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
     }
 
     return {
-      org: { id: org.id, name: org.name, geoAreaCode: org.geo_area_code },
+      org: {
+        id: org.id,
+        name: org.name,
+        geoAreaCode: org.geo_area_code,
+        bannerUrl: org.banner_updated_at ? orgBannerPath(org.id, org.banner_updated_at) : null,
+      },
       members: org.memberships.map(membership => ({
         membershipId: membership.id,
         username: membership.user.username,

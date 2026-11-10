@@ -13,6 +13,8 @@ export type UserOrg = {
   isMember: boolean,
   isGuest: boolean,
   geoArea: { code: string, name: string, type: GeoAreaType } | null,
+  /** When the landing banner was uploaded (its URL's version); null when the org has none */
+  bannerUpdatedAt: Date | null,
 };
 
 /**
@@ -43,6 +45,7 @@ export async function getUserOrgs(): Promise<UserOrg[]> {
       isMember: !!membership,
       isGuest: membership?.role === OrgRole.GUEST,
       geoArea: org.geo_area,
+      bannerUpdatedAt: org.banner_updated_at,
     };
   });
 
@@ -51,17 +54,17 @@ export async function getUserOrgs(): Promise<UserOrg[]> {
 }
 
 /**
- * Caches the org names per org-id set (org names practically never change).
+ * Caches the orgs (name, area, banner version) per org-id set; they practically never change.
  * `null` fetches every org (the super-admin override).
  */
-async function getCachedOrgs(orgIds: string[] | null): Promise<{ id: string, name: string, geo_area: { code: string, name: string, type: GeoAreaType } | null }[]> {
+async function getCachedOrgs(orgIds: string[] | null): Promise<{ id: string, name: string, banner_updated_at: Date | null, geo_area: { code: string, name: string, type: GeoAreaType } | null }[]> {
   'use cache';
   cacheTag('database', 'org');
 
   return boundedFill("getCachedOrgs", async () => {
     return await prisma.orgs.findMany({
       where: orgIds ? { id: { in: orgIds } } : {},
-      select: { id: true, name: true, geo_area: { select: { code: true, name: true, type: true } } },
+      select: { id: true, name: true, banner_updated_at: true, geo_area: { select: { code: true, name: true, type: true } } },
       orderBy: { name: 'asc' },
     });
   });
