@@ -9,7 +9,7 @@
   "repository": "github:Sustainable-Action-Foundation/eco-planner/",
   "scripts": {
     "preinstall": "git update-index --skip-worktree src/lib/LEAPList.json &",
-    "dev": "yarn lint & NODE_EXTRA_CA_CERTS=docker/certs/globalsign-gcc-r46-ov-2025.pem yarn next dev",
+    "dev": "yarn lint & yarn next dev",
     "pre-build": "yarn lint",
     "build": "yarn pre-build && yarn next build",
     "start": "next start",
