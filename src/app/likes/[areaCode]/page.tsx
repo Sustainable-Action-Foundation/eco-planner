@@ -52,7 +52,9 @@ export default async function Page(props: {
 
       <main className="padding-bottom-500">
         <h1 className="margin-block-300 padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>
-          {t("pages:likes_area.heading", { area: area.name })}
+          {area.type === GeoAreaType.COUNTY
+            ? t("pages:likes_area.heading", { area: area.name })
+            : t("pages:likes_area.heading_municipality", { area: area.name })}
         </h1>
         <p className="margin-top-0 margin-bottom-100" style={{ maxWidth: '70ch' }}>
           {area.type === GeoAreaType.COUNTY
