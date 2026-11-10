@@ -70,6 +70,8 @@ services:
       - MAIL_USER=${MAIL_USER}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${BASE_URL}
+      # Staging only: new accounts on these domains are super admins, so the foundation can log in and see everything
+      - SUPER_ADMIN_DOMAINS=sustainable-action.ngo,sustainable-action.org
       # Attachments bucket (Hetzner Object Storage, private); without these uploads answer 503
       - S3_ENDPOINT=${S3_ENDPOINT}
       - S3_REGION=${S3_REGION}

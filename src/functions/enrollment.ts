@@ -26,3 +26,17 @@ export function orgDomainCandidates(domain: string): string[] {
     .map((_, i, parts) => parts.slice(i).join("."))
     .map(candidate => orgDomainAliases[candidate] ?? candidate);
 }
+
+/**
+ * Parses SUPER_ADMIN_DOMAINS (comma-separated, lowercased): addresses on these domains
+ * get super admin on account creation. Meant for staging, where anyone from the
+ * foundation should be able to log in and see everything; production leaves it unset.
+ */
+export function superAdminDomains(raw: string | undefined = process.env.SUPER_ADMIN_DOMAINS): string[] {
+  return (raw ?? "").split(",").map(d => d.trim().toLowerCase()).filter(isValidDomain);
+}
+
+/** Whether a new account on `domain` is created as a super admin, see superAdminDomains. */
+export function isSuperAdminDomain(domain: string, domains: string[] = superAdminDomains()): boolean {
+  return domains.some(d => domain === d || domain.endsWith("." + d));
+}

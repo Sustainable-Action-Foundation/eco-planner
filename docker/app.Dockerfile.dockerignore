@@ -4,8 +4,6 @@ tests/
 prisma/generated/
 
 docker/
-# Extra CA certificates the image trusts (see app.Dockerfile)
-!docker/certs/
 
 # Dependencies
 node_modules/

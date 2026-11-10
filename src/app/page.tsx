@@ -12,6 +12,7 @@ import RoadmapTree, { type TreeIteration } from "@/components/tables/roadmapTabl
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { orgBannerPath } from "@/functions/orgBanner";
 import { getActionSummaries, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
@@ -87,9 +88,9 @@ export default async function Page(
       ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)
       : null;
 
-    const { geo_area: _geoArea, iterations: _iterations, child_roadmaps: _children, comments: _comments, author: _author, access_control, ...roadmapColumns } = roadmap;
+    const { geo_area, iterations: _iterations, child_roadmaps: _children, comments: _comments, author: _author, access_control, ...roadmapColumns } = roadmap;
     return [...(latestPublished ? [latestPublished] : []), ...drafts]
-      .map(iteration => ({ ...iteration, roadmap: { ...roadmapColumns, access_control } }));
+      .map(iteration => ({ ...iteration, roadmap: { ...roadmapColumns, access_control, geo_area } }));
   });
   // Same base order the iteration query used to give (id breaks ties between same-named roadmaps)
   iterations.sort((a, b) => roadmapIterationSorter(a, b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -205,9 +206,15 @@ export default async function Page(
         : null}
 
       {selectedOrg ? <>
-        {/* Solid color stand-in until orgs get custom landing images */}
-        <div className="rounded width-100 margin-bottom-100 margin-top-100 flex align-items-flex-end" style={{ height: '350px', backgroundColor: 'var(--seagreen)' }}>
-          <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
+        {/* The org's banner over the brand colour, which also stands in while the org has none (and shows through a transparent one) */}
+        <div className="rounded width-100 margin-bottom-100 margin-top-100 flex align-items-flex-end position-relative overflow-hidden" style={{ height: '350px', backgroundColor: 'var(--seagreen)' }} data-testid="org-hero">
+          {selectedOrg.bannerUpdatedAt ? <>
+            {/* Unoptimized: the image route takes the viewer's session, which the optimizer wouldn't pass along */}
+            <Image src={orgBannerPath(selectedOrg.id, selectedOrg.bannerUpdatedAt)} alt="" fill={true} unoptimized={true} priority={true} style={{ objectFit: 'cover' }} data-testid="org-banner" />
+            {/* Keeps the heading readable over a light picture */}
+            <div className="position-absolute width-100" style={{ inset: 0, background: 'linear-gradient(transparent 45%, rgba(0, 0, 0, .6))' }} aria-hidden="true" />
+          </> : null}
+          <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100 position-relative">
             <h1 className="margin-block-25 color-purewhite" data-testid="home-title">{selectedOrg.name}</h1>
             <div className="flex gap-50 flex-wrap-wrap">
               { // Managers also administer the org's groups

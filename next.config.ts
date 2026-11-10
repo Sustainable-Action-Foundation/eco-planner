@@ -31,6 +31,11 @@ const nextConfig: NextConfig = {
   } : {}),
   output: process.env.CI ? "standalone" : undefined,
   cacheComponents: true,
+  // The banner route transcodes with sharp, whose native binaries sit in platform packages
+  // reached by a computed require; make sure the standalone output ships them
+  outputFileTracingIncludes: {
+    "/api/org/[orgId]/banner": ["node_modules/sharp/**/*", "node_modules/@img/**/*"],
+  },
   // Size of the in-memory LRU behind 'use cache' (Next's default handler; an entry counts the bytes
   // of its serialized value plus its key). The default 50 MB is too small for this app: DB entries
   // are per user (the access context is part of the key) and one big roadmap version with its

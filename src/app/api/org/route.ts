@@ -1,11 +1,10 @@
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { readJsonObject } from "@/functions/readJson";
+import { managesOrg } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
-import { OrgRole } from "@/lib/prisma/generated";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { getSession } from "@/lib/session";
-import type { UserAccessContext } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -14,11 +13,6 @@ import type { NextRequest } from "next/server";
 // it in a geo area. Org names are unique, and the DB constraint is the source
 // of truth for collisions (no racy pre-check). Cached payloads carry org names
 // and areas (see getUserOrgs), so a change revalidates the 'org' tag.
-
-function managesOrg(accessContext: UserAccessContext, orgId: string): boolean {
-  return accessContext.isSuperAdmin
-    || accessContext.memberships.some(membership => membership.orgId === orgId && membership.role === OrgRole.MANAGER);
-}
 
 /**
  * Renames an org the requester manages and/or places it in a geo area:

@@ -45,6 +45,7 @@ import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset
 import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import PreviewSeries from "../sections/dataseries/preview";
 import DraggableSnapBack from "@/components/generic/draggable/draggable";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export default function GoalForm({
   iterationId,
@@ -184,7 +185,7 @@ export default function GoalForm({
   const parentIterations = useMemo(() => {
     return (roadmapAlternatives ?? []).flatMap(roadmap =>
       roadmap.iterations.map(iteration => ({
-        name: t("common:roadmap_version_name", { name: roadmap.name, version: iteration.version }),
+        name: t("common:roadmap_version_name", { name: roadmapPickerLabel(roadmap), version: iteration.version }),
         value: iteration.id,
       })),
     );

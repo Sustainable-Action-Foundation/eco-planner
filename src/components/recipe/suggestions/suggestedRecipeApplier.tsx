@@ -20,6 +20,7 @@ import { getSuggestedRecipesFor } from "@/components/recipe/suggestions/defaultS
 import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 /** Select value for the recipe the context was seeded with (a goal's saved method when editing). */
 const CURRENT_RECIPE_ID = "current-recipe";
@@ -72,7 +73,7 @@ export function SuggestedRecipeApplier({
         setAvailableDataSeries(
           roadmaps.map((roadmap) => ({
             id: roadmap.id,
-            name: t("common:roadmap_version_name", { name: roadmap.roadmap.name, version: roadmap.version }),
+            name: t("common:roadmap_version_name", { name: roadmapPickerLabel(roadmap.roadmap), version: roadmap.version }),
           })),
         );
 

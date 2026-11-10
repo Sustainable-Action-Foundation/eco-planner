@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import type { Action, ClientRoadmapIteration, DateValuesWithUnit, Goal, MultiRoadmapInstance } from "@/types";
 import { EffectFormName } from "@/types/form-names";
 import { isISOIshDate } from "@/types/typeguards";
+import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export function ActionSelector({
   action,
@@ -45,7 +46,7 @@ export function ActionSelector({
           {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`action-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!action && roadmapOption.id !== action.roadmap_iteration_id}>
-              {`${roadmapOption.roadmap.name} (v${roadmapOption.version}): ${t("common:count.action", { count: roadmapOption._count.actions })}`}
+              {`${roadmapPickerLabel(roadmapOption.roadmap)} (v${roadmapOption.version}): ${t("common:count.action", { count: roadmapOption._count.actions })}`}
             </option>
           ))}
         </select>
@@ -107,7 +108,7 @@ export function GoalSelector({
           {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`goal-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!goal && roadmapOption.id !== goal.roadmap_iteration_id}>
-              {`${roadmapOption.roadmap.name} (v${roadmapOption.version}): ${t("common:count.goal", { count: roadmapOption._count.goals })}`}
+              {`${roadmapPickerLabel(roadmapOption.roadmap)} (v${roadmapOption.version}): ${t("common:count.goal", { count: roadmapOption._count.goals })}`}
             </option>
           ))}
         </select>

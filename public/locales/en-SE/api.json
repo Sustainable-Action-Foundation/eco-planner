@@ -59,7 +59,14 @@
     "name_taken": "An organization with that name already exists",
     "renamed": "Organization renamed",
     "area_updated": "Organization area updated",
-    "unknown_area": "Unknown area"
+    "unknown_area": "Unknown area",
+    "banner_uploaded": "Banner saved",
+    "banner_removed": "Banner removed",
+    "banner_none": "The organization has no banner",
+    "banner_missing": "The banner is no longer in storage. A manager can remove it.",
+    "banner_too_large": "The image is larger than the {{maxSize}} MB limit",
+    "banner_type_not_allowed": "That file type cannot be used as a banner",
+    "banner_unreadable": "The file could not be read as an image"
   },
   "orgMembership": {
     "not_found": "Membership not found",
