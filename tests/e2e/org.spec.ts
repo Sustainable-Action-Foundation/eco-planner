@@ -1,5 +1,6 @@
 import path from "node:path";
 import { cwd } from "node:process";
+import sharp from "sharp";
 import type { APIRequestContext, BrowserContext, Locator, Page } from "playwright/test";
 import { expect, test } from "../lib/fixtures";
 import { createGoal, createIteration, createRoadmap, deleteRoadmap, memberContext, orgIdByName, putJson, Seed, uniqueLabel } from "../lib/api";
@@ -454,6 +455,67 @@ test.describe("Org administration (Malmö stad)", () => {
       }
       await managerApi.dispose();
       await deleteRoadmap(admin, roadmapId);
+    }
+  });
+
+  test("a manager sets the banner from the groups page, members see it in the hero, and removing it restores the plain colour", async ({ playwright, baseURL }, testInfo) => {
+    const api = await playwright.request.newContext({ baseURL, storageState: await manager.storageState() });
+    const page = await manager.newPage();
+    let orgId = "";
+    const bannerRequest = (method: "POST" | "DELETE") => page.waitForResponse(response => new URL(response.url()).pathname === `/api/org/${orgId}/banner` && response.request().method() === method);
+    try {
+      await withLock("malmo-stad", async () => {
+        orgId = await openGroupsPage(page);
+        const form = page.getByTestId("org-banner-form").filter({ visible: true });
+        await expect(form.getByTestId("org-banner-none")).toBeVisible();
+
+        // Picking a file uploads straight away; without a bucket the API says so and the rest can't run
+        const image = await sharp({ create: { width: 1600, height: 500, channels: 3, background: "#c8102e" } }).png().toBuffer();
+        const [uploaded] = await Promise.all([
+          bannerRequest("POST"),
+          form.getByTestId("org-banner-input").setInputFiles({ name: "hero.png", mimeType: "image/png", buffer: image }),
+        ]);
+        if (uploaded.status() === 503) {
+          testInfo.annotations.push({ type: "skipped", description: "no object storage configured; the upload answered 503 as it should" });
+          await expect(toast(page, "error")).toBeVisible();
+          return;
+        }
+        expect(uploaded.status()).toBe(200);
+        await expect(toast(page, "success")).toBeVisible();
+        // The form remounts with the stored image as its preview
+        await expectAfterReload(page, page.url(), async () => {
+          await expect(form.getByTestId("org-banner-preview")).toBeVisible({ timeout: 10_000 });
+        });
+
+        // A member's landing shows it in the hero, and the image really loads (a 404 would leave a broken image)
+        const landing = await member.newPage();
+        try {
+          await expectAfterReload(landing, `/?org=${orgId}`, async () => {
+            await expect(landing.getByTestId("org-banner").filter({ visible: true })).toBeVisible({ timeout: 10_000 });
+          });
+          await expect.poll(() => landing.getByTestId("org-banner").filter({ visible: true }).evaluate(img => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+        }
+        finally {
+          await landing.close();
+        }
+
+        // Removing asks first, then the preview gives way to the note again
+        page.once("dialog", dialog => void dialog.accept());
+        const [removed] = await Promise.all([
+          bannerRequest("DELETE"),
+          form.getByTestId("org-banner-remove").click(),
+        ]);
+        expect(removed.status()).toBe(200);
+        await expect(toast(page, "success")).toBeVisible();
+        await expectAfterReload(page, page.url(), async () => {
+          await expect(form.getByTestId("org-banner-none")).toBeVisible({ timeout: 10_000 });
+        });
+      });
+    }
+    finally {
+      // Whatever happened above, Malmö ends up without a banner (404 when it already has none)
+      if (orgId) expect([200, 404]).toContain((await api.delete(`/api/org/${orgId}/banner`)).status());
+      await api.dispose();
     }
   });
 });
