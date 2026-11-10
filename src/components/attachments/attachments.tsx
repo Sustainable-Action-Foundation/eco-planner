@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./attachments.module.css";
+import { useIsClient } from "@/functions/useClientState";
 
 export type AttachmentEntry = Pick<AttachmentModel, "id" | "name" | "size" | "content_type" | "created_at"> & {
   author: { id: string, username: string, first_name?: string | null, last_name?: string | null } | null;
@@ -24,6 +25,8 @@ export type AttachmentEntry = Pick<AttachmentModel, "id" | "name" | "size" | "co
  */
 export default function Attachments({ attachments, objectId, canEdit }: { attachments: AttachmentEntry[], objectId: string, canEdit: boolean }) {
   const { t, i18n } = useTranslation(["components", "common"]);
+  // Timestamps are shown in the viewer's time zone and relative to now; the server knows neither
+  const isClient = useIsClient();
   const { addToast } = useToast();
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -155,7 +158,7 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
                   {attachment.author ?
                     <Link className="discrete-link" href={`/@${attachment.author.username}`}>{displayName(attachment.author)}</Link>
                     : <span>{t("components:attachments.deleted_user")}</span>}
-                  <span title={new Date(attachment.created_at).toLocaleString()}>
+                  <span title={isClient ? new Date(attachment.created_at).toLocaleString() : undefined} suppressHydrationWarning={true}>
                     {t("components:attachments.relative_time", { date: new Date(attachment.created_at) })}
                   </span>
                 </span>

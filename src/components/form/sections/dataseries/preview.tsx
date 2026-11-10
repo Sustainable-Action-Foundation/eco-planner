@@ -8,6 +8,7 @@ import { useState } from "react";
 import { IconGraphFilled, IconTableFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import HistoricalFootnote, { type HistoricalSourceInfo } from "@/components/graph/historicalFootnote";
+import { useIsClient } from "@/functions/useClientState";
 
 function SeriesTable({
   series,
@@ -15,6 +16,8 @@ function SeriesTable({
   series: (DateValuesWithUnit & { name: string }),
 }) {
   const { t, i18n } = useTranslation(["components"]);
+  // Dates are shown in the viewer's time zone, which the server does not know
+  const isClient = useIsClient();
   
   return (
     <table className={`${styles['preview-table']}`}>
@@ -29,7 +32,7 @@ function SeriesTable({
         {Object.entries(series.dateValues).map(([date, value], index) => (
           <tr className="display-contents" key={date}>
             <th>{index}</th>
-            <td>{new Date(date).toLocaleDateString(i18n.language)}</td>
+            <td>{isClient ? new Date(date).toLocaleDateString(i18n.language) : null}</td>
             <td>{value}</td>
           </tr>
         ))}

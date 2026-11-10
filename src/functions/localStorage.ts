@@ -4,8 +4,12 @@ import type { JSONValue } from "@/types";
 
 // Silently fail if sessionStorage or localStorage is not available, but log an error to the user
 
+// Client components render on the server too, where there is no storage to read or write
+const isServer = typeof window === "undefined";
+
 /** Stringifies `value` and stores it in sessionStorage under `key`. */
 export function setSessionStorage(key: string, value: JSONValue) {
+  if (isServer) return;
   if (!sessionStorage) {
     console.error('No sessionStorage available');
     return;
@@ -16,6 +20,7 @@ export function setSessionStorage(key: string, value: JSONValue) {
 
 /** Stringifies `value` and stores it in localStorage under `key`. */
 export function setLocalStorage(key: string, value: JSONValue) {
+  if (isServer) return;
   if (!localStorage) {
     console.error('No localStorage available');
     return;
@@ -26,6 +31,7 @@ export function setLocalStorage(key: string, value: JSONValue) {
 
 /** Retrieves the value stored under `key` in sessionStorage, parsed as JSON. */
 export function getSessionStorage(key: string): JSONValue | null {
+  if (isServer) return null;
   if (!sessionStorage) {
     console.error('No sessionStorage available');
     return null;
@@ -40,6 +46,7 @@ export function getSessionStorage(key: string): JSONValue | null {
 
 /** Retrieves the value stored under `key` in localStorage, parsed as JSON. */
 export function getLocalStorage(key: string): JSONValue | null {
+  if (isServer) return null;
   if (!localStorage) {
     console.error('No localStorage available');
     return null;
@@ -54,6 +61,7 @@ export function getLocalStorage(key: string): JSONValue | null {
 
 /** Retrieves all keys in sessionStorage. */
 export function getSessionStorageKeys() {
+  if (isServer) return [];
   if (!sessionStorage) {
     console.error('No sessionStorage available');
     return null;
@@ -64,6 +72,7 @@ export function getSessionStorageKeys() {
 
 /** Retrieves all keys in localStorage. */
 export function getLocalStorageKeys() {
+  if (isServer) return [];
   if (!localStorage) {
     console.error('No localStorage available');
     return null;
@@ -74,6 +83,7 @@ export function getLocalStorageKeys() {
 
 /** Removes the value stored under `key` in sessionStorage. */
 export function removeSessionStorage(key: string) {
+  if (isServer) return;
   if (!sessionStorage) {
     console.error('No sessionStorage available');
     return;
@@ -84,6 +94,7 @@ export function removeSessionStorage(key: string) {
 
 /** Removes the value stored under `key` in localStorage. */
 export function removeLocalStorage(key: string) {
+  if (isServer) return;
   if (!localStorage) {
     console.error('No localStorage available');
     return;

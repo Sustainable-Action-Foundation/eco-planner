@@ -1,15 +1,15 @@
 'use client';
 
-import { useMemo } from "react";
+import { useClientState } from "@/functions/useClientState";
 import { useTranslation } from "react-i18next";
 
 export default function SecondaryGoalSelector() {
   const { t } = useTranslation("graphs");
 
-  const defaultSecondaryGoal = useMemo(() => {
+  const [defaultSecondaryGoal] = useClientState("", () => {
     const params = new URLSearchParams(window.location.search);
     return params.get("secondaryGoal") ?? "";
-  }, []);
+  });
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,6 +40,7 @@ export default function SecondaryGoalSelector() {
           {t("graphs:secondary_graph_selector.compare_with")}
         </label>
         <input
+          key={defaultSecondaryGoal}
           type="text"
           id="compare-goals"
           name="compare-goals"
