@@ -9,7 +9,8 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
-import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
+import { getRoadmapIterations, getRoadmaps, getUserComments, getUserInfo } from "@/fetchers";
+import type { UserComment } from "@/fetchers/getUserComments";
 import { HiddenRoadmaps } from "@/types/enums";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { usernameFromParam } from "@/functions/username";
@@ -17,6 +18,8 @@ import LogoutEverywhereButton from "@/components/buttons/logoutEverywhereButton"
 import SuperAdminToggle from "@/components/buttons/superAdminToggle";
 import NameForm from "@/components/form/forms/nameForm";
 import { displayName } from "@/functions/personName";
+import { goalDisplayName } from "@/functions/goalName";
+import truncateText from "@/functions/truncateText";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
@@ -61,10 +64,12 @@ export default async function Page(
   }
 
   // If user is on their own page, also get all roadmaps/iterations they have edit access to
-  const [iterations, roadmaps] = await Promise.all([
+  const [iterations, roadmaps, comments] = await Promise.all([
     // The user's own workbench: hidden roadmaps they can edit belong here
     (session.user?.username === username) ? getRoadmapIterations(HiddenRoadmaps.Writable) : [],
     (session.user?.username === username) ? getRoadmaps(HiddenRoadmaps.Writable) : [],
+    // Only the author gets the list of their own comments
+    (session.user?.username === username) ? getUserComments(userdata.id) : [],
   ]);
 
   const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, accessContext)));
@@ -124,6 +129,24 @@ export default async function Page(
   // effective flag, so not while they have suspended their powers
   const canRevokeOther = !ownPage && session.user?.isSuperAdmin === true;
   const name = displayName(userdata);
+
+  /** Where a comment was written: the link to it and its kind and name as one label */
+  function commentTarget(comment: UserComment): { href: string, label: string } | null {
+    if (comment.goal) {
+      return { href: `/goal/${comment.goal.id}`, label: t("pages:profile.comment_on_goal", { name: goalDisplayName(comment.goal) }) };
+    }
+    if (comment.action) {
+      return { href: `/action/${comment.action.id}`, label: t("pages:profile.comment_on_action", { name: comment.action.name }) };
+    }
+    if (comment.roadmap_iteration) {
+      const { roadmap, version } = comment.roadmap_iteration;
+      return { href: iterationPath(roadmap.id, version), label: t("pages:profile.comment_on_roadmap_version", { name: roadmap.name, version }) };
+    }
+    if (comment.roadmap) {
+      return { href: `/roadmap/${comment.roadmap.id}`, label: t("pages:profile.comment_on_roadmap", { name: comment.roadmap.name }) };
+    }
+    return null;
+  }
 
   return <main>
     <section className='margin-block-300'>
@@ -210,6 +233,35 @@ export default async function Page(
 
       </nav>
     </section>
+
+    {ownPage ?
+      <section className='margin-block-300' data-testid="comments-section">
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:profile.my_comments")}</h2>
+        {comments.length > 0 ?
+          <ul className={`${styles.itemsList}`}>
+            {comments.map(comment => {
+              const target = commentTarget(comment);
+              if (!target) return null;
+              return <li key={comment.id} data-testid="user-comment">
+                <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
+                  <Link href={target.href} className='block text-decoration-none color-pureblack'>
+                    <h4 className='font-weight-500 margin-0'>{target.label}</h4>
+                    <p className='margin-0' style={{ wordBreak: 'break-word' }}>{truncateText(comment.comment_text, 200)}</p>
+                    <small className='block' style={{ color: 'gray' }}>
+                      <time dateTime={comment.created_at.toISOString()}>
+                        {t("pages:profile.comment_written", { date: comment.created_at, formatParams: { date: { dateStyle: "medium" } } })}
+                      </time>
+                    </small>
+                  </Link>
+                </div>
+              </li>;
+            })}
+          </ul>
+          :
+          <p>{t("pages:profile.no_comments")}</p>
+        }
+      </section>
+      : null}
 
   </main>;
 }
