@@ -1,0 +1,257 @@
+/* The org landing's two views; layout only, colours and controls are the app's own */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags > li {
+  padding: .125rem .75rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, .9);
+  color: black;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* The section tabs: one row that scrolls sideways inside itself on narrow screens */
+.tabs {
+  display: flex;
+  gap: .25rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--gray-80);
+}
+
+.tabs > a {
+  padding: .5rem .75rem;
+  white-space: nowrap;
+  color: var(--gray-30, #4d4d4d);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs > a:hover,
+.tabs > a:focus-visible {
+  color: black;
+  text-decoration: underline;
+}
+
+.tabs > a[aria-current="page"] {
+  color: black;
+  border-bottom-color: var(--seagreen);
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid var(--gray-80);
+  border-radius: .25rem;
+  background-color: var(--secondary-neutral, white);
+}
+
+/* Main column and a narrower aside; stacked on narrow screens */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .columns,
+  .about {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.facts {
+  margin: 0;
+}
+
+.facts > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .25rem 1rem;
+  padding-block: .5rem;
+}
+
+.facts > div:not(:last-child) {
+  border-bottom: 1px solid var(--gray-90);
+}
+
+.facts dt {
+  color: var(--gray-30, #4d4d4d);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 700px) {
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+  padding: .75rem;
+  border: 1px solid var(--gray-80);
+  border-top: 4px solid var(--gray-80);
+  border-radius: .25rem;
+}
+
+.step[data-state="DONE"] {
+  border-top-color: var(--seagreen);
+}
+
+.step[data-state="IN_PROGRESS"] {
+  border-top-color: var(--seagreen);
+  background-color: var(--seagreen-90);
+}
+
+.stepLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--gray-30, #4d4d4d);
+}
+
+.nextStep {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .75rem;
+  padding: 1rem;
+  border: 1px solid var(--seagreen-80);
+  border-radius: .25rem;
+  background-color: var(--seagreen-90);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rows > li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: .5rem;
+}
+
+.rows > li:not(:last-child) {
+  border-bottom: 1px solid var(--gray-90);
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding-inline: .25rem;
+  border-radius: 9999px;
+  background-color: var(--seagreen-90);
+  color: var(--seagreen-20);
+  font-weight: 600;
+}
+
+/* Tables scroll inside their own box rather than widening the page */
+.tableBox {
+  overflow-x: auto;
+  border: 1px solid var(--gray-80);
+  border-radius: .25rem;
+}
+
+.tableBox table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableBox th,
+.tableBox td {
+  padding: .5rem .75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tableBox th {
+  font-size: 14px;
+  color: var(--gray-30, #4d4d4d);
+  background-color: var(--gray-95);
+  white-space: nowrap;
+}
+
+.tableBox tr:not(:last-child) td {
+  border-bottom: 1px solid var(--gray-90);
+}
+
+.tableBox .number {
+  text-align: right;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--gray-60, #999);
+  border-radius: .25rem;
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+  margin: 0;
+}
+
+.numbers > div {
+  display: flex;
+  flex-direction: column-reverse;
+  padding: .5rem .75rem;
+  border: 1px solid var(--gray-90);
+  border-radius: .25rem;
+}
+
+.numbers dt {
+  font-size: 14px;
+  color: var(--gray-30, #4d4d4d);
+}
+
+.numbers dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}

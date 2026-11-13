@@ -4,7 +4,7 @@ import { displayName } from "@/functions/personName";
 import { useMemo, useState, useTransition } from "react";
 import styles from "./sections.module.css";
 import type { ActionSummary } from "@/types";
-import { IconArrowNarrowRight, IconChevronDown, IconChevronUp, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react";
+import { IconArrowNarrowRight, IconChevronDown, IconChevronUp, IconLayoutGridFilled, IconList, IconLock, IconPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
@@ -17,8 +17,14 @@ const collapsedActionCount = 9;
 
 export default function Actions({
   actions,
+  canCreate = true,
+  readOnlyIds,
 }: {
   actions: ActionSummary[] | null,
+  /** Whether to offer the "new action" link */
+  canCreate?: boolean,
+  /** Actions the viewer can read but not edit, marked as such (the org's working view, which mixes both) */
+  readOnlyIds?: string[],
 }) {
 
   const { t } = useTranslation(["pages", "forms"]);
@@ -168,15 +174,17 @@ export default function Actions({
             {isLoading ? <Image src={'/loaders/3-dots-move.svg'} width={16} height={16} alt='' aria-live="polite" /> : null}
           </div>
 
-          <hr style={{ alignSelf: 'stretch', borderStyle: 'solid', color: 'var(--gray-80)', borderRight: '0' }} />
+          {canCreate ? <>
+            <hr style={{ alignSelf: 'stretch', borderStyle: 'solid', color: 'var(--gray-80)', borderRight: '0' }} />
 
-          <Link
-            href={'/action/create'}
-            className="flex gap-100 flex-grow-100 justify-content-space-between align-items-center smooth seagreen color-purewhite text-decoration-none padding-50 font-weight-500 button white-space-nowrap line-height-100 font-size-14px"
-          >
-            {t("pages:actions.create_new_action")}
-            <IconPlus width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
-          </Link>
+            <Link
+              href={'/action/create'}
+              className="flex gap-100 flex-grow-100 justify-content-space-between align-items-center smooth seagreen color-purewhite text-decoration-none padding-50 font-weight-500 button white-space-nowrap line-height-100 font-size-14px"
+            >
+              {t("pages:actions.create_new_action")}
+              <IconPlus width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+            </Link>
+          </> : null}
         </div>
 
         {tagFilter.length > 0 ?
@@ -252,6 +260,16 @@ export default function Actions({
                           title={t('pages:actions.neighbour_badge_title')}
                         >
                           {t('pages:actions.neighbour_badge', { count: (neighbourCounts.get(action.origin_action_id ?? action.id) ?? 1) - 1 })}
+                        </span>
+                        : null}
+                      {readOnlyIds?.includes(action.id) ?
+                        <span
+                          className="display-inline-flex align-items-center gap-25 round padding-inline-50"
+                          style={{ fontSize: '12px', border: '1px solid var(--gray-60)' }}
+                          data-testid="visibility-badge-read-only"
+                        >
+                          <IconLock width={12} height={12} style={{ minWidth: '12px' }} aria-hidden="true" />
+                          {t('pages:actions.read_only')}
                         </span>
                         : null}
                     </div>

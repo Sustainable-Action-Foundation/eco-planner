@@ -50,7 +50,8 @@
     "visit_action": "Visit $t(common:action_definite_one)",
     "neighbour_badge_one": "+{{count}} organization",
     "neighbour_badge_other": "+{{count}} organizations",
-    "neighbour_badge_title": "The same action exists at other organizations"
+    "neighbour_badge_title": "The same action exists at other organizations",
+    "read_only": "Read only"
   },
   "common": {
     "external_resources": "External resources"
@@ -397,5 +398,56 @@
     "related": "See also",
     "county_link": "All of {{area}}",
     "goals_title": "Most liked goals"
+  },
+  "org_landing": {
+    "organisation": "Organisation",
+    "area": "Area: {{area}}",
+    "area_municipality": "Area: {{area}} (municipality)",
+    "liked_by_one": "liked by {{count}} person",
+    "liked_by_other": "liked by {{count}} people",
+    "view": {
+      "label": "View",
+      "public": "Public view",
+      "working": "Working view",
+      "preview_note": "This is what the page looks like to a visitor who is not logged in."
+    },
+    "role": {
+      "manager": "You are a manager",
+      "super_admin": "You are a super admin",
+      "writer": "You can edit parts of the content"
+    },
+    "tabs": {
+      "label": "Sections",
+      "overview": "Overview",
+      "roadmaps": "$t(common:roadmap_other, titleCase)",
+      "actions": "Actions",
+      "liked": "Liked",
+      "data": "Data and suggestions",
+      "comments": "Comments",
+      "members": "Members"
+    },
+    "public": {
+      "liked_title": "This is what we want to affect",
+      "liked_description_area": "Most liked goals in {{area}}, all organisations",
+      "liked_description": "Most liked goals among the organisation's members",
+      "liked_empty": "No liked goals to show yet.",
+      "liked_all": "See all {{count}} liked goals in {{area}}",
+      "plans_title": "Roadmaps and actions",
+      "plans_empty_title": "No published roadmaps yet",
+      "plans_empty": "When {{org}} publishes a roadmap it is shown here, with its goals and actions."
+    },
+    "working": {
+      "liked_title": "Most liked",
+      "liked_scope_label": "Scope",
+      "liked_scope_org": "The organisation",
+      "liked_scope_area": "All of {{area}}",
+      "liked_goal": "Goal",
+      "liked_category": "Category",
+      "liked_count": "Liked by",
+      "liked_all": "Show all {{count}} with categories of influence",
+      "no_area_title": "The organisation has no area",
+      "no_area": "National goals to start from and statistics for the area are shown once the organisation has been placed in a municipality or county.",
+      "set_area": "Choose area"
+    }
   }
 }

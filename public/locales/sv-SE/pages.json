@@ -50,7 +50,8 @@
     "visit_action": "Gå till $t(common:action_definite_one)",
     "neighbour_badge_one": "+{{count}} organisation",
     "neighbour_badge_other": "+{{count}} organisationer",
-    "neighbour_badge_title": "Samma åtgärd finns hos fler organisationer"
+    "neighbour_badge_title": "Samma åtgärd finns hos fler organisationer",
+    "read_only": "Endast läsning"
   },
   "common": {
     "external_resources": "Externa resurser"
@@ -397,5 +398,56 @@
     "related": "Se även",
     "county_link": "Hela {{area}}",
     "goals_title": "Mest gillade målbanor"
+  },
+  "org_landing": {
+    "organisation": "Organisation",
+    "area": "Område: {{area}}",
+    "area_municipality": "Område: {{area}} (geografisk kommun)",
+    "liked_by_one": "gillad av {{count}} person",
+    "liked_by_other": "gillad av {{count}} personer",
+    "view": {
+      "label": "Vy",
+      "public": "Publik vy",
+      "working": "Arbetsvy",
+      "preview_note": "Så här ser sidan ut för en besökare som inte är inloggad."
+    },
+    "role": {
+      "manager": "Du är ansvarig",
+      "super_admin": "Du är superadmin",
+      "writer": "Du kan redigera delar av innehållet"
+    },
+    "tabs": {
+      "label": "Avsnitt",
+      "overview": "Översikt",
+      "roadmaps": "$t(common:roadmap_other, titleCase)",
+      "actions": "Åtgärder",
+      "liked": "Gillat",
+      "data": "Data och förslag",
+      "comments": "Kommentarer",
+      "members": "Medlemmar"
+    },
+    "public": {
+      "liked_title": "Det här vill vi påverka",
+      "liked_description_area": "Mest gillade målbanor i {{area}}, alla organisationer",
+      "liked_description": "Mest gillade målbanor bland organisationens medlemmar",
+      "liked_empty": "Inga gillade målbanor att visa ännu.",
+      "liked_all": "Se alla {{count}} gillade målbanor i {{area}}",
+      "plans_title": "Färdplaner och åtgärder",
+      "plans_empty_title": "Inga publicerade färdplaner ännu",
+      "plans_empty": "När {{org}} publicerar en färdplan visas den här, med dess målbanor och åtgärder."
+    },
+    "working": {
+      "liked_title": "Mest gillat",
+      "liked_scope_label": "Omfång",
+      "liked_scope_org": "Organisationen",
+      "liked_scope_area": "Hela {{area}}",
+      "liked_goal": "Målbana",
+      "liked_category": "Kategori",
+      "liked_count": "Gillad av",
+      "liked_all": "Visa alla {{count}} med rådighetskategorier",
+      "no_area_title": "Organisationen saknar område",
+      "no_area": "Nationella målbanor att utgå från och statistik för området visas när organisationen har placerats i en kommun eller ett län.",
+      "set_area": "Välj område"
+    }
   }
 }
