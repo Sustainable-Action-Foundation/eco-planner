@@ -1,15 +1,16 @@
 'use client';
 
-import { useMemo } from "react";
+import { useClientState } from "@/functions/useClientState";
 import { useTranslation } from "react-i18next";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function SecondaryGoalSelector() {
   const { t } = useTranslation("graphs");
 
-  const defaultSecondaryGoal = useMemo(() => {
+  const [defaultSecondaryGoal] = useClientState("", () => {
     const params = new URLSearchParams(window.location.search);
     return params.get("secondaryGoal") ?? "";
-  }, []);
+  });
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,12 +35,13 @@ export default function SecondaryGoalSelector() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex-grow-infinity flex gap-25 align-items-center">
+    <HydratedForm onSubmit={handleSubmit} className="flex-grow-infinity flex gap-25 align-items-center">
       <div className="floating-label focusable smooth flex-grow-100 flex align-items-center" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="compare-goals">
           {t("graphs:secondary_graph_selector.compare_with")}
         </label>
         <input
+          key={defaultSecondaryGoal}
           type="text"
           id="compare-goals"
           name="compare-goals"
@@ -52,6 +54,6 @@ export default function SecondaryGoalSelector() {
           {t("graphs:secondary_graph_selector.compare")}
         </button>
       </div>
-    </form>
+    </HydratedForm>
   );
 }

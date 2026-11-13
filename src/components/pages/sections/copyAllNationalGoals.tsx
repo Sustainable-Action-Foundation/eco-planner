@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export type NationalGoalCopy = { goalId: string, name: string, prefill: GoalPrefill };
 export type CopyTargetIteration = { id: string, roadmapId: string, version: number, name: string };
@@ -74,7 +75,7 @@ export default function CopyAllNationalGoals({ copies, iterations }: { copies: N
   }
 
   return (
-    <form
+    <HydratedForm
       className="flex gap-50 align-items-flex-end flex-wrap-wrap margin-bottom-100"
       onSubmit={(event) => { event.preventDefault(); void copyAll(); }}
     >
@@ -90,7 +91,7 @@ export default function CopyAllNationalGoals({ copies, iterations }: { copies: N
           ? t("pages:home.national_goals.copy_all_progress", { done: progress.done, total: progress.total })
           : t("pages:home.national_goals.copy_all", { count: copies.length })}
       </button>
-    </form>
+    </HydratedForm>
   );
 }
 

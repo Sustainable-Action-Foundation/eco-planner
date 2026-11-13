@@ -5,6 +5,7 @@ import { useState } from "react";
 import styles from '../forms.module.css';
 import { Trans, useTranslation } from "react-i18next";
 import { IconExclamationCircle, IconMail, IconMailCheck } from "@tabler/icons-react";
+import HydratedForm from "@/components/form/hydratedForm";
 
 /**
  * The one way in: an email address gets a one-time login link (POST /api/login-link).
@@ -81,7 +82,7 @@ export default function Login({ variant = "login" }: { variant?: "login" | "sign
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.padding}>
+    <HydratedForm onSubmit={handleSubmit} className={styles.padding}>
       <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{title}</h1>
 
       <p>{variant === "signup" ? t("components:signup.description") : t("components:login.description")}</p>
@@ -133,6 +134,6 @@ export default function Login({ variant = "login" }: { variant?: "login" | "sign
           {t("components:login.no_account")} <Link href='/signup'>{t("components:login.create_account")}</Link>
         </p>
       }
-    </form>
+    </HydratedForm>
   );
 }

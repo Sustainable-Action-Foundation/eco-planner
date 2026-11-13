@@ -19,6 +19,7 @@ import { goalTitleWithLevel } from "@/functions/goalName";
 import ChildGraphContainer from "./child/container";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import PendingLink from "@/components/generic/links/pendingLink";
+import { useClientState } from "@/functions/useClientState";
 // import SiblingGraph from "./sibling/siblings";
 
 type TimestampedValue = { timestamp: Date; value: number };
@@ -58,7 +59,7 @@ export default function GoalGraphContainer({
 }) {
   const { t } = useTranslation("graphs");
 
-  const [graphType, setGraphType] = useState<GraphType | "">(getStoredGraphType(goal.id));
+  const [graphType, setGraphType] = useClientState<GraphType | "">(GraphType.Main, () => getStoredGraphType(goal.id));
   const [isStacked, setIsStacked] = useState<boolean>(true);
 
   const historicalSource = getHistoricalDataset(goal);

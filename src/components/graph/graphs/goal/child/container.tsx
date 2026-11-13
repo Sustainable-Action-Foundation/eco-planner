@@ -11,6 +11,7 @@ import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import type { Goal, RelatedGoal } from "@/types";
 import { ChildGraphType } from "@/types/enums";
 import styles from '../goal.module.css';
+import { useClientState } from "@/functions/useClientState";
 
 export default function ChildGraphContainer({
   goal,
@@ -21,13 +22,13 @@ export default function ChildGraphContainer({
 }) {
   const { t } = useTranslation("graphs");
 
-  const [childGraphType, setChildGraphType] = useState<ChildGraphType>((() => {
+  const [childGraphType, setChildGraphType] = useClientState<ChildGraphType>(ChildGraphType.Target, () => {
     const storedGraphType = getStoredChildGraphType(goal.id);
     if (Object.values(ChildGraphType).includes(storedGraphType)) {
       return storedGraphType;
     }
     else return ChildGraphType.Target;
-  })());
+  });
 
   // Default to stacked unless the unit is percent or fraction
   const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.data_series?.unit?.toLowerCase() ?? ""));

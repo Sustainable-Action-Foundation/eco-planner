@@ -22,6 +22,7 @@ import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset
 import HistoricalFootnote, { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import { IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function HistoricalForm({
   goal,
@@ -107,7 +108,7 @@ export default function HistoricalForm({
   }
 
   return (
-    <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
+    <HydratedForm onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -151,7 +152,7 @@ export default function HistoricalForm({
       {mode === HistoricalFormMode.Edit && goal.historical ?
         <DeleteHistoricalData goal={goal} />
         : null}
-    </form>
+    </HydratedForm>
   );
 };
 
