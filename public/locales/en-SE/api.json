@@ -66,7 +66,12 @@
     "banner_missing": "The banner is no longer in storage. A manager can remove it.",
     "banner_too_large": "The image is larger than the {{maxSize}} MB limit",
     "banner_type_not_allowed": "That file type cannot be used as a banner",
-    "banner_unreadable": "The file could not be read as an image"
+    "banner_unreadable": "The file could not be read as an image",
+    "profile_updated": "The organisation's details saved",
+    "invalid_description": "The description is too long or holds characters that aren't allowed",
+    "invalid_org_type": "Unknown organisation type",
+    "invalid_contact_email": "The contact address is not a valid e-mail address",
+    "invalid_website": "The website must be an ordinary web address (http or https)"
   },
   "orgMembership": {
     "not_found": "Membership not found",

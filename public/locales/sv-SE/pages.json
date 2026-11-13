@@ -359,7 +359,16 @@
     "no_matches": "Inget matchar sökningen.",
     "no_group_members": "Gruppen har inga medlemmar ännu.",
     "home_org": "från {{orgs}}",
-    "home_org_none": "ingen egen organisation"
+    "home_org_none": "ingen egen organisation",
+    "profile_heading": "Publik presentation",
+    "profile_description": "Visas för alla på organisationens publika sida. Allt är frivilligt.",
+    "profile_type_label": "Organisationstyp",
+    "profile_type_none": "Ingen vald",
+    "profile_about_label": "Om vårt klimatarbete",
+    "profile_about_hint": "Två till fyra meningar om vad organisationen vill uppnå och hur arbetet är organiserat.",
+    "profile_contact_label": "Mejladress för kontakt",
+    "profile_website_label": "Webbplats",
+    "profile_saved_toast": "Presentationen sparad"
   },
   "invite": {
     "title": "Inbjudan",
@@ -434,7 +443,11 @@
       "liked_all": "Se alla {{count}} gillade målbanor i {{area}}",
       "plans_title": "Färdplaner och åtgärder",
       "plans_empty_title": "Inga publicerade färdplaner ännu",
-      "plans_empty": "När {{org}} publicerar en färdplan visas den här, med dess målbanor och åtgärder."
+      "plans_empty": "När {{org}} publicerar en färdplan visas den här, med dess målbanor och åtgärder.",
+      "about_title": "Om vårt klimatarbete",
+      "about_empty": "{{org}} har inte skrivit någon presentation ännu.",
+      "about_empty_manager": "Den publika presentationen är tom.",
+      "about_fill_in": "Fyll i"
     },
     "working": {
       "liked_title": "Mest gillat",
@@ -487,6 +500,15 @@
       "actions_text": "Koppla åtgärder till målbanorna, med kostnad, effekt och ansvar.",
       "open_roadmaps": "Öppna färdplanerna",
       "open_actions": "Öppna åtgärderna"
+    },
+    "facts": {
+      "label": "Fakta om organisationen",
+      "managers": "Ansvariga",
+      "contact": "Kontakt",
+      "website": "Webbplats",
+      "members": "Medlemmar i verktyget",
+      "member_count_one": "{{count}} person",
+      "member_count_other": "{{count}} personer"
     }
   }
 }

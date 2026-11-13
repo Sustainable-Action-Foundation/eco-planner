@@ -4,7 +4,10 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import { getActionSummaries } from "@/fetchers";
 import { orgBannerPath } from "@/functions/orgBanner";
 import { OrgView } from "@/functions/orgLanding";
-import { seesOrg } from "@/lib/accessChecker";
+import { orgWebsiteLabel } from "@/functions/orgProfile";
+import { orgTypeLabel } from "@/functions/orgTypeLabel";
+import { getOrgPeople } from "@/fetchers/getOrgPeople";
+import { managesOrg, seesOrg } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
 import { GeoAreaType } from "@/lib/prisma/generated";
 import Image from "next/image";
@@ -24,7 +27,7 @@ const loader = <Image src={'/loaders/3-dots-move.svg'} width={24} height={24} al
  * viewer may see; for someone who also has the working view it is a preview of what a
  * visitor without a login gets.
  */
-export default async function OrgPublicView({ org, viewerContext, entitled, iterations }: OrgLandingProps) {
+export default async function OrgPublicView({ org, accessContext, viewerContext, entitled, iterations }: OrgLandingProps) {
   const t = await serveTea(["pages", "common"]);
   const isMember = seesOrg(viewerContext, org.id);
   const county = org.geoArea?.type === GeoAreaType.MUNICIPALITY && org.geoArea.parent?.type === GeoAreaType.COUNTY ? org.geoArea.parent : null;
@@ -49,13 +52,16 @@ export default async function OrgPublicView({ org, viewerContext, entitled, iter
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100 position-relative">
           <div>
             <h1 className="margin-block-25 color-purewhite" data-testid="home-title">{org.name}</h1>
-            {org.geoArea ?
+            {org.orgType || org.geoArea ?
               <ul className={styles.tags} data-testid="org-tags">
-                <li>
-                  {org.geoArea.type === GeoAreaType.MUNICIPALITY
-                    ? t("pages:org_landing.area_municipality", { area: org.geoArea.name })
-                    : t("pages:org_landing.area", { area: org.geoArea.name })}
-                </li>
+                {org.orgType ? <li data-testid="org-type">{orgTypeLabel(t, org.orgType)}</li> : null}
+                {org.geoArea ?
+                  <li>
+                    {org.geoArea.type === GeoAreaType.MUNICIPALITY
+                      ? t("pages:org_landing.area_municipality", { area: org.geoArea.name })
+                      : t("pages:org_landing.area", { area: org.geoArea.name })}
+                  </li>
+                  : null}
                 {county ? <li>{county.name}</li> : null}
               </ul>
               : null}
@@ -66,6 +72,23 @@ export default async function OrgPublicView({ org, viewerContext, entitled, iter
               : null}
         </div>
       </div>
+    </section>
+
+    <section className={`${styles.about} margin-top-200`} aria-labelledby="org-about-title">
+      <div>
+        <h2 id="org-about-title" className="margin-top-0 margin-bottom-50 font-weight-600">{t("pages:org_landing.public.about_title")}</h2>
+        {org.description
+          ? <p className="margin-0" style={{ whiteSpace: 'pre-line', maxWidth: '70ch' }} data-testid="org-description">{org.description}</p>
+          : <p className="margin-0 color-gray" data-testid="org-description-empty">
+            { // The real viewer, also in a preview: a manager is one click from filling it in
+              managesOrg(accessContext, org.id)
+                ? <>{t("pages:org_landing.public.about_empty_manager")} <Link href={`/org/${org.id}/groups`}>{t("pages:org_landing.public.about_fill_in")}</Link></>
+                : t("pages:org_landing.public.about_empty", { org: org.name })}
+          </p>}
+      </div>
+      <Suspense key={org.id} fallback={loader}>
+        <OrgFacts org={org} asVisitor={viewerContext === null} />
+      </Suspense>
     </section>
 
     <section className="margin-top-300" aria-labelledby="org-process-title">
@@ -114,4 +137,28 @@ async function PublicPlans({ org, viewerContext, iterations }: Pick<OrgLandingPr
       </div>
       : null}
   </>;
+}
+
+/**
+ * The facts box: who is responsible and how to reach the org. Contact and website are
+ * what the managers chose to publish; their names are only for viewers with a login.
+ * Renders nothing when there is nothing to tell.
+ */
+async function OrgFacts({ org, asVisitor }: { org: OrgLandingProps["org"], asVisitor: boolean }) {
+  const [t, people] = await Promise.all([serveTea("pages"), getOrgPeople(org.id, { asVisitor })]);
+  if (people.managers.length === 0 && !org.contactEmail && !org.website) return null;
+
+  return (
+    <dl className={`${styles.card} ${styles.facts}`} aria-label={t("pages:org_landing.facts.label")} data-testid="org-facts">
+      {people.managers.length > 0 ?
+        <div><dt>{t("pages:org_landing.facts.managers")}</dt><dd data-testid="org-managers">{people.managers.join(", ")}</dd></div>
+        : null}
+      {org.contactEmail ?
+        <div><dt>{t("pages:org_landing.facts.contact")}</dt><dd><a href={`mailto:${org.contactEmail}`} data-testid="org-contact">{org.contactEmail}</a></dd></div>
+        : null}
+      {org.website ?
+        <div><dt>{t("pages:org_landing.facts.website")}</dt><dd><a href={org.website} rel="noopener noreferrer nofollow" data-testid="org-website">{orgWebsiteLabel(org.website)}</a></dd></div>
+        : null}
+    </dl>
+  );
 }

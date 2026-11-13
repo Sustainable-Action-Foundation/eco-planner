@@ -7,6 +7,7 @@ import ShowHiddenToggle from "@/components/form/filters/showHiddenToggle";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import { getActionSummaries } from "@/fetchers";
 import { OrgTab, OrgView, orgLandingPath } from "@/functions/orgLanding";
+import { orgTypeLabel } from "@/functions/orgTypeLabel";
 import accessChecker, { hasEditAccess, managesOrg } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
 import { GeoAreaType } from "@/lib/prisma/generated";
@@ -53,6 +54,7 @@ export default async function OrgWorkingView(props: WorkingViewProps) {
         <div>
           <p className="margin-0 color-gray font-size-14px" data-testid="org-meta">
             {[
+              org.orgType ? orgTypeLabel(t, org.orgType) : null,
               org.geoArea
                 ? (org.geoArea.type === GeoAreaType.MUNICIPALITY
                   ? t("pages:org_landing.area_municipality", { area: org.geoArea.name })

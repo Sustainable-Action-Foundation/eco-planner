@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { readJsonObject } from "@/functions/readJson";
 import serveTea from "@/lib/i18nServer";
@@ -91,6 +92,9 @@ export async function PUT(request: NextRequest) {
       { status: 500 },
     );
   }
+
+  // The org landing caches who the org's managers are
+  revalidateTag('org', { expire: 0 });
 
   return Response.json({ message: t('api:orgMembership.updated') },
     { status: 200 },

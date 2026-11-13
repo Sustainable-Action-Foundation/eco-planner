@@ -1,7 +1,7 @@
 import "server-only";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { prisma } from "@/lib/prisma";
-import type { GeoAreaType } from "@/lib/prisma/generated";
+import type { GeoAreaType, OrgType } from "@/lib/prisma/generated";
 import { cacheTag } from "next/cache";
 
 /** What an org's landing page says about the org itself; nothing here depends on the viewer */
@@ -11,6 +11,11 @@ export type OrgProfile = {
   geoArea: { code: string, name: string, type: GeoAreaType, parent: { code: string, name: string, type: GeoAreaType } | null } | null,
   /** When the landing banner was uploaded (its URL's version); null when the org has none */
   bannerUpdatedAt: Date | null,
+  /** The public profile the org's managers have written; each null until they do */
+  description: string | null,
+  orgType: OrgType | null,
+  contactEmail: string | null,
+  website: string | null,
 };
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -37,6 +42,10 @@ async function getCachedOrgProfile(orgId: string): Promise<OrgProfile | null> {
         id: true,
         name: true,
         banner_updated_at: true,
+        description: true,
+        org_type: true,
+        contact_email: true,
+        website: true,
         geo_area: { select: { ...area, parent: { select: area } } },
       },
     });
@@ -46,6 +55,10 @@ async function getCachedOrgProfile(orgId: string): Promise<OrgProfile | null> {
       name: org.name,
       geoArea: org.geo_area,
       bannerUpdatedAt: org.banner_updated_at,
+      description: org.description,
+      orgType: org.org_type,
+      contactEmail: org.contact_email,
+      website: org.website,
     };
   });
 }

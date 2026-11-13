@@ -359,7 +359,16 @@
     "no_matches": "Nothing matches the search.",
     "no_group_members": "The group has no members yet.",
     "home_org": "from {{orgs}}",
-    "home_org_none": "no organization of their own"
+    "home_org_none": "no organization of their own",
+    "profile_heading": "Public presentation",
+    "profile_description": "Shown to everyone on the organisation's public page. Everything is optional.",
+    "profile_type_label": "Type of organisation",
+    "profile_type_none": "None chosen",
+    "profile_about_label": "About our climate work",
+    "profile_about_hint": "Two to four sentences about what the organisation wants to achieve and how the work is organised.",
+    "profile_contact_label": "Contact e-mail address",
+    "profile_website_label": "Website",
+    "profile_saved_toast": "The presentation was saved"
   },
   "invite": {
     "title": "Invitation",
@@ -434,7 +443,11 @@
       "liked_all": "See all {{count}} liked goals in {{area}}",
       "plans_title": "Roadmaps and actions",
       "plans_empty_title": "No published roadmaps yet",
-      "plans_empty": "When {{org}} publishes a roadmap it is shown here, with its goals and actions."
+      "plans_empty": "When {{org}} publishes a roadmap it is shown here, with its goals and actions.",
+      "about_title": "About our climate work",
+      "about_empty": "{{org}} has not written a presentation yet.",
+      "about_empty_manager": "The public presentation is empty.",
+      "about_fill_in": "Fill in"
     },
     "working": {
       "liked_title": "Most liked",
@@ -487,6 +500,15 @@
       "actions_text": "Link actions to the goals, with cost, effect and responsibility.",
       "open_roadmaps": "Open the roadmaps",
       "open_actions": "Open the actions"
+    },
+    "facts": {
+      "label": "Facts about the organisation",
+      "managers": "Managers",
+      "contact": "Contact",
+      "website": "Website",
+      "members": "Members in the tool",
+      "member_count_one": "{{count}} person",
+      "member_count_other": "{{count}} people"
     }
   }
 }
