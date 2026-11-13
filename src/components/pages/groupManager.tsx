@@ -219,6 +219,8 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
   const [contactEmail, setContactEmail] = useState(org.contactEmail ?? "");
   const [website, setWebsite] = useState(org.website ?? "");
   const [isLoading, setIsLoading] = useState(false);
+  // Typing before hydration would be overwritten by the stored values
+  const isClient = useIsClient();
 
   const unchanged = orgType === (org.orgType ?? "")
     && description.trim() === (org.description ?? "")
@@ -263,6 +265,7 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
           rows={4}
           maxLength={orgDescriptionMaxLength}
           data-testid="org-profile-description"
+          readOnly={!isClient}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
@@ -276,6 +279,7 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
           type="email"
           maxLength={orgContactMaxLength}
           data-testid="org-profile-contact"
+          readOnly={!isClient}
           value={contactEmail}
           onChange={(event) => setContactEmail(event.target.value)}
         />
@@ -291,6 +295,7 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
           maxLength={orgContactMaxLength}
           placeholder="https://"
           data-testid="org-profile-website"
+          readOnly={!isClient}
           value={website}
           onChange={(event) => setWebsite(event.target.value)}
         />
