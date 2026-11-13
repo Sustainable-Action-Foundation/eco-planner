@@ -17,6 +17,7 @@ import type { OrgManagement } from "@/fetchers/getOrgManagement";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { TFunction } from "i18next";
 import HydratedForm from "@/components/form/hydratedForm";
+import { useIsClient } from "@/functions/useClientState";
 
 /** Section headings stay in view while their long lists scroll by */
 const headingClass = "font-size-125 position-sticky padding-block-50 margin-bottom-0 neutral-background";
@@ -113,6 +114,9 @@ function RenameOrg({ org }: { org: OrgManagement["org"] }) {
     }, addToast);
   }
 
+  // Typing before hydration would not reach the state the save button compares against
+  const isClient = useIsClient();
+
   return (
     <HydratedForm onSubmit={rename} className="flex gap-50 flex-wrap-wrap align-items-flex-end" data-testid="org-rename-form">
       <label className="font-weight-500">
@@ -122,6 +126,7 @@ function RenameOrg({ org }: { org: OrgManagement["org"] }) {
           type="text"
           required={true}
           data-testid="org-name"
+          readOnly={!isClient}
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
