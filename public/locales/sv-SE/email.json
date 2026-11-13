@@ -8,10 +8,10 @@
   },
   "login": {
     "subject": "Din inloggningslänk till $t(common:layout.app_name)",
-    "body": "Hej! Klicka på länken för att logga in på $t(common:layout.app_name). Den gäller i 15 minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
+    "body": "Hej! Klicka på länken för att logga in på $t(common:layout.app_name). Den gäller i {{minutes}} minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
   },
   "welcome": {
     "subject": "Välkommen till $t(common:layout.app_name)",
-    "body": "Välkommen till $t(common:layout.app_name)! Ett konto för {{email}} skapas när du loggar in första gången. Klicka på länken för att logga in. Den gäller i 15 minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
+    "body": "Välkommen till $t(common:layout.app_name)! Ett konto för {{email}} skapas när du loggar in första gången. Klicka på länken för att logga in. Den gäller i {{minutes}} minuter och kan bara användas en gång:\n{{link}}\n\nOm du inte bad om den här länken kan du ignorera mejlet. Vidarebefordra den inte: den som har länken kan logga in som dig."
   }
 }

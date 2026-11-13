@@ -1,6 +1,7 @@
 import { expect, test as base } from "playwright/test";
 import type { APIRequestContext, PlaywrightWorkerArgs } from "playwright/test";
 import { orgIdByName, SESSION_COOKIE, startPageTitle } from "../lib/api";
+import { type LoginLinkAnswer, loginTokenTtlMs } from "../../src/lib/authToken";
 import { freshContext, linkPlace, newLinkUser as createLinkUser, onboard, outbox, redeem, requestLink, uniqueEmail, uniqueIp } from "../lib/login-link";
 
 /*
@@ -53,9 +54,15 @@ test.describe("POST /api/login-link", () => {
     for (const email of [existing, uniqueEmail("nobody"), uniqueEmail("stranger", "example.com")]) {
       const response = await request.post("/api/login-link", { data: { email } });
       expect(response.status(), `${email}: ${await response.text()}`).toBe(200);
-      answers.add(await response.text());
+      // The times are the request's own; everything else has to be identical
+      const { sentAt, expiresAt, ...rest } = await response.json() as LoginLinkAnswer;
+      expect(Date.parse(expiresAt) - Date.parse(sentAt), "the answer carries the real link lifetime").toBe(loginTokenTtlMs);
+      answers.add(JSON.stringify(rest));
     }
     expect([...answers], "one message for every kind of address").toHaveLength(1);
+    const { subjects } = JSON.parse([...answers][0]) as Pick<LoginLinkAnswer, "subjects">;
+    expect(subjects.login, "both subject lines, whichever mail went out").toContain("login.subject");
+    expect(subjects.welcome).toContain("welcome.subject");
   });
 
   test("an existing user gets the login mail, an allowlisted stranger the welcome mail, others nothing", async ({ request, playwright, baseURL }, testInfo) => {

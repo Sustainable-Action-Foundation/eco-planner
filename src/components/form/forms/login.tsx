@@ -6,6 +6,8 @@ import styles from '../forms.module.css';
 import { Trans, useTranslation } from "react-i18next";
 import { IconExclamationCircle, IconMail, IconMailCheck } from "@tabler/icons-react";
 import HydratedForm from "@/components/form/hydratedForm";
+import LoginLinkHelp, { parseLoginLinkAnswer } from "./loginLinkHelp";
+import type { LoginLinkAnswer } from "@/lib/authToken";
 
 /**
  * The one way in: an email address gets a one-time login link (POST /api/login-link).
@@ -16,6 +18,7 @@ export default function Login({ variant = "login" }: { variant?: "login" | "sign
   const { t } = useTranslation(["components", "common"]);
 
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<LoginLinkAnswer | null>(null);
   /** Prefilled when the user comes back from the "sent" panel */
   const [lastEmail, setLastEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -47,8 +50,9 @@ export default function Login({ variant = "login" }: { variant?: "login" | "sign
         from: new URLSearchParams(window.location.search).get('from'),
       }),
       headers: { 'Content-Type': 'application/json' },
-    }).then((res) => {
+    }).then(async (res) => {
       if (res.ok) {
+        setAnswer(parseLoginLinkAnswer(await res.json().catch(() => null)));
         setSentTo(email);
       } else {
         // Only a malformed address is refused; everything else gets the same generic 200
@@ -67,11 +71,11 @@ export default function Login({ variant = "login" }: { variant?: "login" | "sign
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{title}</h1>
         <div className="flex gap-100 align-items-flex-start margin-block-100">
           <IconMailCheck style={{ minWidth: '24px' }} aria-hidden="true" />
-          <div>
+          <div style={{ minWidth: 0 }}>
             <p className="margin-top-0" role="status">
-              <Trans i18nKey="components:login.link_sent" values={{ email: sentTo }} components={{ strong: <strong /> }} />
+              <Trans i18nKey="components:login.link_sent" values={{ email: sentTo }} components={{ strong: <strong style={{ overflowWrap: 'anywhere' }} /> }} />
             </p>
-            <p>{t("components:login.link_sent_hint")}</p>
+            {answer ? <LoginLinkHelp email={sentTo} answer={answer} /> : null}
           </div>
         </div>
         <button type="button" className="transparent padding-0 font-size-100" style={{ textDecoration: 'underline' }} onClick={() => setSentTo(null)}>

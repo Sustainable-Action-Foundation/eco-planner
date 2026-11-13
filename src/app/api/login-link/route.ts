@@ -4,12 +4,12 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { readSession, sessionOptionsFor } from "@/lib/session";
 import { consumeToken } from "@/lib/rateLimit";
-import { hashToken, loginTokenTtlMs, looksLikeEmail, mintToken } from "@/lib/authToken";
+import { hashToken, type LoginLinkAnswer, loginTokenTtlMs, looksLikeEmail, mintToken } from "@/lib/authToken";
 import { enrollmentFor } from "@/lib/enrollment";
 import { normalizeEmail } from "@/functions/email";
 import { deriveUsername, usernameKey } from "@/functions/username";
 import { safeRedirectPath } from "@/functions/safeRedirectPath";
-import mailClient, { type MailOptions } from "@/mailClient";
+import mailClient, { type MailOptions, senderMailbox } from "@/mailClient";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import { displayName } from "@/functions/personName";
@@ -32,8 +32,8 @@ const IP_BUDGET = { capacity: 10, refillPerSecond: 1 / 60 } as const;
 
 const genericMessage = "If this address can sign in, a login link has been sent to it";
 
-function generic() {
-  return Response.json({ message: genericMessage }, { status: 200 });
+function generic(answer: Omit<LoginLinkAnswer, "message">) {
+  return Response.json({ message: genericMessage, ...answer } satisfies LoginLinkAnswer, { status: 200 });
 }
 
 function invalidLink() {
@@ -54,6 +54,31 @@ export async function POST(request: NextRequest) {
   const remember = body.remember === true;
   const redirect = typeof body.from === "string" ? safeRedirectPath(body.from) : "/";
 
+  // The requester's locale decides the mail language. The server i18n instance is shared and
+  // follows the latest request, so both mails are rendered now, not inside after(), where a
+  // concurrent request may have switched the language. Minting needs no database, so the
+  // link can be rendered up front too; only the lookups, the row and the send are deferred.
+  const t = await serveTea("email");
+  const { token, hash } = mintToken();
+  const link = `${baseUrl}/login/link#t=${token}`;
+  const minutes = loginTokenTtlMs / 60_000;
+  const from = t("email:common.from", { emailServer: senderMailbox });
+  const mails: Record<"login" | "welcome", MailOptions> = {
+    login: { from, to: email, subject: t("email:login.subject"), text: t("email:login.body", { link, minutes }) },
+    welcome: { from, to: email, subject: t("email:welcome.subject"), text: t("email:welcome.body", { link, email, minutes }) },
+  };
+
+  // The same for every address and for throttled requests: the help text on the "sent"
+  // screen quotes it (when, from where, under which subject) without knowing what was mailed
+  const sentAt = Date.now();
+  const expiresAt = new Date(sentAt + loginTokenTtlMs);
+  const answer = {
+    sentAt: new Date(sentAt).toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    sender: senderMailbox,
+    subjects: { login: mails.login.subject, welcome: mails.welcome.subject },
+  };
+
   // Throttle silently: an over-budget request gets the same answer and sends nothing,
   // so the throttle itself can't be used to tell real addresses from fake ones.
   // The prod nginx appends the connecting address to any X-Forwarded-For the client sent
@@ -62,24 +87,11 @@ export async function POST(request: NextRequest) {
   // none. Only a request that reaches the app port without the proxy can spoof the last hop.
   const clientIp = request.headers.get("x-forwarded-for")?.split(",").pop()?.trim();
   if (!consumeToken(`login-link:email:${email}`, EMAIL_BUDGET)) {
-    return generic();
+    return generic(answer);
   }
   if (clientIp && !consumeToken(`login-link:ip:${clientIp}`, IP_BUDGET)) {
-    return generic();
+    return generic(answer);
   }
-
-  // The requester's locale decides the mail language. The server i18n instance is shared and
-  // follows the latest request, so both mails are rendered now, not inside after(), where a
-  // concurrent request may have switched the language. Minting needs no database, so the
-  // link can be rendered up front too; only the lookups, the row and the send are deferred.
-  const t = await serveTea("email");
-  const { token, hash } = mintToken();
-  const link = `${baseUrl}/login/link#t=${token}`;
-  const from = t("email:common.from", { emailServer: process.env.MAIL_USER });
-  const mails: Record<"login" | "welcome", MailOptions> = {
-    login: { from, to: email, subject: t("email:login.subject"), text: t("email:login.body", { link }) },
-    welcome: { from, to: email, subject: t("email:welcome.subject"), text: t("email:welcome.body", { link, email }) },
-  };
 
   after(async () => {
     try {
@@ -99,7 +111,6 @@ export async function POST(request: NextRequest) {
       // One pending link per address; a new request replaces the old one. A single upsert
       // on the unique address: the delete-then-insert transaction this used to be deadlocked
       // when several addresses asked at once (InnoDB gap locks from the deletes)
-      const expiresAt = new Date(Date.now() + loginTokenTtlMs);
       await prisma.loginTokens.upsert({
         where: { email },
         create: { token_hash: hash, email, expires_at: expiresAt, remember, redirect },
@@ -113,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
   });
 
-  return generic();
+  return generic(answer);
 }
 
 /** Redeems a login link: starts a session, creating the account on first login. */
