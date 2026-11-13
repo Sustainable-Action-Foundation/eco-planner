@@ -35,11 +35,11 @@ export default function DataSeriesGrid({
   
   const [value, setValue] = useState<Array<{ id: string; year: string; data: string }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {
-      return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
+      return [{ id: crypto.randomUUID(), year: "", data: "" }];
     }
 
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
-      id: window.crypto.randomUUID(),
+      id: crypto.randomUUID(),
       year: String(new Date(date).getFullYear()),
       data: value === null || value === undefined ? "" : String(value),
     }));
@@ -74,7 +74,7 @@ export default function DataSeriesGrid({
     setValue((prev) => [
       ...prev,
       {
-        id: window.crypto.randomUUID(),
+        id: crypto.randomUUID(),
         year: "",
         data: "",
       },
@@ -86,7 +86,7 @@ export default function DataSeriesGrid({
 
     setValue(prev => [
       ...prev.slice(0, focusedCell.row),
-      { id: window.crypto.randomUUID(), year: "", data: "" },
+      { id: crypto.randomUUID(), year: "", data: "" },
       ...prev.slice(focusedCell.row),
     ]);
   }
@@ -101,7 +101,7 @@ export default function DataSeriesGrid({
 
       // Ensure at least one row exists
       if (next.length === 0) {
-        return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
+        return [{ id: crypto.randomUUID(), year: "", data: "" }];
       }
 
       /* When deleting an item, if we are on the last row, move up. Otherwise stay on the same row. */
@@ -179,7 +179,7 @@ export default function DataSeriesGrid({
 
         // Create new rows the paste contains more rowns than currently exist.
         if (!next[rowIndex]) {
-          next[rowIndex] = { id: window.crypto.randomUUID(), year: "", data: "" }; // TODO: I dislike using randomuuid here
+          next[rowIndex] = { id: crypto.randomUUID(), year: "", data: "" }; // TODO: I dislike using randomuuid here
         }
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)

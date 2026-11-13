@@ -20,6 +20,7 @@ import ConfigureAccess from "../sections/access";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { roadmapPickerLabel } from "@/functions/roadmapName";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function RoadmapForm({
   isSuperAdmin,
@@ -147,7 +148,7 @@ export default function RoadmapForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} >
+    <HydratedForm onSubmit={handleSubmit} >
       {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when pressing enter in text inputs */}
       <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -340,6 +341,6 @@ export default function RoadmapForm({
           {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
         </button>
       </div>
-    </form>
+    </HydratedForm>
   );
 }

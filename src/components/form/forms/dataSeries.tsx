@@ -25,6 +25,7 @@ import {
 } from "./goalSections";
 import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 import HistoricalFootnote from "@/components/graph/historicalFootnote";
+import HydratedForm from "@/components/form/hydratedForm";
 
 /**
  * Edits only the main data series of an existing goal: the goal form's data
@@ -126,7 +127,7 @@ export default function DataSeriesForm({
   }
 
   return (
-    <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
+    <HydratedForm onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -170,6 +171,6 @@ export default function DataSeriesForm({
           {t("common:tsx.save_changes")}
         </button>
       </div>
-    </form>
+    </HydratedForm>
   );
 }

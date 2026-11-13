@@ -14,6 +14,7 @@ import styles from './tables.module.css';
 import type { getOneRoadmapIteration } from "@/fetchers";
 import { useTranslation } from "react-i18next";
 import { IconSearch } from '@tabler/icons-react';
+import { useClientState } from "@/functions/useClientState";
 
 export default function Goals({
   iteration,
@@ -27,8 +28,8 @@ export default function Goals({
 }) {
   const { t } = useTranslation("components");
 
-  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(iteration.id));
-  const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
+  const [viewMode, setViewMode] = useClientState<ViewMode | ''>(ViewMode.Tree, () => getStoredViewMode(iteration.id));
+  const [sortBy, setSortBy] = useClientState<GoalSortBy>(GoalSortBy.Default, () => getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [localizableOnly, setLocalizableOnly] = useState<boolean>(false);
   const localizable = new Set(localizableIndicators ?? []);
