@@ -47,6 +47,18 @@ function editor(page: Page) {
   return visible(page, ".tiptap").first();
 }
 
+/**
+ * Replaces the editor's text and makes sure nothing else ended up in it. On Firefox the editor's
+ * stored content can land after the typed text even when it was already showing, and saving that
+ * would also break every retry of the test.
+ */
+async function replaceEditorText(page: Page, text: string) {
+  await expect(async () => {
+    await editor(page).fill(text);
+    await expect(editor(page)).toHaveText(text, { timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+}
+
 /** Submits the visible form and resolves with the API's answer to `method` */
 async function submitAndWait(page: Page, url: string, method: "POST" | "PUT") {
   const [response] = await Promise.all([
@@ -176,7 +188,7 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
     // Fill only once the editor holds the stored text: on Firefox a fill that beats the editor's
     // initial content gets that content appended after the typed text
     await expect(editor(page)).toHaveText(`Version ${name}`);
-    await editor(page).fill(`Updated version ${name}`);
+    await replaceEditorText(page, `Updated version ${name}`);
     const saved = await submitAndWait(page, "/api/roadmap-iteration", "PUT");
     expect(saved.status()).toBe(200);
     await expect(page).toHaveURL(`/roadmap/${roadmapId}/v1`, { timeout: navigationTimeout });
@@ -192,7 +204,7 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
     await visible(page, "#name").fill(`${name} updated`);
     // As above: let the editor load the stored description before replacing it
     await expect(editor(page)).toHaveText(`Description ${name}`);
-    await editor(page).fill(`Updated description ${name}`);
+    await replaceEditorText(page, `Updated description ${name}`);
     await visible(page, "#type").selectOption("OTHER");
     await visible(page, "#actor").fill(`Updated actor ${name}`);
     // The admin manages the org, so the public option is offered

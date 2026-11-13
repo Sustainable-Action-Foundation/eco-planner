@@ -263,7 +263,14 @@
     "name": "Your name",
     "name_description": "Shown wherever you are named, for example as the author of actions and comments.",
     "super_admin": "Super admin mode",
-    "super_admin_description": "As a super admin you see and may change everything in the tool. Deactivate it to see the tool as a regular user: you then get only what your organisation memberships allow. The setting applies to this browser until you switch it back on or log in again."
+    "super_admin_description": "As a super admin you see and may change everything in the tool. Deactivate it to see the tool as a regular user: you then get only what your organisation memberships allow. The setting applies to this browser until you switch it back on or log in again.",
+    "my_comments": "Your comments",
+    "no_comments": "You have not written any comments yet.",
+    "comment_on_goal": "$t(common:goal_one, titleCase): {{name}}",
+    "comment_on_action": "$t(common:action_one, titleCase): {{name}}",
+    "comment_on_roadmap": "$t(common:roadmap_one, titleCase): {{name}}",
+    "comment_on_roadmap_version": "$t(common:roadmap_version_one, titleCase): {{name}} (v{{version}})",
+    "comment_written": "Written {{date, datetime}}"
   },
   "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",

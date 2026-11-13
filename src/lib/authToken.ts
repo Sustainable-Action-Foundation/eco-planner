@@ -19,6 +19,21 @@ export function hashToken(token: string): string {
 /** How long a login link stays redeemable. */
 export const loginTokenTtlMs = 15 * 60 * 1000;
 
+/**
+ * What POST /api/login-link answers for every well-formed address, whether or not anything
+ * is mailed. Nothing in it depends on the address: the times are the request's, and both
+ * subject lines are given because which mail went out would tell if an account exists.
+ */
+export type LoginLinkAnswer = {
+  message: string,
+  /** ISO timestamps */
+  sentAt: string,
+  expiresAt: string,
+  /** The mailbox the link is mailed from; empty when mail is not configured */
+  sender: string,
+  subjects: { login: string, welcome: string },
+};
+
 /** Shape check before any lookup; the full RFC grammar is not the point, excluding junk is. */
 export function looksLikeEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;

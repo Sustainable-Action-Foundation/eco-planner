@@ -1,5 +1,5 @@
 import { expect, test } from "../lib/users";
-import { createAction, createComment, createGoal, pageEntity, Seed } from "../lib/api";
+import { createAction, createComment, createGoal, flightPayload, freshTimestamp, pageEntity, putJson, Seed } from "../lib/api";
 import { commentSorter } from "../../src/lib/sorters";
 
 /*
@@ -7,6 +7,7 @@ import { commentSorter } from "../../src/lib/sorters";
  * handlers). A signed-in user with view access may
  * comment on a goal, roadmap, iteration or action; the pages deliver the
  * comments with their authors, and `commentSorter` puts the newest first.
+ * The author's own profile page lists what they wrote, see the last test.
  */
 
 // Page read-backs poll for the fresh render on a shared, loaded dev server; give them room
@@ -76,4 +77,53 @@ test("there is no edit or delete: PUT and DELETE are not handled", async ({ admi
   const edited = await admin.put("/api/comment", { data: { id, commentText: "edited" } });
   expect(edited.status(), await edited.text()).toBe(405);
   expect((await renderedComments(admin, `/goal/${goalId}`, goalId)).map(comment => comment.id)).toEqual([id]);
+});
+
+test("the author's profile lists their comments newest first with links to the visible targets; nobody else gets the list", async ({ admin, anita, sandbox }) => {
+  const leaf = `Leaf ${sandbox.label}`;
+  // Unnamed: the list falls back to the indicator parameter's leaf
+  const goalId = await createGoal(admin, sandbox.iterationId, { name: null, indicatorParameter: `Key\\Test\\${leaf}` });
+  const actionId = await createAction(admin, sandbox.iterationId, { name: `Action ${sandbox.label}` });
+  const written = [
+    { text: `on goal ${sandbox.label}`, objectId: goalId, href: `/goal/${goalId}`, name: leaf },
+    { text: `on action ${sandbox.label}`, objectId: actionId, href: `/action/${actionId}`, name: `Action ${sandbox.label}` },
+    { text: `on roadmap ${sandbox.label}`, objectId: sandbox.roadmapId, href: `/roadmap/${sandbox.roadmapId}`, name: `Sandbox ${sandbox.label}` },
+    { text: `on version ${sandbox.label}`, objectId: sandbox.iterationId, href: `/roadmap/${sandbox.roadmapId}/v1`, name: `Sandbox ${sandbox.label}` },
+  ];
+  for (const comment of written) {
+    await createComment(anita, comment.objectId, comment.text);
+  }
+  // The page knows its owner by the username as registered ("Anita"), which the comment's author carries
+  const [{ author }] = await renderedComments(anita, `/goal/${goalId}`, goalId);
+  const profile = `/user/${author?.username}`;
+
+  // No restart or wait for expiry: the comment API revalidates the list's tags
+  let own = "";
+  await expect.poll(async () => {
+    own = await flightPayload(anita, profile);
+    return written.every(comment => own.includes(comment.text));
+  }, { message: "anita's profile to list her new comments", timeout: 60_000 }).toBe(true);
+  expect(own).toContain('"data-testid":"comments-section"');
+  const positions = written.map(comment => own.indexOf(comment.text));
+  expect(positions, "newest first").toEqual([...positions].sort((a, b) => b - a));
+  for (const comment of written) {
+    // Each row is one link: its href and the target's name sit just before the text
+    const row = own.slice(Math.max(0, own.indexOf(comment.text) - 600), own.indexOf(comment.text));
+    expect(row, comment.text).toContain(`"href":"${comment.href}"`);
+    expect(row, comment.text).toContain(comment.name);
+  }
+
+  // Not even a super admin gets another user's list
+  const asAdmin = await flightPayload(admin, profile);
+  expect(asAdmin).not.toContain('"data-testid":"comments-section"');
+  expect(asAdmin).not.toContain(`on goal ${sandbox.label}`);
+
+  // Anita loses sight of the roadmap: the rows go, and with them the targets' names
+  await putJson(admin, "/api/roadmap", { id: sandbox.roadmapId, access: { sharing: "GROUPS", grants: [] }, timestamp: freshTimestamp() });
+  await expect.poll(async () => {
+    own = await flightPayload(anita, profile);
+    return written.some(comment => own.includes(comment.text));
+  }, { message: "anita's profile to drop comments on what she can no longer see", timeout: 60_000 }).toBe(false);
+  expect(own).toContain('"data-testid":"comments-section"');
+  expect(own).not.toContain(sandbox.label);
 });

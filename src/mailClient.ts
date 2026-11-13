@@ -16,7 +16,7 @@ const tenantId = process.env.MAIL_TENANT_ID || "";
 const clientId = process.env.MAIL_CLIENT_ID || "";
 const clientSecret = process.env.MAIL_CLIENT_SECRET || "";
 /** The mailbox mail is sent from, e.g. noreply@example.org. Must exist in the tenant. */
-const senderMailbox = process.env.MAIL_USER || "";
+export const senderMailbox = process.env.MAIL_USER || "";
 
 let cachedToken: { token: string; expiresAt: number } | null = null;
 

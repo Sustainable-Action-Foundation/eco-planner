@@ -1,7 +1,7 @@
 import type { Locator, Page } from "playwright/test";
 import { expect, test } from "../lib/fixtures";
-import { loginContext, orgIdByName, Seed } from "../lib/api";
-import { visible } from "../lib/forms";
+import { loginContext, Seed } from "../lib/api";
+import { orgSwitcherControls, orgSwitcherEntries } from "../lib/org-switcher";
 import { seedPlaces } from "../../scripts/prisma/seed/places";
 
 /*
@@ -14,15 +14,15 @@ import { seedPlaces } from "../../scripts/prisma/seed/places";
 /** An org admin can see but is no member of */
 const foreignOrg = seedPlaces.find(place => place.adminRole === null);
 if (!foreignOrg) throw new Error("no seeded org without an admin membership");
+const foreignName = foreignOrg.name;
 
 /** The foreign org's entry in the start page's switcher (chip or select option) */
-function foreignEntry(page: Page, orgId: string): Locator {
-  return visible(page, "main nav").locator(`a[href="/?org=${orgId}"], option[value="${orgId}"]`);
+function foreignEntry(page: Page): Locator {
+  return orgSwitcherEntries(page).filter({ hasText: foreignName });
 }
 
-test("super admin toggles their powers off and back on", async ({ browser, admin }) => {
+test("super admin toggles their powers off and back on", async ({ browser }) => {
   test.setTimeout(180_000);
-  const orgId = await orgIdByName(admin, foreignOrg.name);
   const context = await loginContext(browser, Seed.admin.username);
   const page = await context.newPage();
   try {
@@ -30,7 +30,7 @@ test("super admin toggles their powers off and back on", async ({ browser, admin
     const indicator = page.getByTestId("super-admin-suspended").filter({ visible: true });
 
     await page.goto("/");
-    await expect(foreignEntry(page, orgId)).toHaveCount(1);
+    await expect(foreignEntry(page)).toHaveCount(1);
     await expect(indicator).toHaveCount(0);
 
     await page.goto(`/@${Seed.admin.username}`);
@@ -40,8 +40,8 @@ test("super admin toggles their powers off and back on", async ({ browser, admin
     await expect(indicator).toBeVisible();
 
     await page.goto("/");
-    await expect(visible(page, "main nav").locator('a[href="/?org=public"], option[value="public"]').first()).toBeAttached();
-    await expect(foreignEntry(page, orgId)).toHaveCount(0);
+    await expect(orgSwitcherControls(page).first()).toBeAttached();
+    await expect(foreignEntry(page)).toHaveCount(0);
     await expect(indicator).toBeVisible();
 
     await page.goto(`/@${Seed.admin.username}`);
@@ -51,7 +51,7 @@ test("super admin toggles their powers off and back on", async ({ browser, admin
     await expect(indicator).toHaveCount(0);
 
     await page.goto("/");
-    await expect(foreignEntry(page, orgId)).toHaveCount(1);
+    await expect(foreignEntry(page)).toHaveCount(1);
   }
   finally {
     await context.close();
