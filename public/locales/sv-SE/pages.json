@@ -448,6 +448,45 @@
       "no_area_title": "Organisationen saknar område",
       "no_area": "Nationella målbanor att utgå från och statistik för området visas när organisationen har placerats i en kommun eller ett län.",
       "set_area": "Välj område"
+    },
+    "process": {
+      "title_public": "Så långt har vi kommit",
+      "title_working": "Var vi är i processen",
+      "status": "Steg {{step}} av 5",
+      "status_not_started": "Arbetet har inte börjat",
+      "state_done": "Klar",
+      "state_in_progress": "Pågår",
+      "state_upcoming": "Kommande",
+      "indicators": "Indikatorer",
+      "goals": "Målbanor",
+      "baseline": "Baslinje",
+      "actions": "Åtgärder",
+      "decision": "Beslut",
+      "indicators_description": "Vilka indikatorer kan vi påverka?",
+      "goals_description_area": "Hur ska varje målbana se ut för {{area}}?",
+      "goals_description": "Hur ska varje målbana se ut för oss?",
+      "baseline_description": "Tas fram när arbetet pågått en tid.",
+      "actions_description": "Kostnad, effekt och ansvar per målbana.",
+      "decision_description": "Åtgärder tas vidare för genomförande."
+    },
+    "next": {
+      "like_title": "Nästa steg: gilla indikatorer",
+      "like_text": "Gå igenom de nationella målbanorna och gilla dem som organisationen kan påverka.",
+      "like_link": "Visa målbanor att utgå från",
+      "compile_title": "Nästa steg: sammanställ det ni gillat",
+      "compile_text_area_one": "{{count}} målbana har gillats i {{area}}. Gå igenom det som gillats, välj vad som ska med och gå vidare till målbanor för {{area}}.",
+      "compile_text_area_other": "{{count}} målbanor har gillats i {{area}}. Gå igenom dem, välj vilka som ska med och gå vidare till målbanor för {{area}}.",
+      "compile_text_one": "Organisationens medlemmar har gillat {{count}} målbana. Gå igenom det som gillats, välj vad som ska med och gå vidare till egna målbanor.",
+      "compile_text_other": "Organisationens medlemmar har gillat {{count}} målbanor. Gå igenom dem, välj vilka som ska med och gå vidare till egna målbanor.",
+      "compile_link": "Sammanställ gillade",
+      "goals_title": "Nästa steg: arbeta fram målbanorna",
+      "goals_text": "Färdplanerna har målbanor. Anpassa dem efter era förutsättningar, och lägg till baslinjer när arbetet har pågått en tid.",
+      "baseline_title": "Nästa steg: baslinjer",
+      "baseline_text": "Lägg till baslinjer på målbanorna, så syns vad som händer utan åtgärder.",
+      "actions_title": "Nästa steg: åtgärder",
+      "actions_text": "Koppla åtgärder till målbanorna, med kostnad, effekt och ansvar.",
+      "open_roadmaps": "Öppna färdplanerna",
+      "open_actions": "Öppna åtgärderna"
     }
   }
 }

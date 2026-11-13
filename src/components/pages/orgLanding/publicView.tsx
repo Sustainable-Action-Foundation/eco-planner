@@ -10,6 +10,7 @@ import { GeoAreaType } from "@/lib/prisma/generated";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import ProcessBar from "./processBar";
 import { PublicTopLiked } from "./topLiked";
 import ViewToggle from "./viewToggle";
 import styles from "./orgLanding.module.css" with { type: "css" };
@@ -65,6 +66,12 @@ export default async function OrgPublicView({ org, viewerContext, entitled, iter
               : null}
         </div>
       </div>
+    </section>
+
+    <section className="margin-top-300" aria-labelledby="org-process-title">
+      <Suspense key={org.id} fallback={loader}>
+        <ProcessBar orgId={org.id} areaName={org.geoArea?.name ?? null} asVisitor={viewerContext === null} working={false} />
+      </Suspense>
     </section>
 
     <section className="margin-top-300" aria-labelledby="org-liked-title">

@@ -122,7 +122,7 @@ export default function Actions({
   }, [actions, searchFilter, tagFilter]);
 
   return (
-    <search className="gap-300 grid" style={{gridTemplateColumns: "25ch 1fr"}}>
+    <search className={`gap-300 grid ${styles['actions-layout']}`}>
       <menu className={`margin-0 smooth padding-50 flex-grow-100 ${styles['actions-menu']}`} >
         <fieldset className="width-100 fieldset-unset-pseudo-class">
           <legend>{t("pages:actions.show_as")}</legend>

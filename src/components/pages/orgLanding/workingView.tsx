@@ -14,6 +14,7 @@ import type { Roadmap, UserAccessContext } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import ProcessBar from "./processBar";
 import { WorkingTopLiked } from "./topLiked";
 import ViewToggle from "./viewToggle";
 import styles from "./orgLanding.module.css" with { type: "css" };
@@ -148,13 +149,19 @@ async function TabPanel(props: WorkingViewProps) {
       </section>
     </>;
   }
-  return (
+  return <>
+    <section className={`${styles.card} margin-bottom-100`} aria-labelledby="org-process-title">
+      <Suspense key={org.id} fallback={loader}>
+        <ProcessBar orgId={org.id} areaName={org.geoArea?.name ?? null} asVisitor={false} working={true} />
+      </Suspense>
+    </section>
+
     <section className={styles.card} aria-labelledby="org-top-liked-title">
       <Suspense key={`${org.id}:${likeScope}`} fallback={loader}>
         <WorkingTopLiked orgId={org.id} scope={likeScope} />
       </Suspense>
     </section>
-  );
+  </>;
 }
 
 /**
