@@ -505,10 +505,69 @@
       "label": "Fakta om organisationen",
       "managers": "Ansvariga",
       "contact": "Kontakt",
-      "website": "Webbplats",
-      "members": "Medlemmar i verktyget",
-      "member_count_one": "{{count}} person",
-      "member_count_other": "{{count}} personer"
+      "website": "Webbplats"
+    },
+    "gaps": {
+      "title": "Luckor och förslag",
+      "empty": "Inga luckor just nu.",
+      "no_roadmap_title": "Ingen synlig färdplan",
+      "no_roadmap": "Organisationen har ingen färdplan som syns i listor. Skapa en och utgå från det ni gillat.",
+      "no_roadmap_hidden_one": "En färdplan är dold. Visa den dolda, eller skapa en ny från det ni gillat.",
+      "no_roadmap_hidden_other": "{{count}} färdplaner är dolda. Visa de dolda, eller skapa en ny från det ni gillat.",
+      "no_roadmap_show_hidden": "Visa dolda",
+      "liked_title_one": "{{count}} gillad målbana saknar egen målbana",
+      "liked_title_other": "{{count}} gillade målbanor saknar egen målbana",
+      "liked": "Kopiera dem till en av organisationens färdplaner; för flera finns ett nedskalat förslag från den nationella målbanan.",
+      "liked_link": "Visa gillade",
+      "no_area": "Utan område kan statistik och nationella målbanor inte skalas till er, och ni syns inte bland områdets organisationer. Visas bara för ansvariga.",
+      "profile_title": "Den publika sidan är ofullständig",
+      "profile": "Saknas: {{fields}}. Visas bara för ansvariga.",
+      "field_description": "beskrivning",
+      "field_org_type": "organisationstyp",
+      "field_contact": "kontakt",
+      "field_banner": "omslagsbild",
+      "members_title_one": "{{count}} av {{total}} medlemmar har inte gillat något",
+      "members_title_other": "{{count}} av {{total}} medlemmar har inte gillat något",
+      "members": "Påminn dem om att gå igenom indikatorerna för sitt område. Visas bara för ansvariga.",
+      "members_link": "Visa medlemmar"
+    },
+    "numbers": {
+      "title": "Läget",
+      "members": "Medlemmar",
+      "liked": "Gillade målbanor",
+      "roadmaps": "Synliga färdplaner",
+      "actions": "Åtgärder"
+    },
+    "activity": {
+      "title": "Senast hänt",
+      "empty": "Inget har hänt ännu.",
+      "date": "{{date, datetime}}",
+      "roadmap": "Färdplanen \"{{name}}\" skapades",
+      "version": "Version {{version}} av \"{{name}}\" skapades",
+      "draft": "Ett utkast till version {{version}} av \"{{name}}\" skapades",
+      "goal": "Målbanan \"{{name}}\" lades till i \"{{roadmap}}\"",
+      "goals": "{{count}} målbanor lades till i \"{{roadmap}}\"",
+      "action": "Åtgärden \"{{name}}\" skapades",
+      "comment": "Ny kommentar. {{target}}",
+      "likes": "{{members}} gillade {{goals}}",
+      "likes_members_one": "{{count}} medlem",
+      "likes_members_other": "{{count}} medlemmar",
+      "likes_goals_one": "{{count}} målbana",
+      "likes_goals_other": "{{count}} målbanor",
+      "all_comments": "Alla kommentarer"
+    },
+    "area_orgs": {
+      "title_working": "Andra i {{area}}",
+      "title_public": "Organisationer i {{area}}",
+      "liked": "{{count}} gillade"
+    },
+    "comments": {
+      "empty": "Inga kommentarer ännu på organisationens färdplaner, målbanor eller åtgärder."
+    },
+    "members": {
+      "manage": "Hantera medlemmar och grupper",
+      "name": "Namn",
+      "role": "Roll"
     }
   }
 }

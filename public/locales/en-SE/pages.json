@@ -505,10 +505,69 @@
       "label": "Facts about the organisation",
       "managers": "Managers",
       "contact": "Contact",
-      "website": "Website",
-      "members": "Members in the tool",
-      "member_count_one": "{{count}} person",
-      "member_count_other": "{{count}} people"
+      "website": "Website"
+    },
+    "gaps": {
+      "title": "Gaps and suggestions",
+      "empty": "No gaps right now.",
+      "no_roadmap_title": "No visible roadmap",
+      "no_roadmap": "The organisation has no roadmap that shows in listings. Create one, starting from what you have liked.",
+      "no_roadmap_hidden_one": "One roadmap is hidden. Show the hidden one, or create a new one from what you have liked.",
+      "no_roadmap_hidden_other": "{{count}} roadmaps are hidden. Show the hidden ones, or create a new one from what you have liked.",
+      "no_roadmap_show_hidden": "Show hidden",
+      "liked_title_one": "{{count}} liked goal has no goal of your own",
+      "liked_title_other": "{{count}} liked goals have no goal of your own",
+      "liked": "Copy them into one of the organisation's roadmaps; for several there is a scaled-down suggestion from the national goal.",
+      "liked_link": "Show liked",
+      "no_area": "Without an area, statistics and national goals can't be scaled to you, and you don't show among the area's organisations. Only shown to managers.",
+      "profile_title": "The public page is incomplete",
+      "profile": "Missing: {{fields}}. Only shown to managers.",
+      "field_description": "description",
+      "field_org_type": "type of organisation",
+      "field_contact": "contact",
+      "field_banner": "banner",
+      "members_title_one": "{{count}} of {{total}} members has not liked anything",
+      "members_title_other": "{{count}} of {{total}} members have not liked anything",
+      "members": "Remind them to go through the indicators for their area. Only shown to managers.",
+      "members_link": "Show members"
+    },
+    "numbers": {
+      "title": "The state of things",
+      "members": "Members",
+      "liked": "Liked goals",
+      "roadmaps": "Visible roadmaps",
+      "actions": "Actions"
+    },
+    "activity": {
+      "title": "Lately",
+      "empty": "Nothing has happened yet.",
+      "date": "{{date, datetime}}",
+      "roadmap": "The roadmap \"{{name}}\" was created",
+      "version": "Version {{version}} of \"{{name}}\" was created",
+      "draft": "A draft of version {{version}} of \"{{name}}\" was created",
+      "goal": "The goal \"{{name}}\" was added to \"{{roadmap}}\"",
+      "goals": "{{count}} goals were added to \"{{roadmap}}\"",
+      "action": "The action \"{{name}}\" was created",
+      "comment": "New comment. {{target}}",
+      "likes": "{{members}} liked {{goals}}",
+      "likes_members_one": "{{count}} member",
+      "likes_members_other": "{{count}} members",
+      "likes_goals_one": "{{count}} goal",
+      "likes_goals_other": "{{count}} goals",
+      "all_comments": "All comments"
+    },
+    "area_orgs": {
+      "title_working": "Others in {{area}}",
+      "title_public": "Organisations in {{area}}",
+      "liked": "{{count}} liked"
+    },
+    "comments": {
+      "empty": "No comments yet on the organisation's roadmaps, goals or actions."
+    },
+    "members": {
+      "manage": "Manage members and groups",
+      "name": "Name",
+      "role": "Role"
     }
   }
 }

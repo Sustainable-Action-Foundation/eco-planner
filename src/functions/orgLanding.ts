@@ -48,8 +48,8 @@ export function resolveOrgTab(searchParams: SearchParams, available: readonly Or
 }
 
 /** The sections a viewer of the working view has; the member list is for those who manage the org */
-export function availableOrgTabs(_managesOrg: boolean): OrgTab[] {
-  return Object.values(OrgTab).filter(tab => tab !== OrgTab.Members && tab !== OrgTab.Comments);
+export function availableOrgTabs(managesOrg: boolean): OrgTab[] {
+  return Object.values(OrgTab).filter(tab => tab !== OrgTab.Members || managesOrg);
 }
 
 /** The landing of an org, in a view and section; defaults are left out of the URL */

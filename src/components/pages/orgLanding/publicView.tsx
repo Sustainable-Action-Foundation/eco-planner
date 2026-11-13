@@ -13,6 +13,7 @@ import { GeoAreaType } from "@/lib/prisma/generated";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { AreaOrgs } from "./overview";
 import ProcessBar from "./processBar";
 import { PublicTopLiked } from "./topLiked";
 import ViewToggle from "./viewToggle";
@@ -110,6 +111,10 @@ export default async function OrgPublicView({ org, accessContext, viewerContext,
         <PublicPlans {...{ org, viewerContext, iterations }} />
       </Suspense>
     </section>
+
+    <Suspense key={org.id} fallback={null}>
+      <AreaOrgs org={org} asVisitor={viewerContext === null} working={false} />
+    </Suspense>
   </>;
 }
 

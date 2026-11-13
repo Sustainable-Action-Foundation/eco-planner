@@ -15,6 +15,7 @@ import type { Roadmap, UserAccessContext } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { AreaOrgs, CommentsTab, Gaps, KeyNumbers, MembersTab, RecentActivity, TabCount } from "./overview";
 import ProcessBar from "./processBar";
 import { WorkingTopLiked } from "./topLiked";
 import ViewToggle from "./viewToggle";
@@ -81,6 +82,7 @@ export default async function OrgWorkingView(props: WorkingViewProps) {
       {tabs.map(item => (
         <Link key={item} href={orgLandingPath(org.id, { tab: item })} aria-current={item === tab ? "page" : undefined} data-tab={item}>
           {tabLabels[item]}
+          {item === OrgTab.Liked || item === OrgTab.Members ? <Suspense key={org.id} fallback={null}><TabCount orgId={org.id} tab={item} /></Suspense> : null}
         </Link>
       ))}
     </nav>
@@ -151,6 +153,13 @@ async function TabPanel(props: WorkingViewProps) {
       </section>
     </>;
   }
+  if (tab === OrgTab.Comments) {
+    return <Suspense key={org.id} fallback={loader}><CommentsTab {...props} /></Suspense>;
+  }
+  if (tab === OrgTab.Members) {
+    return <Suspense key={org.id} fallback={loader}><MembersTab {...props} /></Suspense>;
+  }
+
   return <>
     <section className={`${styles.card} margin-bottom-100`} aria-labelledby="org-process-title">
       <Suspense key={org.id} fallback={loader}>
@@ -158,11 +167,35 @@ async function TabPanel(props: WorkingViewProps) {
       </Suspense>
     </section>
 
-    <section className={styles.card} aria-labelledby="org-top-liked-title">
-      <Suspense key={`${org.id}:${likeScope}`} fallback={loader}>
-        <WorkingTopLiked orgId={org.id} scope={likeScope} />
-      </Suspense>
-    </section>
+    <div className={styles.columns}>
+      <div className="flex flex-direction-column gap-100">
+        <section className={styles.card} aria-labelledby="org-gaps-title">
+          <Suspense key={org.id} fallback={loader}>
+            <Gaps {...props} />
+          </Suspense>
+        </section>
+        <section className={styles.card} aria-labelledby="org-top-liked-title">
+          <Suspense key={`${org.id}:${likeScope}`} fallback={loader}>
+            <WorkingTopLiked orgId={org.id} scope={likeScope} />
+          </Suspense>
+        </section>
+      </div>
+      <aside className="flex flex-direction-column gap-100">
+        <section className={styles.card} aria-labelledby="org-numbers-title">
+          <Suspense key={org.id} fallback={loader}>
+            <KeyNumbers {...props} />
+          </Suspense>
+        </section>
+        <section className={styles.card} aria-labelledby="org-activity-title">
+          <Suspense key={org.id} fallback={loader}>
+            <RecentActivity {...props} />
+          </Suspense>
+        </section>
+        <Suspense key={org.id} fallback={null}>
+          <AreaOrgs org={org} asVisitor={false} working={true} />
+        </Suspense>
+      </aside>
+    </div>
   </>;
 }
 
