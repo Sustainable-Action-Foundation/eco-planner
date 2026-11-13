@@ -63,14 +63,14 @@ export default function GroupManager({ management }: { management: OrgManagement
     <>
       <section className="margin-bottom-300">
         <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.org_heading")}</h2>
-        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
-        <RenameOrg key={management.org.name} org={management.org} />
+        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data; prefixed, since an org without area and banner would give two siblings the same key */}
+        <RenameOrg key={`name:${management.org.name}`} org={management.org} />
         {/* Keyed on the area for the same reason */}
-        <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
+        <OrgArea key={`area:${management.org.geoAreaCode ?? ""}`} org={management.org} />
         {/* And on the stored profile */}
-        <OrgProfileForm key={[management.org.description, management.org.orgType, management.org.contactEmail, management.org.website].join("\u0000")} org={management.org} />
+        <OrgProfileForm key={["profile", management.org.description, management.org.orgType, management.org.contactEmail, management.org.website].join("\u0000")} org={management.org} />
         {/* And on the banner's versioned URL */}
-        <OrgBanner key={management.org.bannerUrl ?? "none"} org={management.org} />
+        <OrgBanner key={`banner:${management.org.bannerUrl ?? ""}`} org={management.org} />
       </section>
 
       <section className="margin-bottom-300">
