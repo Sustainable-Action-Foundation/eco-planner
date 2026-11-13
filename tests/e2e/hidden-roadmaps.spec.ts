@@ -4,7 +4,7 @@ import { expect, test } from "../lib/fixtures";
 import { visible } from "../lib/forms";
 
 /*
- * Hiding a roadmap from its menu on the org landing: it leaves the list, its
+ * Hiding a roadmap from its menu on the org landing's roadmaps tab: it leaves the list, its
  * page says it is hidden, and "show hidden" brings it back for its editors.
  */
 
@@ -16,7 +16,7 @@ test.describe("Hidden roadmaps", () => {
   test("hide from the landing menu, gone from the list, badge on the page, back with show hidden", async ({ page, sandbox }) => {
     test.slow();
     const name = `Sandbox ${sandbox.label}`;
-    const landing = `/?org=${sandbox.orgId}`;
+    const landing = `/?org=${sandbox.orgId}&tab=roadmaps`;
     const tree = visible(page, "main nav");
     const row = tree.locator("li").filter({ has: page.getByRole("link", { name }) }).first();
 

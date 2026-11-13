@@ -72,7 +72,7 @@ export default async function OrgWorkingView(props: WorkingViewProps) {
           <Link href="/roadmap/create" className="button seagreen color-purewhite round block">{t("pages:home.create_roadmap")}</Link>
           { // Managers also administer the org's profile, members and groups
             manages
-              ? <Link href={`/org/${org.id}/groups`} className="button round block">{t("pages:org_groups.manage_groups")}</Link>
+              ? <Link href={`/org/${org.id}/groups`} className="button round block" data-testid="org-manage-link">{t("pages:org_groups.manage_groups")}</Link>
               : null}
         </div>
       </div>
