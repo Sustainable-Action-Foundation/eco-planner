@@ -124,6 +124,7 @@
     "invalid_email": "Det där ser inte ut som en e‑postadress. Kontrollera adressen och försök igen.",
     "link_sent": "En inloggningslänk har skickats till <strong>{{email}}</strong>.",
     "link_sent_times": "Skickad kl. {{sentAt, datetime}}. Länken fungerar till kl. {{expiresAt, datetime}}.",
+    "link_sent_spam": "Kolla skräpposten om mejlet inte syns i inkorgen.",
     "login_failed": "Länken kunde inte skickas. Försök igen.",
     "no_account": "Har du inget konto?",
     "other_address": "Använd en annan adress",

@@ -59,6 +59,7 @@ export default function LoginLinkHelp({ email, answer }: { email: string, answer
           formatParams: { sentAt: { timeStyle: "short" }, expiresAt: { timeStyle: "short" } },
         })}
       </p>
+      <p data-testid="login-link-spam">{t("components:login.link_sent_spam")}</p>
       <details data-testid="login-link-help">
         <summary style={{ cursor: 'pointer', width: 'fit-content' }}>{t("components:login.help_title")}</summary>
         <p>

@@ -124,6 +124,7 @@
     "invalid_email": "That does not look like an email address. Check it and try again.",
     "link_sent": "A login link has been sent to <strong>{{email}}</strong>.",
     "link_sent_times": "Sent at {{sentAt, datetime}}. The link works until {{expiresAt, datetime}}.",
+    "link_sent_spam": "Check your spam folder if the email is not in your inbox.",
     "login_failed": "The link could not be sent. Please try again.",
     "no_account": "Don't have an account?",
     "other_address": "Use another address",
