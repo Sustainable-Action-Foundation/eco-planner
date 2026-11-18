@@ -38,9 +38,9 @@ async function restoreOrg(api: APIRequestContext, body: { orgId: string, name?: 
   }).toPass({ timeout: 120_000, intervals: [2_000, 5_000, 10_000] });
 }
 
-/** The start page's org switcher: chips, or a select past the chip limit; both end with the public view */
+/** The start page's org switcher: chips, or a searchable select past the chip limit; both end with the public view */
 function orgSwitcher(page: Page): Locator {
-  return visible(page, "main nav").filter({ has: page.locator('a[href="/?org=public"], option[value="public"]') });
+  return visible(page, "main nav").filter({ has: page.locator('a[href="/?org=public"], #org-switcher') });
 }
 
 function homeTitle(page: Page): Locator {
@@ -103,37 +103,48 @@ test.describe("Org landing as super admin", () => {
 
   test("the switcher is a select of every org, memberships first, then the public view", async ({ page }) => {
     await page.goto("/");
-    const select = orgSwitcher(page).locator("select");
+    const select = orgSwitcher(page).locator("#org-switcher");
     await expect(select).toBeVisible();
     await expect(orgSwitcher(page).locator("a")).toHaveCount(0);
 
     // Every org (other specs rename some seeded ones for a moment, so count rather than name them all)
-    await expect(select.locator("option")).toHaveCount(1 + seedPlaces.length + 1);
-    const labels = (await select.locator("option").allTextContents()).map(label => label.trim());
+    await select.click();
+    const options = orgSwitcher(page).locator("#org-switcher-dialog-listbox li");
+    await expect(options).toHaveCount(1 + seedPlaces.length + 1);
+    const labels = (await options.allTextContents()).map(label => label.trim());
     for (const name of [Seed.orgName, foreignOrg.name]) {
       expect(labels, `option for ${name}`).toContain(name);
     }
-    await expect(select.locator("option").last()).toHaveAttribute("value", "public");
     // Memberships first: every org admin belongs to precedes the ones he only sees as super admin
     expect(labels.indexOf(Seed.orgName)).toBeLessThan(labels.indexOf(foreignOrg.name));
+
+    // Typing narrows the list
+    await orgSwitcher(page).locator('#org-switcher-dialog input[type="text"]').fill(foreignOrg.name);
+    await expect(options.first()).toHaveText(foreignOrg.name);
+    await expect(options).not.toHaveCount(labels.length);
+    await orgSwitcher(page).locator('#org-switcher-dialog input[type="text"]').fill("");
+
+    // The public view comes last
+    await options.last().click();
+    await expect(page).toHaveURL(/\?org=public$/, { timeout: 30_000 });
+    await expect(orgSwitcher(page).locator("#org-switcher")).toHaveAttribute("value", "public");
   });
 
   test("a super admin traverses an org he is no member of and may manage it", async ({ page }) => {
     await page.goto("/");
-    const select = orgSwitcher(page).locator("select");
-    await select.selectOption({ label: foreignOrg.name });
+    await pickSingleSearchOption(page, "org-switcher", foreignOrg.name);
 
     await expect(page).toHaveURL(/\?org=[0-9a-f-]{36}$/, { timeout: 30_000 });
     const orgId = new URL(page.url()).searchParams.get("org") ?? "";
     await expect(homeTitle(page)).toHaveText(foreignOrg.name);
-    await expect(orgSwitcher(page).locator("select")).toHaveValue(orgId);
+    await expect(orgSwitcher(page).locator("#org-switcher")).toHaveAttribute("value", orgId);
     await expect(manageLink(page, orgId)).toBeVisible();
   });
 
   test("?org=public restores the public view", async ({ page }) => {
     await page.goto("/?org=public");
     await expectPublicView(page);
-    await expect(orgSwitcher(page).locator("select")).toHaveValue("public");
+    await expect(orgSwitcher(page).locator("#org-switcher")).toHaveAttribute("value", "public");
   });
 
   test("a searchFilter deep link filters the org landing's roadmaps", async ({ page, admin }) => {
@@ -161,7 +172,7 @@ test.describe("Org landing as a plain member", () => {
     await expect(homeTitle(page)).toHaveText(Seed.orgName);
     // One chip for the org and one for the public view
     await expect(orgSwitcher(page).locator("a")).toHaveCount(2);
-    await expect(orgSwitcher(page).locator("select")).toHaveCount(0);
+    await expect(orgSwitcher(page).locator("#org-switcher")).toHaveCount(0);
     await expect(orgSwitcher(page).locator('a[href^="/?org="]').first()).toHaveText(Seed.orgName);
     await expect(manageLink(page)).toHaveCount(0);
   });

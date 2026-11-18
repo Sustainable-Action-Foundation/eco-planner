@@ -18,6 +18,7 @@ export { getRoadmaps } from "./getRoadmaps";
 export { getRoadmapSubset } from "./getRoadmapSubset";
 export { getUserAccessContext, getAccessContextFor } from "./getUserAccessContext";
 export { getUserInfo } from "./getUserInfo";
+export { getUserComments } from "./getUserComments";
 export { getGuestInvite } from "./getGuestInvite";
 export { getOrgManagement } from "./getOrgManagement";
 export { getUserOrgs } from "./getUserOrgs";

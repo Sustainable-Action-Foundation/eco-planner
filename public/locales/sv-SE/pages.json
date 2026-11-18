@@ -263,7 +263,14 @@
     "name": "Ditt namn",
     "name_description": "Visas där du nämns, till exempel som författare till åtgärder och kommentarer.",
     "super_admin": "Superadmin-läge",
-    "super_admin_description": "Som superadmin ser och får du ändra allt i verktyget. Avaktivera för att se verktyget som en vanlig användare: du får då bara det dina organisationsmedlemskap ger. Inställningen gäller den här webbläsaren tills du slår på den igen eller loggar in på nytt."
+    "super_admin_description": "Som superadmin ser och får du ändra allt i verktyget. Avaktivera för att se verktyget som en vanlig användare: du får då bara det dina organisationsmedlemskap ger. Inställningen gäller den här webbläsaren tills du slår på den igen eller loggar in på nytt.",
+    "my_comments": "Dina kommentarer",
+    "no_comments": "Du har inte skrivit några kommentarer än.",
+    "comment_on_goal": "$t(common:goal_one, titleCase): {{name}}",
+    "comment_on_action": "$t(common:action_one, titleCase): {{name}}",
+    "comment_on_roadmap": "$t(common:roadmap_one, titleCase): {{name}}",
+    "comment_on_roadmap_version": "$t(common:roadmap_version_one, titleCase): {{name}} (v{{version}})",
+    "comment_written": "Skriven {{date, datetime}}"
   },
   "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",

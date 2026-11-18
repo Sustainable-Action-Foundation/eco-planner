@@ -126,6 +126,15 @@ test.describe("Login form", () => {
     expect(await submitEmail(page, stranger)).toBe(200);
     await expect(sentPanel(page)).toBeVisible();
     await expect(sentPanel(page).getByRole("status")).toContainText(stranger);
+    // The help fold-out is there for any address, and its text for IT support never carries a link
+    await expect(sentPanel(page).getByTestId("login-link-times")).toContainText("login.link_sent_times");
+    await sentPanel(page).getByTestId("login-link-help").locator("summary").click();
+    const itText = sentPanel(page).getByTestId("login-link-it-text");
+    await expect(itText).toContainText(/login\.help_it_text/);
+    await expect(itText).toContainText("login.subject");
+    await expect(itText).toContainText("welcome.subject");
+    await expect(itText).toContainText(stranger);
+    await expect(itText).not.toContainText("/login/link");
     // Nothing was logged in, nothing was mailed (a control request settles the route's deferred work first)
     expect(await sessionCookie(page)).toBeUndefined();
     await requestLink(page.request, uniqueEmail("e2e-settle"));

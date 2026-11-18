@@ -17,6 +17,7 @@ import {
   readableAccessControlWHERE,
   visibleActionsWHERE,
   visibleAttachmentsWHERE,
+  visibleCommentsWHERE,
   visibleDataSeriesWHERE,
   visibleRoadmapIterationsWHERE,
   writableAccessControlWHERE,
@@ -353,6 +354,30 @@ test.describe("attachments derive their access from the object they hang off", (
           expect(matches(visible, attachment), `${contextName} sees ${slot} document in ${iteration.name}`).toBe(hasViewAccess(level));
           expect(matches(editable, attachment), `${contextName} removes ${slot} document in ${iteration.name}`).toBe(hasEditAccess(level));
         }
+      }
+    });
+  }
+});
+
+test.describe("comments derive their visibility from the object they were written on", () => {
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      const visible = visibleCommentsWHERE(contexts[contextName]);
+      for (const iteration of iterations) {
+        const level = accessChecker(iteration, contexts[contextName]);
+        const targets = {
+          action: { action: { org_id: ORG, roadmap_iteration: iteration }, goal: null, roadmap_iteration: null, roadmap: null },
+          goal: { action: null, goal: { roadmap_iteration: iteration }, roadmap_iteration: null, roadmap: null },
+          roadmap_iteration: { action: null, goal: null, roadmap_iteration: iteration, roadmap: null },
+        };
+        for (const [target, comment] of Object.entries(targets)) {
+          expect(matches(visible, comment), `${contextName} sees ${target} comment in ${iteration.name}`).toBe(hasViewAccess(level));
+        }
+      }
+      // A roadmap has no status: reading its access control is enough
+      for (const acName of accessControlNames) {
+        const comment = { action: null, goal: null, roadmap_iteration: null, roadmap: { access_control: accessControls[acName] } };
+        expect(matches(visible, comment), `${contextName} sees roadmap comment under ${acName}`).toBe(hasViewAccess(accessChecker(comment.roadmap, contexts[contextName])));
       }
     });
   }

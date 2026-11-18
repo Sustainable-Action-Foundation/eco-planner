@@ -8,10 +8,10 @@
   },
   "login": {
     "subject": "Your login link to $t(common:layout.app_name)",
-    "body": "Hello! Click the link to sign in to $t(common:layout.app_name). It is valid for 15 minutes and can only be used once:\n{{link}}\n\nIf you did not request this link you can ignore this email. Don't forward it: whoever has the link can sign in as you."
+    "body": "Hello! Click the link to sign in to $t(common:layout.app_name). It is valid for {{minutes}} minutes and can only be used once:\n{{link}}\n\nIf you did not request this link you can ignore this email. Don't forward it: whoever has the link can sign in as you."
   },
   "welcome": {
     "subject": "Welcome to $t(common:layout.app_name)",
-    "body": "Welcome to $t(common:layout.app_name)! An account for {{email}} is created when you sign in for the first time. Click the link to sign in. It is valid for 15 minutes and can only be used once:\n{{link}}\n\nIf you did not request this link you can ignore this email. Don't forward it: whoever has the link can sign in as you."
+    "body": "Welcome to $t(common:layout.app_name)! An account for {{email}} is created when you sign in for the first time. Click the link to sign in. It is valid for {{minutes}} minutes and can only be used once:\n{{link}}\n\nIf you did not request this link you can ignore this email. Don't forward it: whoever has the link can sign in as you."
   }
 }
