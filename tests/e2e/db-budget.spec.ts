@@ -36,7 +36,7 @@ const QueryBudget = {
 const REPEATS = 3;
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 // Substring match: "Bodens kommun" in the seed roster, "Boden" on older seeded DBs
-const orgName = "Boden";
+const orgName = "Bodens kommun";
 const roadmapName = "Bodens klimatfärdplan";
 
 type DbStats = { queries: number; dbMs: number };
