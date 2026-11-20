@@ -51,6 +51,15 @@ enum OrgType {
   LIMITED_COMPANY
 }
 
+// The five steps of an org's yearly climate work, in order (see functions/orgProcess.ts)
+enum ProcessStep {
+  INDICATORS
+  GOALS
+  BASELINE
+  ACTIONS
+  DECISION
+}
+
 // How an ActionFields value should be interpreted and rendered. The value itself
 // is always stored as a string; this only informs the UI (input widget, display).
 // List-ness is structural, not typed: multiple fields sharing a header collapse
@@ -514,6 +523,11 @@ model Orgs {
   org_type      OrgType?
   contact_email String?
   website       String?
+
+  /// The step of the yearly process the org's managers say it works on now; null means derived from its data (see functions/orgProcess.ts)
+  focus_step   ProcessStep?
+  /// When that is, in the managers' own words ("hösten 2026")
+  focus_period String?      @db.VarChar(60)
 
   memberships     OrgMemberships[]
   groups          Groups[]         @relation("org_groups")
