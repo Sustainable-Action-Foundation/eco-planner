@@ -4,13 +4,17 @@ import type { BrowserContext, Page } from "playwright/test";
 import { expect, test } from "../lib/fixtures";
 import { createIteration, createRoadmap, deleteRoadmap, loginContext, memberContext, orgIdByName, putJson, Seed } from "../lib/api";
 import { visible } from "../lib/forms";
+import { withLock } from "../lib/lock";
 import { seedPlaces } from "../../scripts/prisma/seed/places";
 
 /*
  * The org landing's two views. The public view is what visitors, users of other
  * orgs and members without write access get; the working view (tabs) is for those
- * who can write something in the org, who land on it and may switch. Nothing here
- * changes an org: the hidden-roadmap test works on a throwaway roadmap.
+ * who can write something in the org, who land on it and may switch. The
+ * hidden-roadmap test works on a throwaway roadmap; the only org changed is
+ * "Enköpings kommun", whose manager sets the focus of its process (under a
+ * cross-process lock, since the browser projects run in parallel, and restored
+ * in `finally`). No other spec touches that org.
  *
  * Found by test id and href rather than by text, which is server-rendered and
  * may come out in another language while other tests switch theirs.
@@ -24,6 +28,12 @@ const kiruna = seedPlaces.find(place => place.name === "Kiruna kommun");
 if (!kiruna) throw new Error("Kiruna kommun is missing from the seed roster");
 const kirunaMember = kiruna.members[1];
 
+/** The place whose process focus is set and cleared; its first member manages it */
+const enkoping = seedPlaces.find(place => place.name === "Enköpings kommun");
+if (!enkoping) throw new Error("Enköpings kommun is missing from the seed roster");
+const enkopingManager = enkoping.members[0];
+
+const processBar = (page: Page) => page.getByTestId("org-process").filter({ visible: true });
 const publicView = (page: Page) => page.getByTestId("org-hero").filter({ visible: true });
 const workingView = (page: Page) => page.getByTestId("org-working-header").filter({ visible: true });
 const viewToggle = (page: Page) => page.getByTestId("org-view-toggle").filter({ visible: true });
@@ -69,6 +79,23 @@ test.describe("Outsiders get the public view", () => {
     const visitor = await anonymous.newPage();
     await visitor.goto(`/?org=${orgId}`);
     await expect(homeTitle(visitor)).toHaveText(Seed.orgName, { timeout: 30_000 });
+
+    // The process: five steps, each with its measure, one of them in focus and none marked as finished
+    const steps = processBar(visitor).locator("li");
+    await expect(steps).toHaveCount(5, { timeout: 30_000 });
+    await expect(processBar(visitor).getByTestId("org-step-measure")).toHaveCount(5);
+    await expect(processBar(visitor).locator("[data-state]")).toHaveCount(0);
+    await expect(processBar(visitor).locator('li[aria-current="step"]')).toHaveCount(1);
+    const focus = await processBar(visitor).getAttribute("data-focus");
+    await expect(processBar(visitor).locator('li[aria-current="step"]')).toHaveAttribute("data-step", focus ?? "");
+    await expect(processBar(visitor).locator('li[aria-current="step"]').getByTestId("org-process-focus")).toBeVisible();
+    // Liked indicators are a count and the decision isn't measured: neither has a meter
+    await expect(processBar(visitor).locator('li[data-step="INDICATORS"]').getByTestId("org-step-meter")).toHaveCount(0);
+    await expect(processBar(visitor).locator('li[data-step="DECISION"]').getByTestId("org-step-meter")).toHaveCount(0);
+    // A meter never shows more than full
+    for (const meter of await processBar(visitor).getByTestId("org-step-meter").all()) {
+      expect(Number(await meter.getAttribute("value"))).toBeLessThanOrEqual(Number(await meter.getAttribute("max")));
+    }
     await expect(visitor.getByTestId("org-managers")).toHaveCount(0);
     // The public national roadmap is there for anyone
     await expect(visible(visitor, "main").locator('a[href^="/roadmap/"]').filter({ hasText: Seed.nationalRoadmap }).first()).toBeVisible({ timeout: 30_000 });
@@ -103,8 +130,11 @@ test.describe("Writers get the working view", () => {
     await expect(publicView(page)).toHaveCount(0);
     await expect(viewToggle(page).locator('a[data-view="WORKING"]')).toHaveAttribute("aria-current", "page");
     await expect(tabs(page).locator('a[data-tab="OVERVIEW"]')).toHaveAttribute("aria-current", "page");
-    // One next step, on the overview
+    // One place to carry on, on the overview: with the step in focus
     await expect(page.getByTestId("org-next-step-link").filter({ visible: true })).toHaveCount(1, { timeout: 30_000 });
+    await expect(page.getByTestId("org-next-step").filter({ visible: true })).toHaveAttribute("data-step", await processBar(page).getAttribute("data-focus") ?? "");
+    await expect(processBar(page).locator('li[aria-current="step"]')).toHaveCount(1);
+    await expect(processBar(page).getByTestId("org-step-measure")).toHaveCount(5);
     // A writer who doesn't manage the org has no member tab, also not by URL
     await expect(tabs(page).locator('a[data-tab="MEMBERS"]')).toHaveCount(0);
 
@@ -161,6 +191,77 @@ test.describe("Managers", () => {
     await expect(tabPanel(page)).toHaveAttribute("data-tab", "MEMBERS", { timeout: 30_000 });
     await expect(page.getByTestId("org-members").filter({ visible: true })).toContainText(Seed.anita.name, { timeout: 30_000 });
     await expect(tabPanel(page).locator(`a[href="/org/${orgId}/groups"]`)).toBeVisible();
+  });
+
+  test("a manager sets the focus of the process and its period; both views show it until it is cleared", async ({ browser, admin }) => {
+    test.slow();
+    const period = "hösten 2026";
+    const orgId = await orgIdByName(admin, enkoping.name);
+    const manager = await memberContext(browser, enkopingManager);
+    const anonymous = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    try {
+      await withLock("enkopings-kommun", async () => {
+        try {
+          const page = await manager.newPage();
+          const visitor = await anonymous.newPage();
+
+          // Nothing set: the focus is derived from the org's data, never the unmeasured last step
+          await visitor.goto(`/?org=${orgId}`);
+          await expect(processBar(visitor)).toHaveAttribute("data-focus-source", "DERIVED", { timeout: 30_000 });
+          await expect(processBar(visitor)).not.toHaveAttribute("data-focus", "DECISION");
+          await expect(visitor.getByTestId("org-process-status").filter({ visible: true })).not.toContainText(period);
+
+          await page.goto(`/org/${orgId}/groups`);
+          const form = page.getByTestId("org-profile-form").filter({ visible: true });
+          await expect(form.getByTestId("org-profile-focus-step")).toBeEnabled({ timeout: 30_000 });
+          await expect(form.getByTestId("org-profile-focus-step")).toHaveValue("");
+          await expect(form.getByTestId("org-profile-save")).toBeDisabled();
+          await form.getByTestId("org-profile-focus-step").selectOption("DECISION");
+          await form.getByTestId("org-profile-focus-period").fill(period);
+          const [response] = await Promise.all([
+            page.waitForResponse(response => new URL(response.url()).pathname === "/api/org" && response.request().method() === "PUT"),
+            form.getByTestId("org-profile-save").click(),
+          ]);
+          expect(response.status()).toBe(200);
+
+          // The public view, for anyone
+          await expect(async () => {
+            await visitor.goto(`/?org=${orgId}`);
+            await expect(processBar(visitor)).toHaveAttribute("data-focus", "DECISION", { timeout: 15_000 });
+          }).toPass({ timeout: 120_000 });
+          await expect(processBar(visitor)).toHaveAttribute("data-focus-source", "MANUAL");
+          await expect(processBar(visitor).locator('li[aria-current="step"]')).toHaveAttribute("data-step", "DECISION");
+          await expect(processBar(visitor).locator('li[aria-current="step"]')).toHaveCount(1);
+          await expect(visitor.getByTestId("org-process-status").filter({ visible: true })).toContainText(period);
+          // In focus or not, the decision has no meter
+          await expect(processBar(visitor).locator('li[data-step="DECISION"]').getByTestId("org-step-meter")).toHaveCount(0);
+
+          // The working view, with where to carry on
+          await expect(async () => {
+            await page.goto(`/?org=${orgId}`);
+            await expect(workingView(page)).toBeVisible({ timeout: 15_000 });
+            await expect(processBar(page)).toHaveAttribute("data-focus", "DECISION", { timeout: 15_000 });
+          }).toPass({ timeout: 120_000 });
+          await expect(page.getByTestId("org-process-status").filter({ visible: true })).toContainText(period);
+          await expect(page.getByTestId("org-next-step").filter({ visible: true })).toHaveAttribute("data-step", "DECISION");
+
+          // Cleared: derived again, and the period is gone
+          await putJson(admin, "/api/org", { orgId, focusStep: null, focusPeriod: null });
+          await expect(async () => {
+            await visitor.goto(`/?org=${orgId}`);
+            await expect(processBar(visitor)).toHaveAttribute("data-focus-source", "DERIVED", { timeout: 15_000 });
+          }).toPass({ timeout: 120_000 });
+          await expect(processBar(visitor)).not.toHaveAttribute("data-focus", "DECISION");
+          await expect(visitor.getByTestId("org-process-status").filter({ visible: true })).not.toContainText(period);
+        }
+        finally {
+          await putJson(admin, "/api/org", { orgId, focusStep: null, focusPeriod: null });
+        }
+      });
+    }
+    finally {
+      await Promise.all([manager.close(), anonymous.close()]);
+    }
   });
 
   test("a hidden roadmap never shows in the public view", async ({ page, browser, admin, sandbox }, testInfo) => {

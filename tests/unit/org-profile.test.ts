@@ -1,6 +1,7 @@
 import { expect, test } from "playwright/test";
 
 import { normalizeOrgWebsite, orgDescriptionMaxLength, OrgProfileRejection, orgWebsiteLabel, parseOrgProfile } from "../../src/functions/orgProfile";
+import { focusPeriodMaxLength, ProcessStep } from "../../src/functions/orgProcess";
 import { OrgType } from "../../src/lib/prisma/generated";
 
 /*
@@ -82,6 +83,26 @@ test.describe("parseOrgProfile", () => {
   test("a website that isn't an http(s) link is refused", () => {
     for (const website of ["javascript:alert(1)", "ftp://boden.se", "boden", 1]) {
       expect(parseOrgProfile({ website })).toEqual({ ok: false, rejection: OrgProfileRejection.Website });
+    }
+  });
+
+  test("the focus: one of the five steps and a short one-line period; null and blank clear both", () => {
+    for (const focusStep of Object.values(ProcessStep)) {
+      expect(parseOrgProfile({ focusStep })).toEqual({ ok: true, fields: { focusStep } });
+    }
+    expect(parseOrgProfile({ focusStep: ProcessStep.Baseline, focusPeriod: "  hösten 2026 " }))
+      .toEqual({ ok: true, fields: { focusStep: ProcessStep.Baseline, focusPeriod: "hösten 2026" } });
+    expect(parseOrgProfile({ focusStep: null, focusPeriod: "  " })).toEqual({ ok: true, fields: { focusStep: null, focusPeriod: null } });
+    expect(parseOrgProfile({ focusStep: "", focusPeriod: null })).toEqual({ ok: true, fields: { focusStep: null, focusPeriod: null } });
+    expect(parseOrgProfile({ focusPeriod: "a".repeat(focusPeriodMaxLength) }).ok).toBe(true);
+  });
+
+  test("an unknown step, or a period that is too long, not text or more than a line, is refused", () => {
+    for (const focusStep of ["DONE", "baseline", "Baslinje", 3, {}]) {
+      expect(parseOrgProfile({ focusStep })).toEqual({ ok: false, rejection: OrgProfileRejection.FocusStep });
+    }
+    for (const focusPeriod of ["a".repeat(focusPeriodMaxLength + 1), 2026, ["hösten"], "hösten\n2026", "bell\u0007"]) {
+      expect(parseOrgProfile({ focusPeriod }), String(focusPeriod)).toEqual({ ok: false, rejection: OrgProfileRejection.FocusPeriod });
     }
   });
 });
