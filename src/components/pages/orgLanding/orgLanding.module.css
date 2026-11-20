@@ -126,13 +126,52 @@
   border-radius: .25rem;
 }
 
-.step[data-state="DONE"] {
-  border-top-color: var(--seagreen);
-}
-
-.step[data-state="IN_PROGRESS"] {
+/* The step in focus now; no step is marked as finished, the work recurs */
+.step[data-focus="true"] {
   border-top-color: var(--seagreen);
   background-color: var(--seagreen-90);
+}
+
+/* The measure sits at the bottom of the step, so the meters line up across steps */
+.stepMeasure {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  margin-top: auto;
+  padding-top: .5rem;
+}
+
+.meter {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: .5rem;
+  border: 0;
+  border-radius: .25rem;
+  background: var(--gray-80);
+  overflow: hidden;
+}
+
+.meter::-webkit-meter-bar {
+  height: .5rem;
+  border: 0;
+  border-radius: .25rem;
+  background: var(--gray-80);
+}
+
+.meter::-webkit-meter-optimum-value {
+  border-radius: .25rem;
+  background: var(--seagreen);
+}
+
+.meter::-moz-meter-bar {
+  border-radius: .25rem;
+  background: var(--seagreen);
+}
+
+.step[data-focus="true"] .meter,
+.step[data-focus="true"] .meter::-webkit-meter-bar {
+  background: white;
 }
 
 .stepLabel {

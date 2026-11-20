@@ -11,15 +11,15 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
 // Org management: org managers (and super admins) rename their org, place
-// it in a geo area and write its public profile. Org names are unique, and the DB constraint is the source
+// it in a geo area, write its public profile and set the focus of its process. Org names are unique, and the DB constraint is the source
 // of truth for collisions (no racy pre-check). Cached payloads carry org names
 // and areas (see getUserOrgs), so a change revalidates the 'org' tag.
 
 /**
  * Renames an org the requester manages, places it in a geo area and/or sets its
- * public profile: `{ orgId, name?, geoAreaCode?, description?, orgType?, contactEmail?, website? }`.
+ * public profile: `{ orgId, name?, geoAreaCode?, description?, orgType?, contactEmail?, website?, focusStep?, focusPeriod? }`.
  * A null `geoAreaCode` takes the org out of its area; a null or blank profile field
- * clears it. At least one field besides the id is required.
+ * clears it (a cleared `focusStep` leaves the focus to be derived from the org's data). At least one field besides the id is required.
  */
 export async function PUT(request: NextRequest) {
   const [session, body, t] = await Promise.all([
@@ -61,6 +61,8 @@ export async function PUT(request: NextRequest) {
       [OrgProfileRejection.OrgType]: t('api:org.invalid_org_type'),
       [OrgProfileRejection.ContactEmail]: t('api:org.invalid_contact_email'),
       [OrgProfileRejection.Website]: t('api:org.invalid_website'),
+      [OrgProfileRejection.FocusStep]: t('api:org.invalid_focus_step'),
+      [OrgProfileRejection.FocusPeriod]: t('api:org.invalid_focus_period'),
     };
     return Response.json({ message: messages[profile.rejection] },
       { status: 400 },
@@ -94,6 +96,8 @@ export async function PUT(request: NextRequest) {
         ...(profile.fields.orgType !== undefined ? { org_type: profile.fields.orgType } : {}),
         ...(profile.fields.contactEmail !== undefined ? { contact_email: profile.fields.contactEmail } : {}),
         ...(profile.fields.website !== undefined ? { website: profile.fields.website } : {}),
+        ...(profile.fields.focusStep !== undefined ? { focus_step: profile.fields.focusStep } : {}),
+        ...(profile.fields.focusPeriod !== undefined ? { focus_period: profile.fields.focusPeriod } : {}),
       },
     });
   }

@@ -94,7 +94,7 @@ export default async function OrgPublicView({ org, accessContext, viewerContext,
 
     <section className="margin-top-300" aria-labelledby="org-process-title">
       <Suspense key={org.id} fallback={loader}>
-        <ProcessBar orgId={org.id} areaName={org.geoArea?.name ?? null} asVisitor={viewerContext === null} working={false} />
+        <ProcessBar orgId={org.id} areaName={org.geoArea?.name ?? null} focusStep={org.focusStep} focusPeriod={org.focusPeriod} asVisitor={viewerContext === null} working={false} />
       </Suspense>
     </section>
 

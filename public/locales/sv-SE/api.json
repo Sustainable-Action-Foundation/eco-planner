@@ -71,7 +71,9 @@
     "invalid_description": "Beskrivningen är för lång eller innehåller otillåtna tecken",
     "invalid_org_type": "Okänd organisationstyp",
     "invalid_contact_email": "Kontaktadressen är inte en giltig mejladress",
-    "invalid_website": "Webbplatsen måste vara en vanlig webbadress (http eller https)"
+    "invalid_website": "Webbplatsen måste vara en vanlig webbadress (http eller https)",
+    "invalid_focus_step": "Okänt steg i processen",
+    "invalid_focus_period": "Perioden får vara högst 60 tecken på en rad"
   },
   "orgMembership": {
     "not_found": "Medlemskapet hittades inte",

@@ -1,6 +1,7 @@
 import "server-only";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { prisma } from "@/lib/prisma";
+import type { ProcessStep } from "@/functions/orgProcess";
 import type { GeoAreaType, OrgType } from "@/lib/prisma/generated";
 import { cacheTag } from "next/cache";
 
@@ -16,6 +17,9 @@ export type OrgProfile = {
   orgType: OrgType | null,
   contactEmail: string | null,
   website: string | null,
+  /** The process step the managers have put the focus on, and when; null until they do */
+  focusStep: ProcessStep | null,
+  focusPeriod: string | null,
 };
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -46,6 +50,8 @@ async function getCachedOrgProfile(orgId: string): Promise<OrgProfile | null> {
         org_type: true,
         contact_email: true,
         website: true,
+        focus_step: true,
+        focus_period: true,
         geo_area: { select: { ...area, parent: { select: area } } },
       },
     });
@@ -59,6 +65,8 @@ async function getCachedOrgProfile(orgId: string): Promise<OrgProfile | null> {
       orgType: org.org_type,
       contactEmail: org.contact_email,
       website: org.website,
+      focusStep: org.focus_step,
+      focusPeriod: org.focus_period,
     };
   });
 }

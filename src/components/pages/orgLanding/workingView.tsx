@@ -163,7 +163,7 @@ async function TabPanel(props: WorkingViewProps) {
   return <>
     <section className={`${styles.card} margin-bottom-100`} aria-labelledby="org-process-title">
       <Suspense key={org.id} fallback={loader}>
-        <ProcessBar orgId={org.id} areaName={org.geoArea?.name ?? null} asVisitor={false} working={true} />
+        <ProcessBar orgId={org.id} areaName={org.geoArea?.name ?? null} focusStep={org.focusStep} focusPeriod={org.focusPeriod} asVisitor={false} working={true} />
       </Suspense>
     </section>
 

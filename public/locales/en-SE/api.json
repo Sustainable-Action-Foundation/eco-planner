@@ -71,7 +71,9 @@
     "invalid_description": "The description is too long or holds characters that aren't allowed",
     "invalid_org_type": "Unknown organisation type",
     "invalid_contact_email": "The contact address is not a valid e-mail address",
-    "invalid_website": "The website must be an ordinary web address (http or https)"
+    "invalid_website": "The website must be an ordinary web address (http or https)",
+    "invalid_focus_step": "Unknown step of the process",
+    "invalid_focus_period": "The period may be at most 60 characters on one line"
   },
   "orgMembership": {
     "not_found": "Membership not found",

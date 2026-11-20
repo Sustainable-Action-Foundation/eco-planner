@@ -17,6 +17,7 @@ import type { OrgManagement } from "@/fetchers/getOrgManagement";
 import { OrgRole, OrgType } from "@/lib/prisma/generated";
 import { orgTypeLabel } from "@/functions/orgTypeLabel";
 import { orgContactMaxLength, orgDescriptionMaxLength } from "@/functions/orgProfile";
+import { focusPeriodMaxLength, ProcessStep } from "@/functions/orgProcess";
 import type { TFunction } from "i18next";
 import HydratedForm from "@/components/form/hydratedForm";
 import { useIsClient } from "@/functions/useClientState";
@@ -68,7 +69,7 @@ export default function GroupManager({ management }: { management: OrgManagement
         {/* Keyed on the area for the same reason */}
         <OrgArea key={`area:${management.org.geoAreaCode ?? ""}`} org={management.org} />
         {/* And on the stored profile */}
-        <OrgProfileForm key={["profile", management.org.description, management.org.orgType, management.org.contactEmail, management.org.website].join("\u0000")} org={management.org} />
+        <OrgProfileForm key={["profile", management.org.description, management.org.orgType, management.org.contactEmail, management.org.website, management.org.focusStep, management.org.focusPeriod].join("\u0000")} org={management.org} />
         {/* And on the banner's versioned URL */}
         <OrgBanner key={`banner:${management.org.bannerUrl ?? ""}`} org={management.org} />
       </section>
@@ -206,8 +207,8 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
 
 /**
  * The org's public profile: what kind of organisation it is, a few sentences about its
- * climate work, and how to reach it. Everything here shows on the org's landing page,
- * to everyone; every field can be left empty.
+ * climate work, how to reach it, and which step of the yearly process it works on now.
+ * Everything here shows on the org's landing page, to everyone; every field can be left empty.
  */
 function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
   const { t } = useTranslation(["pages", "common"]);
@@ -218,6 +219,8 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
   const [description, setDescription] = useState(org.description ?? "");
   const [contactEmail, setContactEmail] = useState(org.contactEmail ?? "");
   const [website, setWebsite] = useState(org.website ?? "");
+  const [focusStep, setFocusStep] = useState<string>(org.focusStep ?? "");
+  const [focusPeriod, setFocusPeriod] = useState(org.focusPeriod ?? "");
   const [isLoading, setIsLoading] = useState(false);
   // Typing before hydration would be overwritten by the stored values
   const isClient = useIsClient();
@@ -225,7 +228,17 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
   const unchanged = orgType === (org.orgType ?? "")
     && description.trim() === (org.description ?? "")
     && contactEmail.trim() === (org.contactEmail ?? "")
-    && website.trim() === (org.website ?? "");
+    && website.trim() === (org.website ?? "")
+    && focusStep === (org.focusStep ?? "")
+    && focusPeriod.trim() === (org.focusPeriod ?? "");
+
+  const stepNames: Record<ProcessStep, string> = {
+    [ProcessStep.Indicators]: t("pages:org_landing.process.indicators"),
+    [ProcessStep.Goals]: t("pages:org_landing.process.goals"),
+    [ProcessStep.Baseline]: t("pages:org_landing.process.baseline"),
+    [ProcessStep.Actions]: t("pages:org_landing.process.actions"),
+    [ProcessStep.Decision]: t("pages:org_landing.process.decision"),
+  };
 
   function save(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -235,6 +248,8 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
       description: description.trim() || null,
       contactEmail: contactEmail.trim() || null,
       website: website.trim() || null,
+      focusStep: focusStep || null,
+      focusPeriod: focusPeriod.trim() || null,
     }), 'PUT', t, setIsLoading, undefined, () => {
       setIsLoading(false);
       addToast(t("pages:org_groups.profile_saved_toast"), "success");
@@ -252,7 +267,7 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
 
       <label className="font-weight-500 block margin-top-100">
         {t("pages:org_groups.profile_type_label")}
-        <select className="margin-top-25 block" value={orgType} data-testid="org-profile-type" onChange={(event) => setOrgType(event.target.value)}>
+        <select className="margin-top-25 block" value={orgType} data-testid="org-profile-type" disabled={!isClient} onChange={(event) => setOrgType(event.target.value)}>
           <option value="">{t("pages:org_groups.profile_type_none")}</option>
           {Object.values(OrgType).map(type => <option key={type} value={type}>{orgTypeLabel(t, type)}</option>)}
         </select>
@@ -300,6 +315,29 @@ function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
           onChange={(event) => setWebsite(event.target.value)}
         />
       </label>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_focus_label")}
+        <select className="margin-top-25 block" value={focusStep} data-testid="org-profile-focus-step" disabled={!isClient} onChange={(event) => setFocusStep(event.target.value)}>
+          <option value="">{t("pages:org_groups.profile_focus_auto")}</option>
+          {Object.values(ProcessStep).map((step, index) => <option key={step} value={step}>{`${index + 1}. ${stepNames[step]}`}</option>)}
+        </select>
+      </label>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.profile_focus_hint")}</p>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_focus_period_label")}
+        <input
+          className="margin-top-25 block width-100"
+          type="text"
+          maxLength={focusPeriodMaxLength}
+          data-testid="org-profile-focus-period"
+          readOnly={!isClient}
+          value={focusPeriod}
+          onChange={(event) => setFocusPeriod(event.target.value)}
+        />
+      </label>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.profile_focus_period_hint")}</p>
 
       <button type="submit" className="seagreen color-purewhite margin-top-100" disabled={isLoading || unchanged} data-testid="org-profile-save">
         {t("common:tsx.save")}

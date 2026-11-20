@@ -1,4 +1,5 @@
 // No `server-only` marker: pure, shared by the org API and the management form, and unit tested.
+import { focusPeriodMaxLength, ProcessStep } from "@/functions/orgProcess";
 import { OrgType } from "@/lib/prisma/generated";
 
 /** Longest description accepted, in characters: a few sentences, not a page */
@@ -12,6 +13,10 @@ export type OrgProfileFields = {
   orgType: OrgType | null,
   contactEmail: string | null,
   website: string | null,
+  /** The step of the process the org works on now; null leaves it to be derived (see `orgProcess`) */
+  focusStep: ProcessStep | null,
+  /** When that is, in the managers' own words */
+  focusPeriod: string | null,
 };
 
 export const OrgProfileRejection = {
@@ -19,6 +24,8 @@ export const OrgProfileRejection = {
   OrgType: "ORG_TYPE",
   ContactEmail: "CONTACT_EMAIL",
   Website: "WEBSITE",
+  FocusStep: "FOCUS_STEP",
+  FocusPeriod: "FOCUS_PERIOD",
 } as const;
 export type OrgProfileRejection = (typeof OrgProfileRejection)[keyof typeof OrgProfileRejection];
 
@@ -60,7 +67,7 @@ export function orgWebsiteLabel(website: string): string {
 
 /**
  * Validates the profile fields present in a request body (`description`, `orgType`,
- * `contactEmail`, `website`). Absent fields are left out of the result (left alone);
+ * `contactEmail`, `website`, `focusStep`, `focusPeriod`). Absent fields are left out of the result (left alone);
  * null and blank strings clear. The first field that doesn't hold is named instead.
  */
 export function parseOrgProfile(body: Record<string, unknown>): { ok: true, fields: Partial<OrgProfileFields> } | { ok: false, rejection: OrgProfileRejection } {
@@ -99,6 +106,24 @@ export function parseOrgProfile(body: Record<string, unknown>): { ok: true, fiel
       return { ok: false, rejection: OrgProfileRejection.Website };
     }
     fields.website = normalized;
+  }
+
+  if (body.focusStep !== undefined) {
+    const focusStep = text(body.focusStep);
+    const known = Object.values(ProcessStep).find(step => step === focusStep);
+    if (focusStep === undefined || (focusStep && !known)) {
+      return { ok: false, rejection: OrgProfileRejection.FocusStep };
+    }
+    fields.focusStep = known ?? null;
+  }
+
+  if (body.focusPeriod !== undefined) {
+    const focusPeriod = text(body.focusPeriod);
+    // One short line: no control characters at all, line breaks included
+    if (focusPeriod === undefined || (focusPeriod && (focusPeriod.length > focusPeriodMaxLength || /\p{Cc}/u.test(focusPeriod)))) {
+      return { ok: false, rejection: OrgProfileRejection.FocusPeriod };
+    }
+    fields.focusPeriod = focusPeriod;
   }
 
   return { ok: true, fields };

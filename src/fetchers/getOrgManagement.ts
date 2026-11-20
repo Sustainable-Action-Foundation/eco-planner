@@ -3,6 +3,7 @@ import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { OrgType } from "@/lib/prisma/generated";
+import type { ProcessStep } from "@/functions/orgProcess";
 import { displayName } from "@/functions/personName";
 import { orgBannerPath } from "@/functions/orgBanner";
 
@@ -19,6 +20,9 @@ export type OrgManagement = {
     orgType: OrgType | null,
     contactEmail: string | null,
     website: string | null,
+    /** The process step in focus and when, as set here; null leaves the step to be derived */
+    focusStep: ProcessStep | null,
+    focusPeriod: string | null,
   },
   /** All memberships of the org (group membership hangs off these, not off users) */
   members: {
@@ -61,6 +65,8 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         org_type: true,
         contact_email: true,
         website: true,
+        focus_step: true,
+        focus_period: true,
         memberships: {
           select: {
             id: true,
@@ -102,6 +108,8 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         orgType: org.org_type,
         contactEmail: org.contact_email,
         website: org.website,
+        focusStep: org.focus_step,
+        focusPeriod: org.focus_period,
       },
       members: org.memberships.map(membership => ({
         membershipId: membership.id,
