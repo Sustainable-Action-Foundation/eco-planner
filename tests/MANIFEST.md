@@ -28,14 +28,18 @@ Everything here survived the reset. Playwright is the runner for both layers.
 
 Both scripts pass `--pass-with-no-tests` so an empty layer is green rather than "No tests found".
 
-- **Auth states.** `login.setup.ts` logs in through the `/login` form and saves
-  `tests/.auth/{admin,verified,guest}.json` (gitignored). The e2e config runs it as the `setup`
-  project before the browser projects. It also holds two `setup.fail` negatives
-  (unverified user, bad credentials) which are the only login-failure checks left.
-- **Seed users** (`scripts/prisma/seed/seed-users.ts`): `admin/admin` (super admin, manager of
-  "Sustainable Action"), `anita/anita` (plain member), `anton/anton` (unverified, cannot log in),
-  `greta/greta` (GUEST, guests disabled), `orgless/orgless` (no memberships). Every place org in
-  `places.ts` has members `first.last` with password `password`, reachable via `memberSlug()`.
+- **Auth states.** There are no passwords: the real login is a mailed link. `login.setup.ts`
+  starts sessions through the test-only `/api/test/login` (by username, only under
+  `TEST_ENVIRONMENT=testing`) and saves `tests/.auth/{admin,verified,guest}.json` (gitignored).
+  The e2e config runs it as the `setup` project before the browser projects. It also checks
+  that an unknown user gets 404. The link flow itself is covered by `e2e/auth.spec.ts` and
+  `api/login-link.spec.ts`. Specs sign in as other users with `loginAs()` / `loginContext()`
+  from `tests/lib/api.ts`. Sections below that mention `/api/login`, passwords, signup, verify
+  or password reset describe the old suite or the plan as written before passwordless login.
+- **Seed users** (`scripts/prisma/seed/seed-users.ts`), by username: `admin` (super admin,
+  manager of "Sustainable Action"), `Anita` (plain member), `Anton` (not verified, a legacy
+  state; a login link verifies), `Greta` (GUEST, guests disabled), `orgless` (no memberships).
+  Every place org in `places.ts` has members `first.last`, reachable via `memberSlug()`.
 - **Seed content** the old specs leaned on: roadmaps "Rikets färdplan" v1+v2 (public), "Uppsala
   län" v1 (ORG sharing, RO grant to "Hållbarhetsgruppen"), the LEAP scenario and its per-place
   copies, unlisted goals "Dold nationell/regional målbana", preset recipe id

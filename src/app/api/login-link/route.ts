@@ -54,10 +54,10 @@ export async function POST(request: NextRequest) {
   const remember = body.remember === true;
   const redirect = typeof body.from === "string" ? safeRedirectPath(body.from) : "/";
 
-  // The requester's locale decides the mail language. The server i18n instance is shared and
-  // follows the latest request, so both mails are rendered now, not inside after(), where a
-  // concurrent request may have switched the language. Minting needs no database, so the
-  // link can be rendered up front too; only the lookups, the row and the send are deferred.
+  // The requester's locale decides the mail language; serveTea returns a translator fixed to
+  // this request's locale. Both mails are rendered now, while the request is at hand. Minting
+  // needs no database, so the link can be rendered up front too; only the lookups, the row
+  // and the send are deferred.
   const t = await serveTea("email");
   const { token, hash } = mintToken();
   const link = `${baseUrl}/login/link#t=${token}`;

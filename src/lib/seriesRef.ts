@@ -1,6 +1,6 @@
 /**
  * A reference to a browsable historical series, as carried in links such as
- * `/goal/create?historical=curated:wind-capacity/capacity`. Today the only
+ * `/goal/create?org=<orgId>&series=curated:wind-capacity/capacity`. Today the only
  * kind is a curated catalog entry (resolved per org geo area); a data lab
  * publishing its own series would add a kind here (e.g. a stored data series
  * by id) and teach `resolveSeriesRef` to resolve it.
