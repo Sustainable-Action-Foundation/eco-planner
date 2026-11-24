@@ -28,7 +28,7 @@ export default async function Sidebar() {
   // The raw flag is set but the effective one is not: powers switched off on the profile page
   const superAdminSuspended = user?.canToggleSuperAdmin === true && user.isSuperAdmin !== true;
 
-  return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
+  return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background print-hidden`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
       <header>
