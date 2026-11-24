@@ -679,9 +679,12 @@ function IterationStatusControls({
 export function AdminPanel(
   {
     accessLevel,
+    superAdmin = false,
     object,
   }: {
     accessLevel?: AccessLevel,
+    /** The access level comes from super-admin powers, not from a role in the owning org (see isSuperAdminAccess): the panel takes the super-admin colour and says so */
+    superAdmin?: boolean,
     object: ObjectParameter
   }) {
   const { t } = useTranslation(["components", "common"]);
@@ -700,10 +703,12 @@ export function AdminPanel(
   const iteration = isIterationEntry(object) && object.status !== undefined ? { ...object, status: object.status } : null;
 
   return (
-    <aside className={`margin-block-300 ${styles['admin-panel']}`}>
+    <aside className={`margin-block-300 ${styles['admin-panel']}${superAdmin ? ` ${styles['super-admin']}` : ""}`} data-testid="admin-panel" data-super-admin={superAdmin}>
       <div className='flex justify-content-space-between align-items-flex-end flex-wrap-wrap margin-bottom-50 gap-25'>
         <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel_title")}</h1>
-        <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
+        <small className='font-style-italic'>
+          {superAdmin ? t("components:table_menu.admin_panel_info_super_admin") : t("components:table_menu.admin_panel_info")}
+        </small>
       </div>
       <menu className={`grid gap-50 margin-0 padding-0 padding-top-50 font-size-14px ${styles['object-menu']}`}>
         {links ? (

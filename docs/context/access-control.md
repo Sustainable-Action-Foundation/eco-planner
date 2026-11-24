@@ -31,6 +31,11 @@ Commenting needs view access and a signed-in user; no grant is needed on public 
 - `getUserAccessContext()` (`src/fetchers/getUserAccessContext.ts`) returns the user's id, super admin flag and memberships with roles and group ids. It is memoized per request with React `cache()`.
 - Cached readers take it as an argument, so it is part of every cache key: membership and role changes need no revalidation. See [caching-and-navigation.md](caching-and-navigation.md).
 
+## Role colours
+- Yellow (`--admin-*` in `src/styles/colors.css`) marks what a role in the owning org gives: the admin panel on roadmap, version, goal and action pages.
+- Orange (`--super-admin-*`) marks super-admin powers: the switch on the profile page, the sidebar's account button while the powers are off, and an admin panel the user has only through the powers (`isSuperAdminAccess` in `src/lib/accessChecker.ts`). A super admin who also manages the owning org gets the yellow panel there.
+- Red stays for deleting and errors, so the super-admin colour stops short of it.
+
 ## Guests are disabled
 `GUEST` is meant for cross-org contributors: no `ORG` read access, only what their groups grant plus public content. The whole feature is switched off until further notice:
 - `getUserAccessContext` drops `GUEST` memberships at the root, so a lingering row grants nothing.

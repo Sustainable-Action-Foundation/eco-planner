@@ -9,7 +9,7 @@ import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 import { getGoalByIndicator, getGoalSiblings, getOneGoal, getRoadmapIterations } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess, isSuperAdminAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import type { AccessControlled, Goal, MultiRoadmapInstance, RelatedGoal, SiblingGoal, UserAccessContext } from "@/types";
@@ -178,7 +178,11 @@ export default async function Page(
       <Breadcrumb object={goal} />
 
       {hasEditAccess(accessLevel) &&
-        <AdminPanel accessLevel={accessLevel} object={goal} />
+        <AdminPanel
+          accessLevel={accessLevel}
+          superAdmin={isSuperAdminAccess({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)}
+          object={goal}
+        />
       }
 
       <main>

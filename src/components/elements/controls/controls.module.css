@@ -86,6 +86,17 @@
   border-top-color: var(--admin-border);
 }
 
+/* The panel is there through super-admin powers, not a role in the owning org: the super-admin orange instead */
+
+.admin-panel.super-admin {
+  background-color: var(--super-admin-surface);
+  border-color: var(--super-admin-border);
+}
+
+.admin-panel.super-admin .object-menu {
+  border-top-color: var(--super-admin-border);
+}
+
 /* Objectmenu */
 
 .object-menu {
