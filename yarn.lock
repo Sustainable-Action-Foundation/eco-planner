@@ -3647,13 +3647,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"effect@npm:3.20.0":
-  version: 3.20.0
-  resolution: "effect@npm:3.20.0"
+"effect@npm:3.22.4":
+  version: 3.22.4
+  resolution: "effect@npm:3.22.4"
   dependencies:
     "@standard-schema/spec": "npm:^1.0.0"
     fast-check: "npm:^3.23.1"
-  checksum: 10c0/7dedae57f8eab18ae4d08a0b993ad8551c15aef4f0f5d7728bc00aba8664d9d01eab6dd1e8e544ecfec8bc0dcfe472e80a7e581c4ac80258c316445536446e3d
+  checksum: 10c0/2310522d2802a8c0be1448b912b31c5770e31c63b60dd7866a710a39bd63029322875c73b0afb6007ddb538ce6e989a784e31cf56693bdc2100fb2f8f0ce1f92
   languageName: node
   linkType: hard
 
