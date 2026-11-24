@@ -71,11 +71,19 @@
   --secondary-neutral: #fefefe;
   --tertiary-neutral: #f9f9f9;
 
-  /* Admin yellow: the one colour that marks super-admin controls and state (admin panel, sidebar while the mode is off, the toggle itself) */
+  /* Admin yellow: marks the controls an org's managers (and editors) get over its content: the admin panel */
   --admin-surface: hsl(48, 100%, 92%);
   --admin-surface-alt: hsl(45, 90%, 80%);
   --admin-border: hsl(45, 90%, 62%);
   --admin-stripes: repeating-linear-gradient(135deg, var(--admin-surface) 0 8px, var(--admin-surface-alt) 8px 16px);
+
+  /* Super-admin orange: marks super-admin controls and state (the switch on the profile page, the sidebar's account
+     button while the mode is off). The admin yellow turned 25° towards red: far enough to tell from the manager
+     yellow, short of the red that means delete and error */
+  --super-admin-surface: hsl(23, 100%, 92%);
+  --super-admin-surface-alt: hsl(20, 90%, 80%);
+  --super-admin-border: hsl(20, 90%, 62%);
+  --super-admin-stripes: repeating-linear-gradient(135deg, var(--super-admin-surface) 0 8px, var(--super-admin-surface-alt) 8px 16px);
 }
 
 .neutral-background {
