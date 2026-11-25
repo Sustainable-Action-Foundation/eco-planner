@@ -29,8 +29,8 @@ export async function getRoadmapIterations(hidden: HiddenRoadmaps, iterationIds?
  */
 async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, hidden: HiddenRoadmaps, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   'use cache';
-  // goal/action are included because the returned iterations carry goal and action counts
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
+  // goal/action are included because the returned iterations carry goal and action counts; user for the author's name
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org', 'user');
 
   return boundedFill("getCachedRoadmapIterations", async () => {
     let iterations: MultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({

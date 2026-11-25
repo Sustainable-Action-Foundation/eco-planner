@@ -21,13 +21,13 @@ export async function getOneAction(id: string): Promise<Action | null> {
 
 /**
  * Caches the specified action.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org', 'user']`, which is done in relevant API routes.
  * @param id ID of the action to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedAction(id: string, accessContext: UserAccessContext | null): Promise<Action | null> {
   'use cache';
-  cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
+  cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org', 'user');
 
   return boundedFill("getCachedAction", async () => {
     const action: Action | null = await prisma.actions.findUnique({

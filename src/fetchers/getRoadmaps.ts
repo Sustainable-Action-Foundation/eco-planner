@@ -23,13 +23,13 @@ export async function getRoadmaps(hidden: HiddenRoadmaps): Promise<Roadmap[]> {
 
 /**
  * Caches all roadmaps the user has access to.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal', 'org']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal', 'org', 'user']`, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  * @param hidden Which hidden roadmaps to include; part of the cache key.
  */
 async function getCachedRoadmaps(accessContext: UserAccessContext | null, hidden: HiddenRoadmaps): Promise<Roadmap[]> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'org');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'org', 'user');
 
   return boundedFill("getCachedRoadmaps", async () => {
     const roadmaps: Roadmap[] = await prisma.roadmaps.findMany({
