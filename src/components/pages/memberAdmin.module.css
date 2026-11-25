@@ -1,0 +1,33 @@
+/* Membership administration on the org manage page: super-admin only, so the super-admin orange
+   (see "Role colours" in docs/context/access-control.md), like the switch on the profile page */
+.panel {
+  margin-block: .75rem;
+  padding: .75rem 1rem;
+  max-width: 44rem;
+  border: 1px solid var(--super-admin-border);
+  border-radius: .5rem;
+  background-color: var(--super-admin-surface);
+}
+
+.badge {
+  padding: .125rem .5rem;
+  border: 1px solid var(--super-admin-border);
+  border-radius: 1rem;
+  background-color: var(--super-admin-surface-alt);
+  font-size: .75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* What happens to the picked member sits apart from the picking */
+.actions {
+  margin-top: .75rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--super-admin-border);
+}
+
+.warning {
+  padding: .5rem .75rem;
+  border-left: 4px solid var(--super-admin-border);
+  background-color: var(--super-admin-surface-alt);
+}
