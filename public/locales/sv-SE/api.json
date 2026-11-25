@@ -72,7 +72,14 @@
     "not_found": "Medlemskapet hittades inte",
     "own_role": "Du kan inte ändra din egen roll",
     "guest_locked": "Gästroller kan inte ändras här",
-    "updated": "Rollen uppdaterades"
+    "updated": "Rollen uppdaterades",
+    "super_admin_only": "Endast superadmins kan lägga till, ta bort och flytta medlemmar",
+    "user_not_found": "Användaren hittades inte",
+    "already_member": "Användaren är redan medlem i organisationen",
+    "same_org": "Medlemmen tillhör redan den organisationen",
+    "added": "Medlemmen lades till",
+    "removed": "Medlemmen togs bort",
+    "moved": "Medlemmen flyttades"
   },
   "guestInvite": {
     "invalid_email": "Det där ser inte ut som en e-postadress",

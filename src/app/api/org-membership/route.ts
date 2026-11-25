@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { readJsonObject } from "@/functions/readJson";
 import serveTea from "@/lib/i18nServer";
@@ -7,6 +8,8 @@ import { getSession } from "@/lib/session";
 import type { UserAccessContext } from "@/types";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
+import { administersMembers, assignableRole, movedRole } from "@/functions/orgMembership";
+import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 
 // Org role management: managers (and super admins) promote members to managers
 // and demote managers back to members. Guest roles are out of scope here (guest
@@ -93,6 +96,286 @@ export async function PUT(request: NextRequest) {
   }
 
   return Response.json({ message: t('api:orgMembership.updated') },
+    { status: 200 },
+  );
+}
+
+// Membership administration: adding an existing user to an org (POST), removing a
+// member (DELETE) and moving a member to another org (PATCH). Super admins only, see
+// `administersMembers`; everyone else gets the answers the other org routes give
+// (403 on create, 404 on an id, so nothing about the membership leaks).
+//
+// Nothing here touches the user's session: memberships are not in the cookie, the
+// access context is read from the database on every request, and cached readers
+// take it as part of their key. A changed membership therefore applies on the
+// user's next request. The 'org' tag is revalidated for what is keyed by org
+// rather than by viewer and depends on who the members are (the like rankings).
+//
+// Enrolment by e-mail domain only happens when an account is created (see
+// /api/login-link), so what is set here stays until someone changes it again.
+
+/** The signed-in requester's id and access context, or null when not signed in */
+async function getRequester(): Promise<{ userId: string, accessContext: UserAccessContext } | null> {
+  const session = await getSession(await cookies());
+  if (!session.user?.id) {
+    return null;
+  }
+  const accessContext = await getAccessContextFor(session.user);
+  return accessContext ? { userId: session.user.id, accessContext } : null;
+}
+
+/** Adds an existing user to an org: `{ orgId, userId, role? }`, role MEMBER (default) or MANAGER */
+export async function POST(request: NextRequest) {
+  const [requester, body, t] = await Promise.all([
+    getRequester(),
+    readJsonObject(request),
+    serveTea("api"),
+  ]);
+
+  if (!requester) {
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
+    );
+  }
+
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  const role = body.role === undefined ? OrgRole.MEMBER : assignableRole(body.role);
+  if (!body.orgId || typeof body.orgId !== 'string' || !body.userId || typeof body.userId !== 'string' || !role) {
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
+    );
+  }
+
+  if (!administersMembers(requester.accessContext, body.orgId)) {
+    return Response.json({ message: t('api:orgMembership.super_admin_only') },
+      { status: 403 },
+    );
+  }
+
+  const [org, user] = await Promise.all([
+    prisma.orgs.findUnique({ where: { id: body.orgId }, select: { id: true } }),
+    prisma.users.findUnique({
+      where: { id: body.userId },
+      select: { id: true, memberships: { where: { org_id: body.orgId }, select: { id: true } } },
+    }),
+  ]);
+  if (!org) {
+    return Response.json({ message: t('api:org.not_found') },
+      { status: 404 },
+    );
+  }
+  if (!user) {
+    return Response.json({ message: t('api:orgMembership.user_not_found') },
+      { status: 404 },
+    );
+  }
+  // Any row counts, a lingering guest one included: remove that first to re-add the user as a member
+  if (user.memberships.length > 0) {
+    return Response.json({ message: t('api:orgMembership.already_member') },
+      { status: 409 },
+    );
+  }
+
+  let membershipId: string;
+  try {
+    const created = await prisma.orgMemberships.create({
+      data: {
+        user: { connect: { id: user.id } },
+        org: { connect: { id: org.id } },
+        role,
+        // The same latest-change trail as role changes: who put the user here and when
+        role_changed_at: new Date(),
+        role_changed_by: { connect: { id: requester.userId } },
+      },
+      select: { id: true },
+    });
+    membershipId = created.id;
+  }
+  catch (error) {
+    // Two requests adding the same user at once: the unique key is the source of truth
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return Response.json({ message: t('api:orgMembership.already_member') },
+        { status: 409 },
+      );
+    }
+    console.error("Error adding org member", { error });
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
+    );
+  }
+
+  revalidateTag('org', { expire: 0 });
+
+  return Response.json({ message: t('api:orgMembership.added'), id: membershipId },
+    { status: 201 },
+  );
+}
+
+/** Removes a member from an org: `{ membershipId }`. The member's group memberships in the org cascade away. */
+export async function DELETE(request: NextRequest) {
+  const [requester, body, t] = await Promise.all([
+    getRequester(),
+    readJsonObject(request),
+    serveTea("api"),
+  ]);
+
+  if (!requester) {
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
+    );
+  }
+
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  if (!body.membershipId || typeof body.membershipId !== 'string') {
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
+    );
+  }
+
+  const membership = await prisma.orgMemberships.findUnique({
+    where: { id: body.membershipId },
+    select: { id: true, org_id: true },
+  });
+  if (!membership || !administersMembers(requester.accessContext, membership.org_id)) {
+    // A 404 for memberships the requester may not administer too, to not leak their existence
+    return Response.json({ message: t('api:orgMembership.not_found') },
+      { status: 404 },
+    );
+  }
+
+  try {
+    // Content stays: everything is owned by the org, authorship is cosmetic
+    await prisma.orgMemberships.delete({ where: { id: membership.id } });
+  }
+  catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:orgMembership.not_found') },
+        { status: 404 },
+      );
+    }
+    console.error("Error removing org member", { error });
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
+    );
+  }
+
+  revalidateTag('org', { expire: 0 });
+
+  return Response.json({ message: t('api:orgMembership.removed') },
+    { status: 200 },
+  );
+}
+
+/**
+ * Moves a member to another org: `{ membershipId, orgId, role? }`. The membership in
+ * the old org is deleted and one in the new org created, both or neither. The role
+ * comes along unless another is asked for; group memberships cannot (groups belong
+ * to one org), so the user starts in the new org without any.
+ */
+export async function PATCH(request: NextRequest) {
+  const [requester, body, t] = await Promise.all([
+    getRequester(),
+    readJsonObject(request),
+    serveTea("api"),
+  ]);
+
+  if (!requester) {
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
+    );
+  }
+
+  if (!body) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
+    );
+  }
+  if (!body.membershipId || typeof body.membershipId !== 'string' || !body.orgId || typeof body.orgId !== 'string'
+    || (body.role !== undefined && !assignableRole(body.role))) {
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
+    );
+  }
+
+  const membership = await prisma.orgMemberships.findUnique({
+    where: { id: body.membershipId },
+    select: { id: true, org_id: true, role: true, user_id: true },
+  });
+  // Both ends: the requester must administer the members of the org left and of the org joined
+  if (!membership || !administersMembers(requester.accessContext, membership.org_id) || !administersMembers(requester.accessContext, body.orgId)) {
+    return Response.json({ message: t('api:orgMembership.not_found') },
+      { status: 404 },
+    );
+  }
+
+  if (membership.org_id === body.orgId) {
+    return Response.json({ message: t('api:orgMembership.same_org') },
+      { status: 400 },
+    );
+  }
+  const [target, existing] = await Promise.all([
+    prisma.orgs.findUnique({ where: { id: body.orgId }, select: { id: true } }),
+    prisma.orgMemberships.findUnique({ where: { user_id_org_id: { user_id: membership.user_id, org_id: body.orgId } }, select: { id: true } }),
+  ]);
+  if (!target) {
+    return Response.json({ message: t('api:org.not_found') },
+      { status: 404 },
+    );
+  }
+  if (existing) {
+    return Response.json({ message: t('api:orgMembership.already_member') },
+      { status: 409 },
+    );
+  }
+
+  let membershipId: string;
+  try {
+    // One transaction, so the user is never left in both orgs or in neither. Create
+    // before delete all the same: should a statement ever escape the transaction,
+    // a user in both orgs is the failure that is visible and loses nothing.
+    const [created] = await prisma.$transaction([
+      prisma.orgMemberships.create({
+        data: {
+          user: { connect: { id: membership.user_id } },
+          org: { connect: { id: target.id } },
+          role: movedRole(body.role, membership.role),
+          role_changed_at: new Date(),
+          role_changed_by: { connect: { id: requester.userId } },
+        },
+        select: { id: true },
+      }),
+      prisma.orgMemberships.delete({ where: { id: membership.id } }),
+    ]);
+    membershipId = created.id;
+  }
+  catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return Response.json({ message: t('api:orgMembership.already_member') },
+        { status: 409 },
+      );
+    }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:orgMembership.not_found') },
+        { status: 404 },
+      );
+    }
+    console.error("Error moving org member", { error });
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
+    );
+  }
+
+  revalidateTag('org', { expire: 0 });
+
+  return Response.json({ message: t('api:orgMembership.moved'), id: membershipId },
     { status: 200 },
   );
 }

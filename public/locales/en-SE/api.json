@@ -72,7 +72,14 @@
     "not_found": "Membership not found",
     "own_role": "You cannot change your own role",
     "guest_locked": "Guest roles cannot be changed here",
-    "updated": "Role updated"
+    "updated": "Role updated",
+    "super_admin_only": "Only super admins can add, remove and move members",
+    "user_not_found": "User not found",
+    "already_member": "The user is already a member of the organization",
+    "same_org": "The member already belongs to that organization",
+    "added": "Member added",
+    "removed": "Member removed",
+    "moved": "Member moved"
   },
   "guestInvite": {
     "invalid_email": "That does not look like an email address",
