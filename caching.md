@@ -1,6 +1,6 @@
 # Caching
 
-The reference for `'use cache'` tags and invalidation. Check every PR that adds a cached reader or a mutation against [Rules](#rules). Derived from the code on branch `db-slim` (2026-10-14). The [audit](#audit) was first written against `dev` 2026-10-12; findings this branch fixed are kept, marked **fixed**, so reviewers see what changed.
+The reference for `'use cache'` tags and invalidation. Check every PR that adds a cached reader or a mutation against [Rules](#rules); `tests/unit/cache-tags.test.ts` checks the reader rules from the source and `tests/api/caching.spec.ts` the write → next read behaviour. Derived from the code on branch `db-slim` (2026-10-14), re-audited against `dev` 2026-11-25. The [audit](#audit) was first written against `dev` 2026-10-12; fixed findings are kept, marked **fixed**, so reviewers see what changed.
 
 Next.js docs (this Next differs from older versions, read these and not your memory): `node_modules/next/dist/docs/01-app/03-api-reference/01-directives/use-cache.md`, `.../04-functions/{cacheTag,cacheLife,revalidateTag,updateTag}.md`.
 
@@ -33,53 +33,55 @@ Next.js docs (this Next differs from older versions, read these and not your mem
 | --- | --- | --- |
 | `database` | anything in the DB (catch-all) | **nobody** (dead) |
 | `roadmap` | `roadmaps`, their access control (sharing, grants), roadmap comments | roadmap POST/PUT/DELETE, group DELETE, comment on roadmap |
-| `roadmapIteration` | `roadmapIterations` (status, version, description), iteration comments | iteration POST/PUT/DELETE, roadmap DELETE, comment on iteration |
-| `goal` | `goals`, their sections (series links, recipe suggestions), goal comments | goal POST/PUT/DELETE, iteration POST/PUT/DELETE, effect *, action POST with effect, action DELETE, roadmap DELETE, comment on goal |
-| `action` | `actions`, `actionFields`, action comments | action *, effect *, goal DELETE, iteration DELETE, roadmap DELETE, comment on action |
+| `roadmapIteration` | `roadmapIterations` (status, version, description), iteration comments and attachments | iteration POST/PUT/DELETE, roadmap DELETE, comment or attachment on iteration |
+| `goal` | `goals`, their sections (series links, recipe suggestions), goal comments and attachments | goal POST/PUT/DELETE, iteration POST/PUT/DELETE, effect *, action POST with effect, action DELETE, roadmap DELETE, comment or attachment on goal |
+| `action` | `actions`, `actionFields`, action comments and attachments | action *, effect *, goal DELETE, iteration DELETE, roadmap DELETE, comment or attachment on action |
 | `effect` | `effects` | **nobody** (effects revalidate `action` + `goal` + `dataSeries`) |
-| `dataSeries` | `dataSeries`, their values, and `recipes` | goal POST/PUT (full and section), effect *, recalculate |
+| `dataSeries` | `dataSeries`, their values, and `recipes` | goal POST/PUT (full and section), effect *, action POST with effect, recalculate |
 | `recipe` | `recipes` | **nobody** (recipe writes revalidate `dataSeries`) |
 | `goalLike` | `goalLikes` | goal-like POST/DELETE |
-| `org` | `orgs` (name, geo area) | org PUT |
-| `user` | `users` | signup |
+| `org` | `orgs` (name, geo area, banner) | org PUT, org banner PUT/DELETE |
+| `user` | `users` (existence, first and last name) | first login (login-link PATCH creating the account), user PATCH (name) |
 | `curatedHistoricalData` | upstream SCB/Trafa data behind the curated catalog | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbPopulationQuery` | SCB population table TAB6471 | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbAreaQuery` | SCB land area table TAB6420 | nobody (TTL `days`, failures `minutes`; upstream handler) |
 
 ## Cached readers
-Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anonymous). All DB readers use `'use cache'`, the `default` profile, `boundedFill` inside and `uncachedFallback` in their wrapper; every DB reader also declares `database`. "rm + it" = `roadmap`, `roadmapIteration`.
+Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anonymous). All DB readers use `'use cache'`, the `default` profile, `boundedFill` inside and `uncachedFallback` in their wrapper; every DB reader also declares `database`. "rm + it" = `roadmap`, `roadmapIteration`. `user` marks a reader that returns people's names (authors of the rows and of their comments and attachments).
 
 | Function (file) | Tags (besides `database`) | Key | Returns |
 | --- | --- | --- | --- |
-| `getCachedGoal` (getOneGoal) | goal, action, dataSeries, rm + it, org | id, ctx | goal + series (incl. recipe source series with `updated_at`), effects (with actions), iteration + roadmap (name, type, geo, AC incl. org name), comments |
+| `getCachedGoal` (getOneGoal) | goal, action, dataSeries, rm + it, org, user | id, ctx | goal + series (incl. recipe source series with `updated_at`), effects (with actions), iteration + roadmap (name, type, geo, AC incl. org name), comments, attachments |
 | `clientSafeGetCachedGoal` (clientSafeGetOneGoal) | goal, action, dataSeries, rm + it | id, ctx | goal scalars + series |
 | `getCachedGoalByIndicator` (getGoalByIndicator) | goal, action, dataSeries, rm + it | iterationId, indicator, unit, ctx | slim parent/child goal for the goal page graphs: series values, effects' series + action name, roadmap name |
 | `getCachedGoalSiblings` (getGoalSiblings) | rm + it, goal, dataSeries | iterationId, indicator prefixes, ctx | listed sibling candidates with plotted series (one entry per parent path) |
 | `getCachedGoalLikeSummary` (getGoalLikes) | goalLike, goal, rm + it | goalId, ctx | like count, liked by viewer |
 | `getCachedLikeScopes` (getGoalLikes) | org | orgId | org/area/county scopes |
+| `getCachedLikeArea` (getGoalLikes) | org | areaCode | a municipality or county with the orgs placed in it (names) |
 | `getCachedLikedGoals` (getGoalLikes) | goalLike, goal, rm + it, dataSeries, org | orgId, areaCode, ctx | org landing liked goals + copies |
 | `getCachedNationalGoals` (getNationalGoalMatches) | goal, rm + it, dataSeries | indicators, ctx | national goals with series |
-| `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org | id, ctx | action, fields, effects (series, goal scalars), iteration + roadmap (name, AC), comments |
-| `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org | ctx | all visible actions, same shape |
-| `getCachedActionSummaries` (getActionSummaries) | action, rm + it | ctx, orgId | list-card fields only (name, years, origin, fields, author); org landing and action list |
+| `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org, user | id, ctx | action, fields, effects (series, goal scalars), iteration + roadmap (name, AC), comments, attachments |
+| `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org, user | ctx | all visible actions, same shape |
+| `getCachedActionSummaries` (getActionSummaries) | action, rm + it, user | ctx, orgId | list-card fields only (name, years, origin, fields, author); org landing and action list |
 | `getCachedActionNeighbours` (getActionNeighbours) | action, rm + it, org | rootId, selfId, ctx | origin/copies with org name + geo, roadmap name, fields |
 | `clientSafeGetCachedActionOptions` | action, rm + it, org | ctx | id, name, org name, roadmap name |
 | `clientSafeGetCachedAllTags` | action, rm + it | ctx | distinct tag values |
 | `clientSafeGetCachedAllFieldHeaders` | action, rm + it | ctx | distinct field headers |
 | `getCachedEffect` (getOneEffect) | action, goal, effect, rm + it, dataSeries, org | actionId, goalId, ctx | effect + series, action/goal identity, roadmap AC |
 | `clientSafeGetCachedDataSeries` | dataSeries, action, goal, rm + it | id, ctx | id, unit, values (also the recipe evaluator's input getter) |
-| `getCachedRecipe` (getOneRecipe) | recipe, dataSeries, rm + it | id, ctx | recipe JSON (also read by `/api/recalculate`) |
-| `getCachedRoadmap` (getOneRoadmap) | rm + it, goal, org | id, ctx | roadmap, iterations (`_count.goals`), children, comments, AC |
-| `getCachedRoadmaps` (getRoadmaps) | rm + it, goal, org | ctx | same, all visible (also the org landing's roadmap tree) |
-| `getCachedRoadmapSubset` (getRoadmapSubset) | rm + it, goal, action, org | ctx, actor | iterations + counts + goal ids + action ids |
-| `getCachedRoadmapIterations` (getRoadmapIterations) | rm + it, goal, action, org | ctx, ids | iteration list + counts (also picks the goal page's parent version) |
-| `getCachedClientSafeRoadmapIterations` | rm + it, goal, action | ctx | iteration list + `_count.goals/actions` |
-| `getCachedRoadmapIteration` (getOneRoadmapIteration) | rm + it, goal, action, dataSeries, org | id, ctx | iteration, goals **with series values**, actions, comments, AC |
-| `getCachedRoadmapIterationByVersion` | rm + it, goal, action, dataSeries, org | roadmapId, version, ctx | same as above |
+| `getCachedRecipe` (getOneRecipe) | recipe, dataSeries, goal, action, rm + it | id, ctx | recipe JSON (read by `/api/recalculate`); visible through the goal or effect its series belongs to |
+| `getCachedRoadmap` (getOneRoadmap) | rm + it, goal, org, user | id, ctx | roadmap, iterations (`_count.goals`), children, comments, AC |
+| `getCachedRoadmaps` (getRoadmaps) | rm + it, goal, org, user | ctx, hidden | same, all visible (also the org landing's roadmap tree) |
+| `getCachedRoadmapSubset` (getRoadmapSubset) | rm + it, goal, action, org, user | ctx, actor | iterations + counts + goal ids + action ids |
+| `getCachedRoadmapIterations` (getRoadmapIterations) | rm + it, goal, action, org, user | ctx, hidden, ids | iteration list + counts (also picks the goal page's parent version) |
+| `getCachedClientSafeRoadmapIterations` | rm + it, goal, action, org | ctx, hidden | iteration list + `_count.goals/actions`, owning org's name (picker label) |
+| `getCachedRoadmapIteration` (getOneRoadmapIteration) | rm + it, goal, action, dataSeries, org, user | id, ctx | iteration, goals **with series values**, actions, comments, attachments, AC |
+| `getCachedRoadmapIterationByVersion` | rm + it, goal, action, dataSeries, org, user | roadmapId, version, ctx | same as above |
 | `getCachedClientSafeRoadmapIteration` | rm + it, goal, action, dataSeries | id, ctx | goals + effects **with series values** |
 | `getCachedNames` (getNames) | rm + it, goal, action | ctx | name tree for links |
 | `getCachedUserInfo` (getUserInfo) | user, rm + it, goal, action, org | username, ctx | authored roadmaps/iterations with counts and comments |
-| `getCachedOrgs` (getUserOrgs) | org | org id list | org names + geo area |
+| `getCachedUserComments` (getUserComments) | user, rm + it, goal, action, org | authorId, ctx | the author's visible comments with the commented object's name |
+| `getCachedOrgs` (getUserOrgs) | org | org id list | org names + geo area + banner timestamp |
 | `getCachedSeries` (getCuratedHistoricalData) | curatedHistoricalData; `'use cache: upstream'`, `days` / `minutes` on failure | source, geoArea | one curated external series |
 | `getCachedPxWebTableMetadata` (getCuratedHistoricalData) | curatedHistoricalData; upstream, `days` / `minutes` | tableId, dataset | PxWeb table metadata + `failed` flag |
 | `getCachedQuery` (scbPopulationQuery) | scbPopulationQuery; upstream, `days` / `minutes` | areaCode | population number |
@@ -89,20 +91,21 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 
 `src/app/layout.tsx`, `src/lib/sorters.ts`, `src/lib/api/guardExternalApi.ts`, `getPxWebTableContent.ts`, `getTrafaTableContent.ts` only mention `use cache` in comments; they hold no cached scope.
 
-### Tag fan-out (29 DB readers)
+### Tag fan-out (31 DB readers)
 | Tag | Readers declaring it |
 | --- | --- |
-| `roadmap`, `roadmapIteration` | 27 (all but `getCachedLikeScopes`, `getCachedOrgs`) |
-| `goal` | 21 |
-| `action` | 20 |
-| `goal` or `action` | 26 |
+| `roadmap`, `roadmapIteration` | 28 (all but `getCachedLikeScopes`, `getCachedLikeArea`, `getCachedOrgs`) |
+| `goal` | 23 |
+| `action` | 22 |
+| `goal` or `action` | 28 |
 | `dataSeries` | 14 |
-| `org` | 16 |
+| `org` | 19 |
+| `user` | 12 |
 | `goalLike` | 2 |
-| `effect`, `recipe`, `user` | 1 each |
+| `effect`, `recipe` | 1 each |
 
 ## Mutation → revalidation matrix
-✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships and auth routes revalidate nothing by design (they only change the per-request access context, i.e. the key).
+✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships, logout and the super-admin switch revalidate nothing by design (they only change the per-request access context, i.e. the key).
 
 | Mutation | roadmap | roadmapIteration | goal | action | dataSeries | goalLike | org | user |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -113,16 +116,18 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | iteration DELETE | | ✓ | ✓ | ✓ | | | | |
 | goal POST full / section, PUT full / section (series, recipes, suggestions) | | | ✓ | | ✓ | | | |
 | goal DELETE | | | ✓ | ✓ | | | | |
-| action POST / PUT | | | (✓ when POST creates an effect) | ✓ | | | | |
+| action POST / PUT | | | (✓ when POST creates an effect) | ✓ | (✓ when POST creates an effect) | | | |
 | action DELETE | | | ✓ | ✓ | | | | |
 | effect POST/PUT/DELETE (+ series) | | | ✓ | ✓ | ✓ | | | |
 | recalculate POST | | | | | ✓ | | | |
 | comment POST | object's tag | object's tag | object's tag | object's tag | | | | |
+| attachment POST/DELETE | | parent's tag | parent's tag | parent's tag | | | | |
 | goal-like POST/DELETE | | | | | | ✓ | | |
-| org PUT (name, geo area) | | | | | | | ✓ | |
+| org PUT (name, geo area), org banner PUT/DELETE | | | | | | | ✓ | |
 | group DELETE (grants cascade) | ✓ | | | | | | | |
-| signup | | | | | | | | ✓ |
-| group POST/PUT, org-membership PUT, verify, password | | | | | | | | |
+| login-link PATCH creating an account (first login) | | | | | | | | ✓ |
+| user PATCH (first and last name) | | | | | | | | ✓ |
+| group POST/PUT, org-membership PUT, login-link POST, logout, user privileges | | | | | | | | |
 
 ## Audit
 ### Stale cache (a mutation does not revalidate a tag the reader would need)
@@ -139,19 +144,25 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | S9 | org PUT → only `org` | every reader returning `accessControlSelection` or an org name/area | **fixed**: those readers declare `org` |
 | S10 | group DELETE → nothing | readers returning `access_control.grants` (sharing editor prefill) | **fixed**: group DELETE revalidates `roadmap` |
 | S11 | signup → nothing | getUserInfo (cached `null` for a not-yet-registered username) | **fixed**: signup revalidates `user` (rather than retiring `user`) |
+| S12 | first login → nothing (S11 came back when login links replaced signup) | getUserInfo | **fixed**: login-link PATCH revalidates `user` when it creates the account |
+| S13 | user PATCH (name) → `user` | every reader returning author names (roadmap, version, goal and action pages, lists, comments, attachments) lacked `user` | **fixed**: those 10 readers declare `user` |
+| S14 | org PUT → `org` | clientSafeGetRoadmapIterations (owning org's name in the roadmap pickers) | **fixed**: declares `org` |
+| S15 | goal DELETE, action DELETE → `goal` + `action` | getOneRecipe (its entry outlived the goal or effect that made the series visible; not observable today, `/api/recalculate` is its only caller and checks edit access uncached first) | **fixed**: declares `goal` + `action` |
+| S16 | action POST with a nested effect → `action` + `goal` | none today (every `dataSeries` reader also declares `goal`), but the write creates a series | **fixed**: also revalidates `dataSeries` |
 
-No open S findings against the current matrix and tags.
+No open S findings against the current matrix and tags (2026-11-25).
 
 ### Over-invalidation
 | # | What | Note |
 | --- | --- | --- |
-| O1 | Every mutation revalidates **global** entity tags with `{ expire: 0 }` | Worse after the S fixes, by design: one goal section save now expires the 21 `goal` + 14 `dataSeries` readers for every user and id; a roadmap PUT expires 27 of 29 DB readers. |
-| O2 | effect *, action DELETE, goal DELETE → `goal` + `action` | Hits 26 of the 29 DB readers. |
+| O1 | Every mutation revalidates **global** entity tags with `{ expire: 0 }` | Worse after the S fixes, by design: one goal section save now expires the 23 `goal` + 14 `dataSeries` readers for every user and id; a roadmap PUT expires 28 of 31 DB readers. |
+| O2 | effect *, action DELETE, goal DELETE → `goal` + `action` | Hits 28 of the 31 DB readers. |
+| O8 | first login and a name change → `user` | Expires the 12 readers that carry names (every page with a byline) for everyone: each new account does it twice (account, then the name on /welcome). Rare next to reads. |
 | O3 | roadmap / iteration DELETE → 3–4 tags | Effectively flushes the DB cache. Acceptable: rare. |
 | O4 | comment POST → the object's whole entity tag | Expires every goal (or action, ...) entry to show one comment. |
 | O5 | recalculate → `dataSeries` | Expires 14 readers (goal pages, iteration pages, national matches, liked goals, ...) for one series, now immediately (S7). |
 | O6 | `database` on every DB reader, never revalidated | Still open. No effect; a single `revalidateTag('database')` would flush everything. Dead weight. |
-| O7 | Dead tags `effect`, `recipe` | Still open: declared (getOneEffect, getOneRecipe), never revalidated, covered by `action`/`goal` and `dataSeries`. `user` is no longer dead (signup). |
+| O7 | Dead tags `effect`, `recipe` | Still open: declared (getOneEffect, getOneRecipe), never revalidated, covered by `action`/`goal` and `dataSeries`. `user` is no longer dead (first login, name change). |
 
 At current scale (single box, tens of users, writes rare next to reads) O1–O5 cost little; correctness came first.
 
@@ -191,9 +202,11 @@ Deliberately uncached and fine: `getOrgManagement` (manager page, must be fresh,
 4. Declare `database` (until retired) plus a tag for **every entity whose rows it returns or filters by**:
    - uses `visible*WHERE`, `readableAccessControlWHERE` or `listedGoalsWHERE` → `roadmap` + `roadmapIteration` (visibility comes from roadmap access and iteration status);
    - returns `accessControlSelection` or any org name/area → `org`;
-   - returns series values or recipes → `dataSeries`;
+   - returns people's names (`author`, a profile) → `user`;
+   - returns series values or recipes → `dataSeries`; filters by `visibleDataSeriesWHERE` → also `goal` + `action` (a series is visible through its goal or effect);
    - returns `_count` or ids of goals/actions/effects → `goal` / `action`;
    - returns related rows (effects, goal names on actions, action names on goals, ...) → their tags.
+   `tests/unit/cache-tags.test.ts` checks these from the source: a new reader that misses one fails there.
 5. **Never cache failure**: let DB errors throw out of the cached scope (a rejected fill is not stored). Return `null` / `[]` only for a result that is genuinely empty. Degrade in the uncached wrapper (`uncachedFallback`) or the page.
 6. Keep the entry small: entries are per user, so a payload that is MBs per user multiplies (M1). Select only what the page reads (`getActionSummaries`, `getGoalSiblings`, `relatedGoalSelection` are the pattern).
 
@@ -204,7 +217,7 @@ Deliberately uncached and fine: `getOrgManagement` (manager page, must be fresh,
 4. Keep waits inside the fill bounded (429 retry at most once, `MaxRetryAfterMs`): every request for that key waits on the fill.
 
 ### A new mutation must
-1. Revalidate the tag of **every table it writes**, nested creates and cascades included (iteration POST creating goals → `goal`; action POST creating an effect → `goal` too; series values or recipes → `dataSeries`; group DELETE cascading grants → `roadmap`).
+1. Revalidate the tag of **every table it writes**, nested creates and cascades included (iteration POST creating goals → `goal`; action POST creating an effect → `goal` and `dataSeries` too; series values or recipes → `dataSeries`; group DELETE cascading grants → `roadmap`; a new account or a changed name → `user`).
 2. Changes to roadmap access or iteration status also need the tags of everything below them: with reader rule 4 in place, `roadmap` / `roadmapIteration` covers it.
 3. Use `revalidateTag(tag, { expire: 0 })` in route handlers (read-your-own-writes; `updateTag` is Server Actions only). `'max'` only where serving the old value once is acceptable, which excludes anything the user just edited or a later computation reads. Never the one-argument form.
 4. Revalidate after the write commits, inside the success path.
