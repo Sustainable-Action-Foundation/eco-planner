@@ -199,6 +199,28 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
     await expect(visible(page, "#publish")).toBeChecked();
   });
 
+  test("a description typed over two paragraphs round-trips", async ({ page }) => {
+    const paragraphs = [`First ${name}`, `Second ${name}`];
+    await gotoUntil(page, `/roadmap/${roadmapId}/v1/edit`, async () => {
+      await expect(editor(page)).toHaveText(`Updated version ${name}`, { timeout: 5_000 });
+    });
+    // Enter and the keystrokes after it go through the editor's own commands, which fill() never
+    // touches: with two copies of a ProseMirror package loaded, Enter threw and the text stayed on one line
+    await expect(async () => {
+      await editor(page).fill(paragraphs[0]);
+      await page.keyboard.press("Enter");
+      await page.keyboard.type(paragraphs[1]);
+      await expect(editor(page).locator("p")).toHaveText(paragraphs, { timeout: 2_000 });
+    }).toPass({ timeout: 30_000 });
+    const saved = await submitAndWait(page, "/api/roadmap-iteration", "PUT");
+    expect(saved.status()).toBe(200);
+    await expect(page).toHaveURL(`/roadmap/${roadmapId}/v1`, { timeout: navigationTimeout });
+
+    await gotoUntil(page, `/roadmap/${roadmapId}/v1/edit`, async () => {
+      await expect(editor(page).locator("p")).toHaveText(paragraphs, { timeout: 5_000 });
+    });
+  });
+
   test("changed roadmap fields round-trip through the form", async ({ page }) => {
     await page.goto(`/roadmap/${roadmapId}/edit`);
     await visible(page, "#name").fill(`${name} updated`);

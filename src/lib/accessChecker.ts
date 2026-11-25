@@ -60,6 +60,20 @@ function accessControlLevel(accessControl: AccessControlInfo, userAccessContext:
   return AccessLevel.None;
 }
 
+/** The same user without super-admin powers: what their org memberships alone give. */
+export function withoutSuperAdmin(userAccessContext: UserAccessContext | null | undefined): UserAccessContext | null | undefined {
+  return userAccessContext?.isSuperAdmin ? { ...userAccessContext, isSuperAdmin: false } : userAccessContext;
+}
+
+/**
+ * Whether the user's access level on the item comes from super-admin powers: their org
+ * memberships alone would give less. The admin panel takes the super-admin colour by it.
+ */
+export function isSuperAdminAccess(item: AccessControlled | null | undefined, userAccessContext: UserAccessContext | null | undefined): boolean {
+  if (!userAccessContext?.isSuperAdmin) return false;
+  return accessChecker(item, userAccessContext) !== accessChecker(item, withoutSuperAdmin(userAccessContext));
+}
+
 /**
  * Admin access = managing sharing settings (sharing, grants) and org groups.
  * Only super admins and managers of the owning org get this; RW grants deliberately don't.

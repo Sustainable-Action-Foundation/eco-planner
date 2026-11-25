@@ -3,7 +3,7 @@ import { getRoadmapIterationByVersion, getUserAccessContext } from "@/fetchers";
 import { parseVersionSlug } from "@/functions/versionSlug";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess, isSuperAdminAccess } from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import Attachments from "@/components/attachments/attachments";
@@ -92,7 +92,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
     <Breadcrumb object={iteration} />
 
     {hasEditAccess(accessLevel) &&
-      <AdminPanel accessLevel={accessLevel} object={iteration} />
+      <AdminPanel
+        accessLevel={accessLevel}
+        superAdmin={isSuperAdminAccess({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)}
+        object={iteration}
+      />
     }
 
     <main>

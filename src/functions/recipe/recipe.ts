@@ -9,6 +9,7 @@ import { isEvalTimeSeries, isEvalTimeVariable, isRecipe } from "@/functions/reci
 import { convertToDeclaredUnit, parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
+import { withCurrentVariableTypes } from "@/functions/recipe/legacyTypes";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
 
@@ -507,7 +508,9 @@ export class Recipe {
    * recipe instance if valid. Use {@link Recipe.from} for the polymorphic entry.
    */
   private static fromObject(obj: JSONValue): Recipe {
-    const normalized = Recipe.normalizeRecipeObject(obj);
+    // Stored recipes may carry a variable type spelling from before a rename;
+    // bring those to the current one before the (strict) guard sees them.
+    const normalized = withCurrentVariableTypes(Recipe.normalizeRecipeObject(obj));
 
     if (!isRecipe(normalized)) {
       throw new RecipeError("Invalid object format for formula, object does not conform to the formula type");
