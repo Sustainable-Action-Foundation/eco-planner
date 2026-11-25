@@ -1,6 +1,6 @@
 import "server-only";
-import i18nServer, { type TFunction } from "i18next";
-import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@root/i18n.config";
+import i18nServer, { type ResourceLanguage, type TFunction } from "i18next";
+import { allNamespaces, initTemplate, Locales, possessive, relativeTime, titleCase } from "@root/i18n.config";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { cookies, headers } from "next/headers";
@@ -56,4 +56,20 @@ export default async function serveTea(
   }
 
   return i18nServer.getFixedT(locale);
+}
+
+/**
+ * The locale's translations by namespace, for the client i18next instance (I18nProvider):
+ * with them it renders the same text on the server and at hydration without fetching anything.
+ * The test locale renders keys and needs none.
+ */
+export async function clientResources(locale: Locales): Promise<ResourceLanguage> {
+  if (locale === Locales.test) {
+    return {};
+  }
+
+  await i18nServer.loadLanguages(locale);
+  await i18nServer.loadNamespaces(allNamespaces);
+
+  return Object.fromEntries(allNamespaces.map(namespace => [namespace, i18nServer.getResourceBundle(locale, namespace) as ResourceLanguage[string]]));
 }

@@ -1,0 +1,41 @@
+/* The combobox dressed as the start page's active org chip */
+.switcher {
+    max-width: 100%;
+}
+
+.switcher > button[role="combobox"] {
+    width: auto;
+    max-width: 100%;
+    gap: .25rem;
+    padding: .5rem .75rem .5rem 1rem;
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--seagreen);
+    color: white;
+    font-size: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.switcher > button[role="combobox"]:hover {
+    box-shadow: inset 0 0 9999px rgba(0, 0, 0, .1);
+}
+
+.switcher > button[role="combobox"]:focus-visible {
+    outline: 2px solid #191919;
+    outline-offset: 2px;
+}
+
+/* Never the placeholder gray or the disabled fade: the chip always names the current view */
+.switcher > button[role="combobox"][value=""] > span,
+.switcher > button[role="combobox"]:disabled > span {
+    color: inherit;
+    opacity: 1;
+}
+
+/* Wide enough for org names whatever the chip's width, within the screen on phones */
+.switcher > [role="dialog"] {
+    width: max-content;
+    min-width: min(100%, calc(100vw - 2rem));
+    max-width: min(24rem, calc(100vw - 2rem));
+}

@@ -46,6 +46,7 @@ import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import PreviewSeries from "../sections/dataseries/preview";
 import DraggableSnapBack from "@/components/generic/draggable/draggable";
 import { roadmapPickerLabel } from "@/functions/roadmapName";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function GoalForm({
   iterationId,
@@ -381,7 +382,7 @@ export default function GoalForm({
   const missingRoadmap = !(iterationId || currentGoal?.roadmap_iteration_id) && parentIterations.length === 0;
 
   return (
-    <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
+    <HydratedForm onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -665,6 +666,6 @@ export default function GoalForm({
           {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
         </button>
       </div>
-    </form >
+    </HydratedForm>
   );
 }

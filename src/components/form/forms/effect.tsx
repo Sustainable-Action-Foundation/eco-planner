@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
 import { IconLoader2 } from "@tabler/icons-react";
 import styles from '../forms.module.css';
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function EffectForm({
   goal,
@@ -137,7 +138,7 @@ export default function EffectForm({
   }
 
   return (
-    <form onSubmit={(event) => { void handleSubmit(event); }}>
+    <HydratedForm onSubmit={(event) => { void handleSubmit(event); }}>
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
       <ActionSelector
@@ -230,6 +231,6 @@ export default function EffectForm({
         </button>
       </div>
 
-    </form>
+    </HydratedForm>
   );
 }

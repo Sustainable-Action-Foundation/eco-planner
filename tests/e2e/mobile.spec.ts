@@ -96,7 +96,7 @@ test.describe("Mobile layout", () => {
     await page.goto(iterationPath(sandbox.roadmapId, 1));
     // Under cimode the view switch's labels are long keys that push it past the right edge, where a
     // tap lands on other content; activate the radio directly (the switch isn't under test here)
-    await visible(page, 'input[name="table"][value="TABLE"]').first().dispatchEvent("click");
+    await visible(page, 'input[name="table"][value="TABLE"]:enabled').first().dispatchEvent("click");
     await expect(visible(page, "#goalTable")).toBeVisible();
     const scroller = visible(page, "#goalTable").locator("xpath=..");
     await expect(scroller.locator('a[href^="/goal/"]').filter({ hasText: name })).toBeVisible();

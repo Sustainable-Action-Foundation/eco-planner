@@ -5,7 +5,7 @@ import type { APIRequestContext, Page } from "playwright/test";
 import { createAction, createGoal, createIteration, createRoadmap, deleteRoadmap, loginAs, loginContext, pageEntity, Seed } from "../lib/api";
 import { expectGoalEditFormReady, pickIterationInGoalForm, recordDialogs, reloadUntil, submitForm, visible, waitForRecipeFormSyncs } from "../lib/forms";
 import { withLock } from "../lib/lock";
-import { orgLandingHref, orgSwitcher } from "../lib/org-switcher";
+import { orgLandingHref, orgSwitcherControls, orgSwitcherEntries } from "../lib/org-switcher";
 import { ClientError } from "../../src/types/consts";
 
 /*
@@ -219,16 +219,16 @@ test.describe("Tag revalidation reaches other pages over client navigation", () 
         // so reloads may follow, but a list that never refreshes still fails.
         await sidebarHome(page).click();
         await page.waitForURL(/\/(\?.*)?$/);
-        const renamedOption = orgSwitcher(page).locator("select option, a").filter({ hasText: newName });
+        const renamedOption = orgSwitcherEntries(page).filter({ hasText: newName });
         await expect(async () => {
-          await orgSwitcher(page).locator("select, a").first().waitFor({ timeout: 20_000 });
+          await orgSwitcherControls(page).first().waitFor({ timeout: 20_000 });
           if (await renamedOption.count() === 0) {
             await page.reload();
-            await orgSwitcher(page).locator("select, a").first().waitFor({ timeout: 20_000 });
+            await orgSwitcherControls(page).first().waitFor({ timeout: 20_000 });
           }
           await expect(renamedOption).toHaveCount(1, { timeout: 1_000 });
         }).toPass({ timeout: 45_000 });
-        await expect(orgSwitcher(page).locator("select option, a").filter({ hasText: orgName })).toHaveCount(1);
+        await expect(orgSwitcherEntries(page).filter({ hasText: orgName })).toHaveCount(1);
       }
       finally {
         // Put the seeded name back whatever happened above. The restorer sat idle through the

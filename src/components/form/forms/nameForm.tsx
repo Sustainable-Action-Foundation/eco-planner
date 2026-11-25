@@ -8,6 +8,7 @@ import styles from '../forms.module.css';
 import { nameMaxLength } from "@/functions/personName";
 import { safeRedirectPath } from "@/functions/safeRedirectPath";
 import { useToast } from "@/components/generic/toast/toastContext.use";
+import HydratedForm from "@/components/form/hydratedForm";
 
 /**
  * First and last name of the signed-in user (PATCH /api/user). At first login it is
@@ -55,7 +56,7 @@ export default function NameForm({ firstName, lastName, redirectTo }: {
   }
 
   return (
-    <form onSubmit={handleSubmit} data-testid="name-form">
+    <HydratedForm onSubmit={handleSubmit} data-testid="name-form">
       <div className="flex gap-100 flex-wrap-wrap">
         <label className="flex-grow-100">
           {t("components:name_form.first_name")}
@@ -77,6 +78,6 @@ export default function NameForm({ firstName, lastName, redirectTo }: {
       <button type="submit" className="seagreen color-purewhite font-weight-600 margin-top-100" id="save-name" disabled={submitting}>
         {redirectTo !== undefined ? t("components:name_form.continue") : t("common:tsx.save")}
       </button>
-    </form>
+    </HydratedForm>
   );
 }

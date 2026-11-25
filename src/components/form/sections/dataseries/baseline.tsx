@@ -3,7 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { ClientGoal, DateValuesWithUnit, Goal } from "@/types";
 import { GoalFormName } from "@/types/form-names";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { IconCheck, IconInfoCircle } from "@tabler/icons-react";
@@ -17,8 +17,6 @@ import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { parseUnit } from "@/functions/unit";
 import { BaselineType, HiddenRoadmaps } from "@/types/enums";
 
-import { Trans } from "react-i18next/TransWithoutContext";
-import i18next from "i18next";
 import { roadmapPickerLabel } from "@/functions/roadmapName";
 
 export default function BaselineSeriesSection({
@@ -359,7 +357,6 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
               goal: recipe.variables[0]?.name,
             }}
             components={{ strong: <strong /> }}
-            i18n={i18next}
           />
           <ol>
             <li>{t("forms:goal.data_series.baseline.inherit_fix_one")}</li>

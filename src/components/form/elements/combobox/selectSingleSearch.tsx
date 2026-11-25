@@ -121,6 +121,7 @@ export default function SelectSingleSearch({
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         type="button"
+        aria-label={props.ariaLabel}
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"

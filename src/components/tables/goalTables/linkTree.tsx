@@ -8,6 +8,7 @@ import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
 import Link from 'next/link';
+import { useIsClient } from "@/functions/useClientState";
 
 // interface LinkTreeCommonProps {}
 
@@ -29,6 +30,7 @@ export default function LinkTree({
 }: LinkTreeProps) {
   // common is used in goalsToTree, which this TFunction is passed into
   const { t } = useTranslation(["components", "common"]);
+  const isClient = useIsClient();
 
   // Failsafe in case wrong props are passed
   if ((!goals && !iteration) || (goals && iteration)) throw new Error('LinkTree: Either `goals` XOR `iteration` must be provided');
@@ -37,7 +39,7 @@ export default function LinkTree({
 
   if (!goals?.length) return (<p>{t("components:link_tree.no_roadmaps")}</p>);
 
-  let openCategories: string[] = getSessionStorage(iteration?.id || "") as string[] || [];
+  let openCategories: string[] = isClient ? getSessionStorage(iteration?.id || "") as string[] || [] : [];
   if (!(openCategories instanceof Array)) {
     openCategories = [];
   }

@@ -2,7 +2,7 @@ import '@/styles/global.css' with { type: "css" };
 import Sidebar from '@/components/generic/header/sidebar';
 import styles from './page.module.css' with { type: "css" };
 import I18nProvider from "@/lib/i18nClient";
-import serveTea from "@/lib/i18nServer";
+import serveTea, { clientResources } from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
 import { ToastContextProvider } from '@/components/generic/toast/toastContext.provider';
@@ -26,7 +26,7 @@ export default async function RootLayout(
     headerContent.get("accept-language"),
   );
 
-  const t = await serveTea("common");
+  const [t, resources] = await Promise.all([serveTea("common"), clientResources(locale)]);
 
   return (
     <html lang={locale}>
@@ -40,7 +40,7 @@ export default async function RootLayout(
         `}} />
       </head>
       <body className='neutral-background'>
-        <I18nProvider lng={locale}>
+        <I18nProvider lng={locale} resources={resources}>
           <ToastContextProvider>
             <div className={`${styles.layout}`}>
               <Sidebar />

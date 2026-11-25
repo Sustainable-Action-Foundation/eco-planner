@@ -28,14 +28,18 @@ Everything here survived the reset. Playwright is the runner for both layers.
 
 Both scripts pass `--pass-with-no-tests` so an empty layer is green rather than "No tests found".
 
-- **Auth states.** `login.setup.ts` logs in through the `/login` form and saves
-  `tests/.auth/{admin,verified,guest}.json` (gitignored). The e2e config runs it as the `setup`
-  project before the browser projects. It also holds two `setup.fail` negatives
-  (unverified user, bad credentials) which are the only login-failure checks left.
-- **Seed users** (`scripts/prisma/seed/seed-users.ts`): `admin/admin` (super admin, manager of
-  "Sustainable Action"), `anita/anita` (plain member), `anton/anton` (unverified, cannot log in),
-  `greta/greta` (GUEST, guests disabled), `orgless/orgless` (no memberships). Every place org in
-  `places.ts` has members `first.last` with password `password`, reachable via `memberSlug()`.
+- **Auth states.** There are no passwords: the real login is a mailed link. `login.setup.ts`
+  starts sessions through the test-only `/api/test/login` (by username, only under
+  `TEST_ENVIRONMENT=testing`) and saves `tests/.auth/{admin,verified,guest}.json` (gitignored).
+  The e2e config runs it as the `setup` project before the browser projects. It also checks
+  that an unknown user gets 404. The link flow itself is covered by `e2e/auth.spec.ts` and
+  `api/login-link.spec.ts`. Specs sign in as other users with `loginAs()` / `loginContext()`
+  from `tests/lib/api.ts`. Sections below that mention `/api/login`, passwords, signup, verify
+  or password reset describe the old suite or the plan as written before passwordless login.
+- **Seed users** (`scripts/prisma/seed/seed-users.ts`), by username: `admin` (super admin,
+  manager of "Sustainable Action"), `Anita` (plain member), `Anton` (not verified, a legacy
+  state; a login link verifies), `Greta` (GUEST, guests disabled), `orgless` (no memberships).
+  Every place org in `places.ts` has members `first.last`, reachable via `memberSlug()`.
 - **Seed content** the old specs leaned on: roadmaps "Rikets färdplan" v1+v2 (public), "Uppsala
   län" v1 (ORG sharing, RO grant to "Hållbarhetsgruppen"), the LEAP scenario and its per-place
   copies, unlisted goals "Dold nationell/regional målbana", preset recipe id
@@ -102,7 +106,7 @@ Both scripts pass `--pass-with-no-tests` so an empty layer is green rather than 
 | `goal-visibility.spec.ts` (163) | admin, serial | Visibility menu (`admin-panel-visibility`): listed → featured (in featured strip and table) → unlisted (gone from both, under tab) → listed; flags mirrored in edit form checkboxes. |
 | `historical-data-tests.spec.ts` (107) | admin | Both tests skipped stubs. |
 | `locales-page.spec.ts` (97) | anonymous | `/tests/locale` dev page: formatters change their input, > 400 keys with equal server/client counts in en and sv, no `[EMPTY]`/`[MISSING]` after switching. |
-| `org-landing.spec.ts` (97) | admin / anita / anonymous | Super admin gets a select with every org + public; can traverse a non-member org; default view is an org landing; landing shows readable roadmaps, search and manage link; `?org=public` restores hero; `searchFilter` deep link works; single-org member gets chips and no manage link; anonymous gets no switcher. |
+| `org-landing.spec.ts` (97) | admin / anita / anonymous | Super admin gets a searchable select with every org + public; can traverse a non-member org; default view is an org landing; landing shows readable roadmaps, search and manage link; `?org=public` restores hero; `searchFilter` deep link works; single-org member gets chips and no manage link; anonymous gets no switcher. |
 | `action-origin.spec.ts` (93) | admin, serial, afterAll DELETE | Create origin, create copy linked via `#origin-action` picker → neighbours section with origin badge and one drifted row; origin lists the copy; unlink removes the section on both sides (poll with reload). |
 | `goal-copy.spec.ts` (131) | Boden and Kiruna members via `/api/login`; admin to look up the goal | "Use in roadmap" from a LEAP goal page → `/goal/create?from=` prefill → pick the member's roadmap, wait for `RECIPE_EVALUATION_PENDING` to clear; a copy the roadmap already has → POST 409, `already_in_roadmap` toast, submit button re-enabled without spinner; first copy into an empty roadmap → 201 and redirect, second → 409; deletes the copy in `finally`. Added by PR #155. |
 | `scaled-preview.spec.ts` (91) | Boden member; anita | On a copied-as-is LEAP goal the preview toggle names the org, says "as is", persists across reload; no toggle for a member without an org area. Scaling methods untested (live statistics APIs). |

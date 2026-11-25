@@ -24,6 +24,7 @@ import { IconPilcrow, IconWriting, IconCalendar, IconCaretRightFilled, IconLoade
 import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
 import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
 import { roadmapPickerLabel } from "@/functions/roadmapName";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function ActionForm({
   goalId,
@@ -256,7 +257,7 @@ export default function ActionForm({
   let positionIndex = 1;
 
   return (
-    <form onSubmit={(event) => { void handleSubmit(event); }}>
+    <HydratedForm onSubmit={(event) => { void handleSubmit(event); }}>
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -621,6 +622,6 @@ export default function ActionForm({
           {currentAction ? t("common:tsx.save") : t("forms:action.create")}
         </button>
       </div>
-    </form >
+    </HydratedForm>
   );
 }

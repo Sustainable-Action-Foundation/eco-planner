@@ -233,6 +233,22 @@ export function visibleAttachmentsWHERE(ctx: UserAccessContext | null): Prisma.A
 }
 
 /**
+ * Matches comments the user may see: those written on a visible action, goal,
+ * iteration or roadmap. Comments have no access control of their own.
+ */
+export function visibleCommentsWHERE(ctx: UserAccessContext | null): Prisma.CommentsWhereInput {
+  const visibleIterations = visibleRoadmapIterationsWHERE(ctx);
+  return {
+    OR: [
+      { action: visibleActionsWHERE(ctx) },
+      { goal: { roadmap_iteration: visibleIterations } },
+      { roadmap_iteration: visibleIterations },
+      { roadmap: { access_control: readableAccessControlWHERE(ctx) } },
+    ],
+  };
+}
+
+/**
  * Matches attachments the user may remove: attaching and detaching are content edits
  * on the parent, so this mirrors edit access to the action, goal or iteration.
  */

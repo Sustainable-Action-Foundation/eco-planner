@@ -51,6 +51,11 @@ const nextConfig: NextConfig = {
     // The proxy buffers request bodies and silently truncates them past this; must stay
     // above MaxAttachmentBytes (src/functions/attachments.ts) plus multipart overhead
     proxyClientMaxBodySize: "27mb",
+    // The app is session-driven and its routes block on purpose (see `instant` in the root
+    // layout), so dev only validates instant navigation for segments that export `instant`
+    instantInsights: {
+      validationLevel: "manual-warning",
+    },
   },
 };
 

@@ -19,6 +19,7 @@ import { RoadmapIterationFormName } from "@/types/form-names";
 import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
 import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
 import { roadmapPickerLabel } from "@/functions/roadmapName";
+import HydratedForm from "@/components/form/hydratedForm";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
@@ -166,7 +167,7 @@ export default function RoadmapIterationForm({
   }, [roadmapAlternatives]);
 
   return (
-    <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
+    <HydratedForm onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
       e.preventDefault();
       void handleSubmit(e);
     }}>
@@ -314,6 +315,6 @@ export default function RoadmapIterationForm({
           {currentIteration ? t("common:tsx.save") : t("forms:roadmap_iteration.create")}
         </button>
       </div>
-    </form >
+    </HydratedForm>
   );
 }

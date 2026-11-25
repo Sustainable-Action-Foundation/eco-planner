@@ -6,6 +6,7 @@ import { closeModal } from "@/components/modals/modalFunctions";
 import styles from './modals.module.css';
 import { Trans, useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
+import HydratedForm from "@/components/form/hydratedForm";
 
 export default function ConfirmDelete({
   modalRef,
@@ -66,7 +67,7 @@ export default function ConfirmDelete({
           {/* Title */}
           <h2 className="margin-0">{t("components:confirm_delete.delete_post")}</h2>
         </div>
-        <form onSubmit={handleDelete} className="padding-100 flex flex-direction-column" style={{minHeight: '0'}}>
+        <HydratedForm onSubmit={handleDelete} className="padding-100 flex flex-direction-column" style={{minHeight: '0'}}>
           <div className="flex-grow-100">
             <p className="margin-0" >
               <Trans
@@ -88,7 +89,7 @@ export default function ConfirmDelete({
             <button type="button" className="font-weight-500 flex-grow-100" onClick={() => closeModal(modalRef)}>{t("common:tsx.cancel")}</button>
             <button type="submit" className="color-purewhite red font-weight-500" disabled={isLoading} onClick={handleDelete}>{t("components:confirm_delete.delete_post")}</button>
           </div>
-        </form>
+        </HydratedForm>
       </div>
     </dialog>
   );
