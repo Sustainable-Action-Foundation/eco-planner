@@ -23,6 +23,9 @@ import { ClientError } from "../../src/types/consts";
  *  - a tag revalidation reaches another page over plain client navigation;
  *  - the stale-data guard still rejects a form that was never re-shown.
  *
+ * The request-only side (which write expires which reader, read back once without
+ * polling) is tests/api/caching.spec.ts.
+ *
  * See node_modules/next/dist/docs/01-app/02-guides/preserving-ui-state.md.
  */
 
