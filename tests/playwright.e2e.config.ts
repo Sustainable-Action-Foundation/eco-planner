@@ -10,6 +10,13 @@ const CI = boolEnv("CI", false);
 
 const budgetSpec = "e2e/db-budget.spec.ts";
 
+// SAF_E2E_BROWSERS=chromium leaves firefox and webkit out (CI does this for pull requests into dev);
+// unset runs every browser.
+const browsers = process.env.SAF_E2E_BROWSERS || "all";
+if (browsers !== "all" && browsers !== "chromium")
+  throw new Error(`SAF_E2E_BROWSERS must be "chromium" or unset, got "${browsers}"`);
+const allBrowsers = browsers === "all";
+
 export default defineConfig({
   testDir: "./",
   testMatch: ["e2e/**/*.spec.ts", "api/**/*.spec.ts"],
@@ -106,21 +113,25 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
       dependencies: ["setup"],
     },
-    {
-      name: "firefox 1080p",
-      testMatch: "e2e/**/*.spec.ts",
-      testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
-      dependencies: ["setup"],
-    },
-    {
-      name: "webkit 1080p",
-      testMatch: "e2e/**/*.spec.ts",
-      testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
-      // Webkit is consistently the slowest to settle under CI load; give its actions extra room
-      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, actionTimeout: 20 * 1000 },
-      dependencies: ["setup"],
-    },
+    ...(allBrowsers
+      ? [
+        {
+          name: "firefox 1080p",
+          testMatch: "e2e/**/*.spec.ts",
+          testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
+          use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
+          dependencies: ["setup"],
+        },
+        {
+          name: "webkit 1080p",
+          testMatch: "e2e/**/*.spec.ts",
+          testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
+          // Webkit is consistently the slowest to settle under CI load; give its actions extra room
+          use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, actionTimeout: 20 * 1000 },
+          dependencies: ["setup"],
+        },
+      ]
+      : []),
     {
       // Narrow touch viewport: only the mobile spec (drawer, create menu, table scroll, language dialog)
       name: "mobile chromium",
@@ -134,7 +145,7 @@ export default defineConfig({
       name: "db-budget",
       testMatch: budgetSpec,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
-      dependencies: ["api", "chromium 1080p", "firefox 1080p", "webkit 1080p", "mobile chromium"],
+      dependencies: ["api", "chromium 1080p", ...(allBrowsers ? ["firefox 1080p", "webkit 1080p"] : []), "mobile chromium"],
     },
   ],
 });

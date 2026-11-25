@@ -129,6 +129,9 @@ jobs:
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
           COMMIT_SHA: ${{ github.sha }}
           BUILDX_EXPERIMENTAL: 1
+          # Pull requests into dev run the browser specs on chromium only; the push to dev that
+          # follows a merge (and anything aimed at main) runs every browser
+          SAF_E2E_BROWSERS: ${{ github.event_name == 'pull_request' && github.base_ref == 'dev' && 'chromium' || '' }}
         run: |
           yarn test
 
@@ -179,7 +182,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Not on pull requests: nothing is pushed there, and the test stack has already built both
+      # images from the same Dockerfiles. No registry cache either: the layers the test stack
+      # built are still in this job's builder, and exporting a cache took longer than it saved.
       - name: Build and push
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -192,10 +199,9 @@ jobs:
             COMMIT_SHA=${{ github.sha }}
             BUILD_ID=${{ github.run_id }}
             COMMITS_AHEAD=${{ steps.commits-ahead.outputs.count }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Build and push seed image
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -203,8 +209,6 @@ jobs:
           push: ${{ steps.run-tests.outcome != 'failed' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
           tags: ${{ steps.seed-metadata.outputs.tags }}
           labels: ${{ steps.seed-metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   deploy-staging:
     needs: build-and-publish
