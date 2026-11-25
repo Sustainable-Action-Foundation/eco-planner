@@ -1,6 +1,6 @@
 import { expect, test } from "playwright/test";
 
-import accessChecker, { hasAdminAccess, hasCommentAccess, hasEditAccess, hasViewAccess } from "../../src/lib/accessChecker";
+import accessChecker, { hasAdminAccess, hasCommentAccess, hasEditAccess, hasViewAccess, isSuperAdminAccess, withoutSuperAdmin } from "../../src/lib/accessChecker";
 import { IterationStatus } from "../../src/lib/prisma/generated";
 import { AccessLevel } from "../../src/types/enums";
 import { accessControls, contexts, type AccessControlName, type ContextName } from "../lib/access-contexts";
@@ -103,6 +103,43 @@ test.describe("accessChecker edge cases", () => {
     // Grants only reference groups of the owning org (composite FK), so a matching id implies the same org.
     // The checker therefore trusts the id: this documents that the FK, not the checker, is the barrier.
     expect(accessChecker({ access_control: accessControls.groupsWithGrants }, impostor)).toBe(Edit);
+  });
+});
+
+test.describe("access through super-admin powers", () => {
+  test("never for a user without the powers", () => {
+    for (const contextName of contextNames.filter(name => !contexts[name]?.isSuperAdmin)) {
+      for (const acName of accessControlNames) {
+        expect(isSuperAdminAccess({ access_control: accessControls[acName] }, contexts[contextName]), `${contextName} on ${acName}`).toBe(false);
+      }
+    }
+  });
+
+  test("a super admin with no role in the owning org has their level through the powers", () => {
+    for (const acName of accessControlNames) {
+      expect(isSuperAdminAccess({ access_control: accessControls[acName] }, contexts.superAdmin), `superAdmin on ${acName}`).toBe(true);
+      expect(isSuperAdminAccess({ access_control: accessControls[acName], status: IterationStatus.DRAFT }, contexts.superAdminGuest), `superAdminGuest on ${acName} (DRAFT)`).toBe(true);
+    }
+  });
+
+  test("a super admin who manages the owning org has it through the role", () => {
+    const managingSuperAdmin = { ...contexts.manager, isSuperAdmin: true };
+    for (const acName of accessControlNames) {
+      expect(isSuperAdminAccess({ access_control: accessControls[acName] }, managingSuperAdmin), acName).toBe(false);
+    }
+  });
+
+  test("an RW grant gives edit; what goes beyond it comes from the powers", () => {
+    const grantedSuperAdmin = { ...contexts.memberRW, isSuperAdmin: true };
+    expect(accessChecker({ access_control: accessControls.orgWithGrants }, withoutSuperAdmin(grantedSuperAdmin))).toBe(Edit);
+    expect(isSuperAdminAccess({ access_control: accessControls.orgWithGrants }, grantedSuperAdmin)).toBe(true);
+  });
+
+  test("withoutSuperAdmin drops only the flag", () => {
+    expect(withoutSuperAdmin(contexts.superAdminGuest)).toEqual({ ...contexts.superAdminGuest, isSuperAdmin: false });
+    expect(withoutSuperAdmin(contexts.manager)).toBe(contexts.manager);
+    expect(withoutSuperAdmin(null)).toBe(null);
+    expect(contexts.superAdminGuest.isSuperAdmin, "the original context is left alone").toBe(true);
   });
 });
 

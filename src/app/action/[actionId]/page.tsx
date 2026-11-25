@@ -8,7 +8,7 @@ import Link from "next/link";
 import { IconWorld } from "@tabler/icons-react";
 import { notFound } from "next/navigation";
 import { AccessLevel } from "@/types/enums";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess, isSuperAdminAccess, managesOrg, withoutSuperAdmin } from "@/lib/accessChecker";
 import Attachments from "@/components/attachments/attachments";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects";
@@ -78,6 +78,14 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     return notFound();
   }
 
+  // Whether that level comes from super-admin powers rather than a role in the owning org: colours the admin panel
+  const superAdminAccess = action.roadmap_iteration
+    ? isSuperAdminAccess({
+      access_control: action.roadmap_iteration.roadmap.access_control,
+      status: action.roadmap_iteration.status,
+    }, accessContext)
+    : !!accessContext?.isSuperAdmin && !managesOrg(withoutSuperAdmin(accessContext), action.org_id);
+
   // Tags are TAG-headed fields but render as cards under the title rather than as a field group.
   // Sorted alphabetically since the rows come back from the database in arbitrary order.
   const tags = action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value).sort((a, b) => a.localeCompare(b));
@@ -86,7 +94,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     <>
       <Breadcrumb object={action} />
       {hasEditAccess(accessLevel) &&
-        <AdminPanel accessLevel={accessLevel} object={action} />
+        <AdminPanel accessLevel={accessLevel} superAdmin={superAdminAccess} object={action} />
       }
 
       <main>
