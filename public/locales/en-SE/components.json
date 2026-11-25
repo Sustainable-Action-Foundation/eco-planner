@@ -497,7 +497,8 @@
     "draft": "Draft",
     "unlisted": "Unlisted",
     "featured": "Featured",
-    "hidden": "Hidden"
+    "hidden": "Hidden",
+    "read_only": "Read only"
   },
   "sharing_line": {
     "public": "Visible to everyone",

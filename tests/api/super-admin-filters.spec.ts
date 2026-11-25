@@ -51,13 +51,13 @@ test.describe("Super admin in a foreign org", () => {
 
       // The unlisted goal ranks in the landing's liked list for editors only
       const landing = `/?org=${kirunaId}`;
-      await expect.poll(() => landingLikeCount(lars, landing, unlistedId), { message: "the manager's landing lists the liked unlisted goal", timeout: 60_000 }).toBe(1);
-      await expect.poll(() => landingLikeCount(admin, landing, unlistedId), { message: "the super admin's landing lists the liked unlisted goal", timeout: 60_000 }).toBe(1);
+      await expect.poll(() => landingLikeCount(lars, `${landing}&tab=liked`, unlistedId), { message: "the manager's landing lists the liked unlisted goal", timeout: 60_000 }).toBe(1);
+      await expect.poll(() => landingLikeCount(admin, `${landing}&tab=liked`, unlistedId), { message: "the super admin's landing lists the liked unlisted goal", timeout: 60_000 }).toBe(1);
 
       // The hidden roadmap is off the landing and back with "show hidden" (writable ones only)
-      await expect.poll(() => listsRoadmap(admin, landing, hiddenId), { message: "hidden roadmaps leave the landing", timeout: 60_000 }).toBe(false);
-      await expect.poll(() => listsRoadmap(lars, `${landing}&showHidden=true`, hiddenId), { message: "show hidden brings it back for the manager", timeout: 60_000 }).toBe(true);
-      await expect.poll(() => listsRoadmap(admin, `${landing}&showHidden=true`, hiddenId), { message: "show hidden brings it back for the super admin", timeout: 60_000 }).toBe(true);
+      await expect.poll(() => listsRoadmap(admin, `${landing}&tab=roadmaps`, hiddenId), { message: "hidden roadmaps leave the landing", timeout: 60_000 }).toBe(false);
+      await expect.poll(() => listsRoadmap(lars, `${landing}&tab=roadmaps&showHidden=true`, hiddenId), { message: "show hidden brings it back for the manager", timeout: 60_000 }).toBe(true);
+      await expect.poll(() => listsRoadmap(admin, `${landing}&tab=roadmaps&showHidden=true`, hiddenId), { message: "show hidden brings it back for the super admin", timeout: 60_000 }).toBe(true);
     }
     finally {
       await Promise.all([deleteRoadmap(lars, roadmapId), deleteRoadmap(lars, hiddenId)]);

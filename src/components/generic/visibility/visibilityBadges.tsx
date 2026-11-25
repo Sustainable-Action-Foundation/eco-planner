@@ -2,23 +2,27 @@ import "server-only";
 import styles from "./visibility.module.css" with { type: "css" };
 import { GoalListing, IterationStatus } from "@/lib/prisma/generated";
 import serveTea from "@/lib/i18nServer";
-import { IconEyeOff, IconPencil, IconStar } from "@tabler/icons-react";
+import { IconEyeOff, IconLock, IconPencil, IconStar } from "@tabler/icons-react";
 
 /**
  * The state badges for a roadmap (hidden), a version (draft) and, on a goal, its
  * listing (unlisted / featured). Published and listed items get no badge: they are the
  * normal case. Kept in one place so the same words and colours show everywhere.
+ * The read-only badge marks, where a list mixes both, what the viewer can read but not edit.
  */
 export default async function VisibilityBadges({
   hidden,
   status,
   listing,
+  readOnly,
   className,
 }: {
   /** The roadmap is hidden from listings */
   hidden?: boolean;
   status?: IterationStatus;
   listing?: GoalListing;
+  /** The viewer can read the item but not edit it */
+  readOnly?: boolean;
   className?: string;
 }) {
   const t = await serveTea("components");
@@ -35,6 +39,9 @@ export default async function VisibilityBadges({
   }
   if (listing === GoalListing.FEATURED) {
     badges.push({ key: "featured", className: styles.featured, icon: <IconStar aria-hidden="true" width={14} height={14} style={{ minWidth: '14px' }} />, label: t("components:visibility_badge.featured") });
+  }
+  if (readOnly) {
+    badges.push({ key: "read-only", className: styles.readOnly, icon: <IconLock aria-hidden="true" width={14} height={14} style={{ minWidth: '14px' }} />, label: t("components:visibility_badge.read_only") });
   }
   if (badges.length === 0) return null;
 

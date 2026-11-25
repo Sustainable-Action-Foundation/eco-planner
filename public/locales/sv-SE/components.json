@@ -497,7 +497,8 @@
     "draft": "Utkast",
     "unlisted": "Dold",
     "featured": "Framlyft",
-    "hidden": "Dold"
+    "hidden": "Dold",
+    "read_only": "Endast läsning"
   },
   "sharing_line": {
     "public": "Synlig för alla",

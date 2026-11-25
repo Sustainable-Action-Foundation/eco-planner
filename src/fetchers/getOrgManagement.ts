@@ -2,6 +2,8 @@ import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
+import type { OrgType } from "@/lib/prisma/generated";
+import type { ProcessStep } from "@/functions/orgProcess";
 import { displayName } from "@/functions/personName";
 import { orgBannerPath } from "@/functions/orgBanner";
 
@@ -13,6 +15,14 @@ export type OrgManagement = {
     geoAreaCode: string | null,
     /** Where the landing banner is served from (versioned), or null when the org has none */
     bannerUrl: string | null,
+    /** The public profile shown on the org's landing page */
+    description: string | null,
+    orgType: OrgType | null,
+    contactEmail: string | null,
+    website: string | null,
+    /** The process step in focus and when, as set here; null leaves the step to be derived */
+    focusStep: ProcessStep | null,
+    focusPeriod: string | null,
   },
   /** All memberships of the org (group membership hangs off these, not off users) */
   members: {
@@ -51,6 +61,12 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         name: true,
         geo_area_code: true,
         banner_updated_at: true,
+        description: true,
+        org_type: true,
+        contact_email: true,
+        website: true,
+        focus_step: true,
+        focus_period: true,
         memberships: {
           select: {
             id: true,
@@ -88,6 +104,12 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         name: org.name,
         geoAreaCode: org.geo_area_code,
         bannerUrl: org.banner_updated_at ? orgBannerPath(org.id, org.banner_updated_at) : null,
+        description: org.description,
+        orgType: org.org_type,
+        contactEmail: org.contact_email,
+        website: org.website,
+        focusStep: org.focus_step,
+        focusPeriod: org.focus_period,
       },
       members: org.memberships.map(membership => ({
         membershipId: membership.id,

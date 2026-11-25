@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Orgs` ADD COLUMN `focus_period` VARCHAR(60) NULL,
+    ADD COLUMN `focus_step` ENUM('INDICATORS', 'GOALS', 'BASELINE', 'ACTIONS', 'DECISION') NULL;
