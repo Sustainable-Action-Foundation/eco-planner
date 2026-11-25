@@ -74,6 +74,10 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+    env:
+      # Pull requests into dev run the browser specs on chromium only; the push to dev that
+      # follows a merge (and anything aimed at main) runs every browser
+      SAF_E2E_BROWSERS: ${{ github.event_name == 'pull_request' && github.base_ref == 'dev' && 'chromium' || '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -112,8 +116,9 @@ jobs:
           yarn install --immutable
           # Prisma client (src modules imported by tests reach the generated client)
           yarn prisma generate
-          # Playwright browsers and their system deps
-          yarn playwright install --with-deps
+          # Playwright browsers and their system deps: only the browsers this run uses, since
+          # webkit's packages are most of the download and the Ubuntu mirror is at times very slow
+          yarn playwright install --with-deps ${{ env.SAF_E2E_BROWSERS == 'chromium' && 'chromium' || '' }}
 
       - name: Run tests
         id: run-tests
@@ -129,9 +134,6 @@ jobs:
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
           COMMIT_SHA: ${{ github.sha }}
           BUILDX_EXPERIMENTAL: 1
-          # Pull requests into dev run the browser specs on chromium only; the push to dev that
-          # follows a merge (and anything aimed at main) runs every browser
-          SAF_E2E_BROWSERS: ${{ github.event_name == 'pull_request' && github.base_ref == 'dev' && 'chromium' || '' }}
         run: |
           yarn test
 
