@@ -58,6 +58,7 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedGoalLikeSummary` (getGoalLikes) | goalLike, goal, rm + it | goalId, ctx | like count, liked by viewer |
 | `getCachedLikeScopes` (getGoalLikes) | org | orgId | org/area/county scopes |
 | `getCachedLikedGoals` (getGoalLikes) | goalLike, goal, rm + it, dataSeries, org | orgId, areaCode, ctx | org landing liked goals + copies |
+| `getCachedGoalListLikeCounts` (getGoalListLikes) | goalLike, goal, rm + it, org | iterationId, filter, orgId, areaCode, ctx | like count per goal of one version within a `LikeFilter` (one grouped query); only read while `?likes=` is on the version page |
 | `getCachedNationalGoals` (getNationalGoalMatches) | goal, rm + it, dataSeries | indicators, ctx | national goals with series |
 | `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org | id, ctx | action, fields, effects (series, goal scalars), iteration + roadmap (name, AC), comments |
 | `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org | ctx | all visible actions, same shape |
@@ -89,16 +90,16 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 
 `src/app/layout.tsx`, `src/lib/sorters.ts`, `src/lib/api/guardExternalApi.ts`, `getPxWebTableContent.ts`, `getTrafaTableContent.ts` only mention `use cache` in comments; they hold no cached scope.
 
-### Tag fan-out (29 DB readers)
+### Tag fan-out (30 DB readers)
 | Tag | Readers declaring it |
 | --- | --- |
-| `roadmap`, `roadmapIteration` | 27 (all but `getCachedLikeScopes`, `getCachedOrgs`) |
-| `goal` | 21 |
+| `roadmap`, `roadmapIteration` | 28 (all but `getCachedLikeScopes`, `getCachedOrgs`) |
+| `goal` | 22 |
 | `action` | 20 |
-| `goal` or `action` | 26 |
+| `goal` or `action` | 27 |
 | `dataSeries` | 14 |
-| `org` | 16 |
-| `goalLike` | 2 |
+| `org` | 17 |
+| `goalLike` | 3 |
 | `effect`, `recipe`, `user` | 1 each |
 
 ## Mutation → revalidation matrix

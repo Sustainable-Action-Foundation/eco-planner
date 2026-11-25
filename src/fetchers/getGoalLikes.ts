@@ -109,6 +109,17 @@ async function getCachedLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
   });
 }
 
+/**
+ * The memberships whose holders' likes count in a scope: members of the org,
+ * or, given an area, of any org placed in it or in an area directly under it.
+ * Shared by every reader that counts likes per scope, so they agree on who is in.
+ */
+export function likersInScopeWHERE(orgId: string | null, areaCode: string | null): Prisma.OrgMembershipsWhereInput {
+  return areaCode
+    ? { org: { geo_area: { OR: [{ code: areaCode }, { parent_code: areaCode }] } } }
+    : { org_id: orgId ?? "" };
+}
+
 /** A municipality or county whose orgs' likes are pooled on its likes overview, see `getLikeArea` */
 export type LikeArea = {
   code: string,
@@ -221,10 +232,7 @@ async function getCachedLikedGoals(orgId: string | null, areaCode: string | null
   cacheTag('database', 'goalLike', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
   return boundedFill("getCachedLikedGoals", async () => {
-    // Whose likes count: members of the org, or of any org placed in the area or in an area directly under it
-    const inScope: Prisma.OrgMembershipsWhereInput = areaCode
-      ? { org: { geo_area: { OR: [{ code: areaCode }, { parent_code: areaCode }] } } }
-      : { org_id: orgId ?? "" };
+    const inScope = likersInScopeWHERE(orgId, areaCode);
 
     const goals = await prisma.goals.findMany({
       where: {
