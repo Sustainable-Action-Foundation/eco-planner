@@ -102,7 +102,7 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | `effect`, `recipe`, `user` | 1 each |
 
 ## Mutation → revalidation matrix
-✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships and auth routes revalidate nothing by design (they only change the per-request access context, i.e. the key).
+✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), membership roles and auth routes revalidate nothing by design (they only change the per-request access context, i.e. the key). Adding, removing and moving a member also changes the key, and revalidates `org` for the readers that are keyed by org and count its members' likes (`getCachedLikedGoals`).
 
 | Mutation | roadmap | roadmapIteration | goal | action | dataSeries | goalLike | org | user |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -121,6 +121,7 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | goal-like POST/DELETE | | | | | | ✓ | | |
 | org PUT (name, geo area) | | | | | | | ✓ | |
 | group DELETE (grants cascade) | ✓ | | | | | | | |
+| org-membership POST/DELETE/PATCH (add, remove, move a member) | | | | | | | ✓ | |
 | signup | | | | | | | | ✓ |
 | group POST/PUT, org-membership PUT, verify, password | | | | | | | | |
 

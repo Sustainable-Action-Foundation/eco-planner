@@ -24,8 +24,12 @@ Commenting needs view access and a signed-in user; no grant is needed on public 
 - `GroupMemberships` references the org membership and the group through composite keys that both carry `org_id`. A group membership across orgs cannot be represented, and leaving an org cascades away every group membership in it.
 - `AccessGrants` uses the same trick: the group and the access control must share `org_id`, so a grant to another org's group cannot exist in the database. That is why matching on group id alone is safe in the checker.
 - There is no "everyone" group. `Sharing.ORG` gives every proper member read access; a low-profile roadmap is `Sharing.GROUPS` plus an RW grant to the working group.
-- New accounts join an org by e-mail domain (`src/lib/enrollment.ts`, `src/lib/allowedDomains.ts`).
-- Managers manage members, groups and the org's geo area at `/org/[orgId]/groups` (`getOrgManagement` returns null for non-managers).
+- New accounts join an org by e-mail domain (`src/lib/enrollment.ts`, `src/lib/allowedDomains.ts`). That happens once, when the account is created: a later login never adds or removes a membership, so a membership set by hand stays.
+- Managers manage member roles, groups and the org's geo area at `/org/[orgId]/groups` (`getOrgManagement` returns null for non-managers).
+- Who the members are is for super admins: on the same page they add an existing user, remove a member or move one to another org (`/api/org-membership` POST / DELETE / PATCH, `getOrgMemberAdmin`). `administersMembers` in `src/functions/orgMembership.ts` is the one place that decides who may; whether managers should is an open product question.
+  - A move is one transaction: the membership is deleted and one created in the other org. The role comes along unless another is given; group memberships cannot, since groups belong to one org.
+  - Nothing an org owns depends on a member, so removing one orphans nothing. An org may be left without a manager (the page warns): super admins then administer it.
+  - No session is touched. The access context is read per request, so the change applies on the user's next request.
 
 ## The access context
 - `getUserAccessContext()` (`src/fetchers/getUserAccessContext.ts`) returns the user's id, super admin flag and memberships with roles and group ids. It is memoized per request with React `cache()`.
