@@ -276,6 +276,7 @@
     "all_actions": "All $t(common:action_other)",
     "all_goals": "All $t(common:goal_other)",
     "featured_goals": "Featured $t(common:goal_other)",
+    "liked_goals_need_login": "Log in to see which $t(common:goal_other) are liked.",
     "show_series": "Show versions",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
