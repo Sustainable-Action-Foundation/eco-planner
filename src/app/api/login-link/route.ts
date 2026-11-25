@@ -1,6 +1,7 @@
 import { after, type NextRequest } from "next/server";
 import { readJson } from "@/functions/readJson";
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { readSession, sessionOptionsFor } from "@/lib/session";
 import { consumeToken } from "@/lib/rateLimit";
@@ -173,6 +174,8 @@ export async function PATCH(request: NextRequest) {
       },
       select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true, first_name: true, last_name: true },
     });
+    // A profile page looked up before the account existed is cached as "not found"
+    revalidateTag('user', { expire: 0 });
   }
   else if (!user.is_verified) {
     // Opening the link proves the address; no separate verification step needed
