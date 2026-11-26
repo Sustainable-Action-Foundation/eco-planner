@@ -59,7 +59,7 @@ export function Breadcrumb({
   children?: React.ReactNode,
 }) {
   return (
-    <nav className="display-flex align-items-center gap-25 flex-wrap-wrap">
+    <nav className="display-flex align-items-center gap-25 flex-wrap-wrap print-hidden">
       <BaseSection />
 
       <BreadcrumbSection object={object}>

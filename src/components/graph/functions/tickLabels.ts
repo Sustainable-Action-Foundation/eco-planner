@@ -4,16 +4,19 @@
  * adjacent ticks apart on narrow ranges.
  */
 
+// Built once: `toLocaleString` with options sets up a new formatter on every call, which
+// adds up where hundreds of graphs and tables are drawn in one go (the org report)
+const smallNumberFormat = new Intl.NumberFormat('sv-SE', { maximumSignificantDigits: 3 });
+const largeNumberFormat = new Intl.NumberFormat('sv-SE', { maximumFractionDigits: 0 });
+
 /**
  * A somewhat inaccurate formatter for numbers in the graph, since the numbers
  * we work with should be rough estimates rather than exact values.
  */
-export function graphNumberFormatter(value: number) {
-  if (value < 100) {
-    return value?.toLocaleString('sv-SE', { maximumSignificantDigits: 3 });
-  } else {
-    return value?.toLocaleString('sv-SE', { maximumFractionDigits: 0 });
-  }
+export function graphNumberFormatter(value: number): string {
+  // ApexCharts can hand its formatters a gap; that passes through untouched, as it always has
+  if ((value as number | null | undefined) == null) return value as unknown as string;
+  return (value < 100 ? smallNumberFormat : largeNumberFormat).format(value);
 }
 
 const MaxTickFractionDigits = 10;
