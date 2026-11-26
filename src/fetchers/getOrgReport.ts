@@ -2,7 +2,7 @@ import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { currentIteration } from "@/functions/orgReport";
-import { listedActionsWHERE, listedGoalsWHERE, listedRoadmapsWHERE, readableAccessControlWHERE, visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { listedActionsWHERE, listedGoalsWHERE, listedRoadmapsWHERE, readableAccessControlWHERE, visibleEffectsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { GoalListing } from "@/lib/prisma/generated";
 import type { ActionImpactType, IterationStatus, RoadmapType, Sharing } from "@/lib/prisma/generated";
@@ -186,7 +186,7 @@ async function getCachedOrgReport(orgId: string, accessContext: UserAccessContex
               baseline: { select: plottedSeriesSelection },
               historical: { select: plottedSeriesSelection },
               effects: {
-                where: { action: visibleActionsWHERE(accessContext) },
+                where: visibleEffectsWHERE(accessContext),
                 select: {
                   impact_type: true,
                   data_series: { select: plottedSeriesSelection },
