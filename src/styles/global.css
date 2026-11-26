@@ -353,3 +353,19 @@ button[type="submit"]:disabled {
   background-color: rgba(153, 211, 255, .25);
 }
  
+
+/* Print: the app's chrome (sidebar, breadcrumbs, toasts) stays on the screen */
+@media print {
+  .print-hidden,
+  nextjs-portal {
+    display: none !important;
+  }
+
+  body {
+    background-color: white !important;
+  }
+
+  .container {
+    width: 100%;
+  }
+}

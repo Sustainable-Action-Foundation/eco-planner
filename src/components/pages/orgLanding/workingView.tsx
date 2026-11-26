@@ -7,6 +7,7 @@ import ShowHiddenToggle from "@/components/form/filters/showHiddenToggle";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import { getActionSummaries } from "@/fetchers";
 import { OrgTab, OrgView, orgLandingPath } from "@/functions/orgLanding";
+import { orgReportPath } from "@/functions/orgReport";
 import { orgTypeLabel } from "@/functions/orgTypeLabel";
 import accessChecker, { hasEditAccess, managesOrg } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
@@ -70,6 +71,8 @@ export default async function OrgWorkingView(props: WorkingViewProps) {
         </div>
         <div className="flex gap-50 flex-wrap-wrap align-items-center">
           <Link href="/roadmap/create" className="button seagreen color-purewhite round block">{t("pages:home.create_roadmap")}</Link>
+          {/* Everything the viewer may read of the org as one printable document */}
+          <Link href={orgReportPath(org.id, { print: true })} prefetch={false} className="button round block" data-testid="org-export-pdf">{t("pages:org_report.export_button")}</Link>
           { // Managers also administer the org's profile, members and groups
             manages
               ? <Link href={`/org/${org.id}/groups`} className="button round block" data-testid="org-manage-link">{t("pages:org_groups.manage_groups")}</Link>

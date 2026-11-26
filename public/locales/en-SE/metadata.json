@@ -69,5 +69,8 @@
   },
   "likes_area": {
     "title": "Liked goals in the area"
+  },
+  "org_report": {
+    "title": "{{name}} – report"
   }
 }

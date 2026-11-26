@@ -25,8 +25,8 @@ import type { WorkingViewProps } from "./types";
 type OverviewProps = Pick<WorkingViewProps, "org" | "accessContext" | "allRoadmaps">;
 
 /** Goals of other orgs the org's members have liked that no goal of the org is derived from yet */
-async function likedWithoutGoal(orgId: string): Promise<{ liked: number, withoutGoal: number }> {
-  const liked = await getLikedGoals(orgId, LikeScope.Org);
+async function likedWithoutGoal(orgId: string, options: { asVisitor?: boolean } = {}): Promise<{ liked: number, withoutGoal: number }> {
+  const liked = await getLikedGoals(orgId, LikeScope.Org, options);
   return { liked: liked.length, withoutGoal: liked.filter(goal => goal.org.id !== orgId && goal.copies.length === 0).length };
 }
 
@@ -134,13 +134,17 @@ export async function Gaps({ org, accessContext, allRoadmaps }: OverviewProps) {
   </>;
 }
 
-/** "The state of things": the org in four numbers */
-export async function KeyNumbers({ org, allRoadmaps }: OverviewProps) {
+/**
+ * "The state of things": the org in four numbers. Also the summary of the org's report,
+ * which passes the roadmaps its viewer sees and, for the public version, `asVisitor`.
+ * @param asVisitor Count what a visitor without a login gets, whoever asks
+ */
+export async function KeyNumbers({ org, allRoadmaps, asVisitor = false }: Pick<OverviewProps, "org" | "allRoadmaps"> & { asVisitor?: boolean }) {
   const [t, people, counts, likes] = await Promise.all([
     serveTea(["pages", "common"]),
-    getOrgPeople(org.id),
-    getOrgCounts(org.id),
-    likedWithoutGoal(org.id),
+    getOrgPeople(org.id, { asVisitor }),
+    getOrgCounts(org.id, { asVisitor }),
+    likedWithoutGoal(org.id, { asVisitor }),
   ]);
 
   return <>

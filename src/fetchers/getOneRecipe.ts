@@ -24,7 +24,8 @@ export async function getOneRecipe(id: string): Promise<DBRecipe | null> {
  */
 async function getCachedRecipe(id: string, accessContext: UserAccessContext | null): Promise<DBRecipe | null> {
   'use cache';
-  cacheTag('database', 'recipe', 'dataSeries', 'roadmap', 'roadmapIteration');
+  // goal/action: the series' visibility is derived from the goal or effect (action + goal) it belongs to
+  cacheTag('database', 'recipe', 'dataSeries', 'goal', 'action', 'roadmap', 'roadmapIteration');
 
   return boundedFill("getCachedRecipe", async () => {
     const recipe: DBRecipe | null = await prisma.recipes.findUnique({

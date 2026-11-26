@@ -11,8 +11,7 @@ import { useTranslation } from "react-i18next";
 import { memo } from "react";
 import { UnitFlags } from "@/types/enums";
 import { parseUnit } from "@/functions/unit";
-import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
-import mathjs from "@/math";
+import { unitConverter, unitRelation } from "../../functions/seriesUnits";
 import type { TFunction } from "i18next";
 
 // Checks if we have a dataSeries or DateValuesWithUnit
@@ -31,10 +30,7 @@ function toDateValueMap(
     ? dataSeriesToDateValues(series)
     : series;
 
-  const sourceUnit = parseUnit(dateValuesWithUnit.unit);
-  const convert = targetUnit !== undefined && unitRelation(sourceUnit, targetUnit) === "convertible" && sourceUnit !== targetUnit
-    ? (value: number) => mathjs.unit(value, sourceUnit).toNumber(targetUnit)
-    : (value: number) => value;
+  const convert = unitConverter(parseUnit(dateValuesWithUnit.unit), targetUnit);
 
   const map = new Map<number, number>();
   for (const [isoDate, value] of Object.entries(dateValuesWithUnit.dateValues)) {
@@ -42,24 +38,6 @@ function toDateValueMap(
   }
 
   return map;
-}
-
-/**
- * How two series' units relate when drawn on one axis: `convertible` when
- * both are real units of the same quantity (or equal), `same` when neither
- * is a real unit, and `mismatch` when they can't be reconciled (different
- * quantities, or a real unit against a unitless/missing one).
- */
-export function unitRelation(a: Unit, b: Unit): "convertible" | "same" | "mismatch" {
-  const aReal = isMathjsUnit(a);
-  const bReal = isMathjsUnit(b);
-  if (aReal && bReal) {
-    if (a === b) return "convertible";
-    try { return mathjs.unit(1, a).equalBase(mathjs.unit(1, b)) ? "convertible" : "mismatch"; }
-    catch { return "mismatch"; }
-  }
-  if (!aReal && !bReal) return "same";
-  return "mismatch";
 }
 
 // Pad with null or omit values to create tooltips which function for multiple series.

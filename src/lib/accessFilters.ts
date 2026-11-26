@@ -151,6 +151,21 @@ export function visibleActionsWHERE(ctx: UserAccessContext | null): Prisma.Actio
 }
 
 /**
+ * Matches the actions an action list shows the user: the visible ones, without those of
+ * hidden roadmaps, which stay out of listings like the roadmaps themselves.
+ * @param orgId Only actions owned by this org; every org's when omitted
+ */
+export function listedActionsWHERE(ctx: UserAccessContext | null, orgId?: string | null): Prisma.ActionsWhereInput {
+  return {
+    AND: [
+      ...(orgId ? [{ org_id: orgId }] : []),
+      visibleActionsWHERE(ctx),
+      { OR: [{ roadmap_iteration: null }, { roadmap_iteration: { roadmap: listedRoadmapsWHERE(ctx, HiddenRoadmaps.Exclude) } }] },
+    ],
+  };
+}
+
+/**
  * Matches actions the user may edit: those under a writable roadmap, plus
  * roadmapless actions (the public action database) for managers of the owning org.
  */
