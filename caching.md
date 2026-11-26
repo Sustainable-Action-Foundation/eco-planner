@@ -41,17 +41,24 @@ Next.js docs (this Next differs from older versions, read these and not your mem
 | `recipe` | `recipes` | **nobody** (recipe writes revalidate `dataSeries`) |
 | `goalLike` | `goalLikes` | goal-like POST/DELETE |
 | `org` | `orgs` (name, geo area, banner, public profile), who manages an org | org PUT, org banner POST/DELETE, org-membership PUT |
-| `user` | `users` (existence, first and last name) | first login (login-link PATCH creating the account), user PATCH (name) |
+| `user` | `users` (existence, first and last name) as read by profiles and the org's people and comment lists. **Not** the author names on content pages: [bylines are untagged](#author-names-bylines-are-not-tagged) | first login (login-link PATCH creating the account), user PATCH (name) |
 | `curatedHistoricalData` | upstream SCB/Trafa data behind the curated catalog | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbPopulationQuery` | SCB population table TAB6471 | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbAreaQuery` | SCB land area table TAB6420 | nobody (TTL `days`, failures `minutes`; upstream handler) |
 
+### Author names (bylines) are not tagged
+The content readers (roadmap, version, goal and action pages and lists) embed the author's name on each row, comment and attachment, and on purpose do **not** declare `user`. A changed name therefore shows on bylines within the cache life (15 min by default) or as soon as anything else revalidates that entry. That staleness is accepted.
+
+Why: with `user` on those readers, every first login and every name change expired all content pages for everyone. Per-user tags (`user:<id>`, added from the fetched result) were considered and set aside as not worth the complexity for now; they are the way to go if fresh bylines ever matter.
+
+`user` stays on the four readers about people: `getCachedUserInfo`, `getCachedUserComments`, `getCachedOrgPeople`, `getCachedOrgComments`.
+
 ## Cached readers
-Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anonymous). All DB readers use `'use cache'`, the `default` profile, `boundedFill` inside and `uncachedFallback` in their wrapper; every DB reader also declares `database`. "rm + it" = `roadmap`, `roadmapIteration`. `user` marks a reader that returns people's names (authors of the rows and of their comments and attachments).
+Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anonymous). All DB readers use `'use cache'`, the `default` profile, `boundedFill` inside and `uncachedFallback` in their wrapper; every DB reader also declares `database`. "rm + it" = `roadmap`, `roadmapIteration`. `user` is only on the readers about people (profile, a user's comments, org people, org comments); the content readers return author names without it, [on purpose](#author-names-bylines-are-not-tagged).
 
 | Function (file) | Tags (besides `database`) | Key | Returns |
 | --- | --- | --- | --- |
-| `getCachedGoal` (getOneGoal) | goal, action, dataSeries, rm + it, org, user | id, ctx | goal + series (incl. recipe source series with `updated_at`), effects (with actions), iteration + roadmap (name, type, geo, AC incl. org name), comments, attachments |
+| `getCachedGoal` (getOneGoal) | goal, action, dataSeries, rm + it, org | id, ctx | goal + series (incl. recipe source series with `updated_at`), effects (with actions), iteration + roadmap (name, type, geo, AC incl. org name), comments, attachments |
 | `clientSafeGetCachedGoal` (clientSafeGetOneGoal) | goal, action, dataSeries, rm + it | id, ctx | goal scalars + series |
 | `getCachedGoalByIndicator` (getGoalByIndicator) | goal, action, dataSeries, rm + it | iterationId, indicator, unit, ctx | slim parent/child goal for the goal page graphs: series values, effects' series + action name, roadmap name |
 | `getCachedGoalSiblings` (getGoalSiblings) | rm + it, goal, dataSeries | iterationId, indicator prefixes, ctx | listed sibling candidates with plotted series (one entry per parent path) |
@@ -60,9 +67,9 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedLikeArea` (getGoalLikes) | org | areaCode | a municipality or county with the orgs placed in it (names) |
 | `getCachedLikedGoals` (getGoalLikes) | goalLike, goal, rm + it, dataSeries, org | orgId, areaCode, ctx | org landing liked goals + copies |
 | `getCachedNationalGoals` (getNationalGoalMatches) | goal, rm + it, dataSeries | indicators, ctx | national goals with series |
-| `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org, user | id, ctx | action, fields, effects (series, goal scalars), iteration + roadmap (name, AC), comments, attachments |
-| `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org, user | ctx | all visible actions, same shape |
-| `getCachedActionSummaries` (getActionSummaries) | action, rm + it, user | ctx, orgId | list-card fields only (name, years, origin, fields, author); org landing and action list |
+| `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org | id, ctx | action, fields, effects (series, goal scalars), iteration + roadmap (name, AC), comments, attachments |
+| `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org | ctx | all visible actions, same shape |
+| `getCachedActionSummaries` (getActionSummaries) | action, rm + it | ctx, orgId | list-card fields only (name, years, origin, fields, author); org landing and action list |
 | `getCachedActionNeighbours` (getActionNeighbours) | action, rm + it, org | rootId, selfId, ctx | origin/copies with org name + geo, roadmap name, fields |
 | `clientSafeGetCachedActionOptions` | action, rm + it, org | ctx | id, name, org name, roadmap name |
 | `clientSafeGetCachedAllTags` | action, rm + it | ctx | distinct tag values |
@@ -70,13 +77,13 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedEffect` (getOneEffect) | action, goal, effect, rm + it, dataSeries, org | actionId, goalId, ctx | effect + series, action/goal identity, roadmap AC |
 | `clientSafeGetCachedDataSeries` | dataSeries, action, goal, rm + it | id, ctx | id, unit, values (also the recipe evaluator's input getter) |
 | `getCachedRecipe` (getOneRecipe) | recipe, dataSeries, goal, action, rm + it | id, ctx | recipe JSON (read by `/api/recalculate`); visible through the goal or effect its series belongs to |
-| `getCachedRoadmap` (getOneRoadmap) | rm + it, goal, org, user | id, ctx | roadmap, iterations (`_count.goals`), children, comments, AC |
-| `getCachedRoadmaps` (getRoadmaps) | rm + it, goal, org, user | ctx, hidden | same, all visible (also the org landing's roadmap tree) |
-| `getCachedRoadmapSubset` (getRoadmapSubset) | rm + it, goal, action, org, user | ctx, actor | iterations + counts + goal ids + action ids |
-| `getCachedRoadmapIterations` (getRoadmapIterations) | rm + it, goal, action, org, user | ctx, hidden, ids | iteration list + counts (also picks the goal page's parent version) |
+| `getCachedRoadmap` (getOneRoadmap) | rm + it, goal, org | id, ctx | roadmap, iterations (`_count.goals`), children, comments, AC |
+| `getCachedRoadmaps` (getRoadmaps) | rm + it, goal, org | ctx, hidden | same, all visible (also the org landing's roadmap tree) |
+| `getCachedRoadmapSubset` (getRoadmapSubset) | rm + it, goal, action, org | ctx, actor | iterations + counts + goal ids + action ids |
+| `getCachedRoadmapIterations` (getRoadmapIterations) | rm + it, goal, action, org | ctx, hidden, ids | iteration list + counts (also picks the goal page's parent version) |
 | `getCachedClientSafeRoadmapIterations` | rm + it, goal, action, org | ctx, hidden | iteration list + `_count.goals/actions`, owning org's name (picker label) |
-| `getCachedRoadmapIteration` (getOneRoadmapIteration) | rm + it, goal, action, dataSeries, org, user | id, ctx | iteration, goals **with series values**, actions, comments, attachments, AC |
-| `getCachedRoadmapIterationByVersion` | rm + it, goal, action, dataSeries, org, user | roadmapId, version, ctx | same as above |
+| `getCachedRoadmapIteration` (getOneRoadmapIteration) | rm + it, goal, action, dataSeries, org | id, ctx | iteration, goals **with series values**, actions, comments, attachments, AC |
+| `getCachedRoadmapIterationByVersion` | rm + it, goal, action, dataSeries, org | roadmapId, version, ctx | same as above |
 | `getCachedClientSafeRoadmapIteration` | rm + it, goal, action, dataSeries | id, ctx | goals + effects **with series values** |
 | `getCachedNames` (getNames) | rm + it, goal, action | ctx | name tree for links |
 | `getCachedUserInfo` (getUserInfo) | user, rm + it, goal, action, org | username, ctx | authored roadmaps/iterations with counts and comments |
@@ -97,21 +104,21 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 
 `src/app/layout.tsx`, `src/lib/sorters.ts`, `src/lib/api/guardExternalApi.ts`, `getPxWebTableContent.ts`, `getTrafaTableContent.ts` only mention `use cache` in comments; they hold no cached scope.
 
-### Tag fan-out (31 DB readers)
+### Tag fan-out (37 DB readers)
 | Tag | Readers declaring it |
 | --- | --- |
-| `roadmap`, `roadmapIteration` | 28 (all but `getCachedLikeScopes`, `getCachedLikeArea`, `getCachedOrgs`) |
-| `goal` | 23 |
-| `action` | 22 |
-| `goal` or `action` | 28 |
+| `roadmap`, `roadmapIteration` | 31 (all but the org-only readers: `getCachedLikeScopes`, `getCachedLikeArea`, `getCachedOrgs`, `getCachedOrgProfile`, `getCachedOrgPeople`, `getCachedAreaOrgs`) |
+| `goal` | 26 |
+| `action` | 25 |
+| `goal` or `action` | 31 |
 | `dataSeries` | 14 |
-| `org` | 19 |
-| `user` | 12 |
-| `goalLike` | 2 |
+| `org` | 24 |
+| `user` | 4 (bylines are untagged) |
+| `goalLike` | 4 |
 | `effect`, `recipe` | 1 each |
 
 ## Mutation → revalidation matrix
-✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships, logout and the super-admin switch revalidate nothing by design (they only change the per-request access context, i.e. the key).
+✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships, logout and the super-admin switch revalidate nothing by design (they only change the per-request access context, i.e. the key). `user` reaches profiles and the org's people and comment lists only; [bylines are untagged](#author-names-bylines-are-not-tagged), so a name change expires no content page.
 
 | Mutation | roadmap | roadmapIteration | goal | action | dataSeries | goalLike | org | user |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -151,19 +158,19 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | S10 | group DELETE → nothing | readers returning `access_control.grants` (sharing editor prefill) | **fixed**: group DELETE revalidates `roadmap` |
 | S11 | signup → nothing | getUserInfo (cached `null` for a not-yet-registered username) | **fixed**: signup revalidates `user` (rather than retiring `user`) |
 | S12 | first login → nothing (S11 came back when login links replaced signup) | getUserInfo | **fixed**: login-link PATCH revalidates `user` when it creates the account |
-| S13 | user PATCH (name) → `user` | every reader returning author names (roadmap, version, goal and action pages, lists, comments, attachments) lacked `user` | **fixed**: those 10 readers declare `user` |
+| S13 | user PATCH (name) → `user` | the 10 content readers returning author names (roadmap, version, goal and action pages, lists, comments, attachments) do not declare `user` | **accepted, not fixed**: a changed name shows on bylines within the cache life (15 min by default) or when anything else revalidates the entry. Tagging them was tried and dropped: every first login and name change expired all content pages for everyone. See [bylines are untagged](#author-names-bylines-are-not-tagged) |
 | S14 | org PUT → `org` | clientSafeGetRoadmapIterations (owning org's name in the roadmap pickers) | **fixed**: declares `org` |
 | S15 | goal DELETE, action DELETE → `goal` + `action` | getOneRecipe (its entry outlived the goal or effect that made the series visible; not observable today, `/api/recalculate` is its only caller and checks edit access uncached first) | **fixed**: declares `goal` + `action` |
 | S16 | action POST with a nested effect → `action` + `goal` | none today (every `dataSeries` reader also declares `goal`), but the write creates a series | **fixed**: also revalidates `dataSeries` |
 
-No open S findings against the current matrix and tags (2026-11-25).
+No open S findings against the current matrix and tags (2026-11-25); S13 is accepted as is.
 
 ### Over-invalidation
 | # | What | Note |
 | --- | --- | --- |
-| O1 | Every mutation revalidates **global** entity tags with `{ expire: 0 }` | Worse after the S fixes, by design: one goal section save now expires the 23 `goal` + 14 `dataSeries` readers for every user and id; a roadmap PUT expires 28 of 31 DB readers. |
-| O2 | effect *, action DELETE, goal DELETE → `goal` + `action` | Hits 28 of the 31 DB readers. |
-| O8 | first login and a name change → `user` | Expires the 12 readers that carry names (every page with a byline) for everyone: each new account does it twice (account, then the name on /welcome). Rare next to reads. |
+| O1 | Every mutation revalidates **global** entity tags with `{ expire: 0 }` | Worse after the S fixes, by design: one goal section save now expires the 26 `goal` + 14 `dataSeries` readers for every user and id; a roadmap PUT expires 31 of 37 DB readers. |
+| O2 | effect *, action DELETE, goal DELETE → `goal` + `action` | Hits 31 of the 37 DB readers. |
+| O8 | first login and a name change → `user` | Small: expires the 4 readers about people (profiles, org people, org comments), twice per new account (account, then the name on /welcome). It would be every page with a byline for everyone if the content readers declared `user`, which is why they [do not](#author-names-bylines-are-not-tagged). |
 | O3 | roadmap / iteration DELETE → 3–4 tags | Effectively flushes the DB cache. Acceptable: rare. |
 | O4 | comment POST → the object's whole entity tag | Expires every goal (or action, ...) entry to show one comment. |
 | O5 | recalculate → `dataSeries` | Expires 14 readers (goal pages, iteration pages, national matches, liked goals, ...) for one series, now immediately (S7). |
@@ -208,7 +215,7 @@ Deliberately uncached and fine: `getOrgManagement` (manager page, must be fresh,
 4. Declare `database` (until retired) plus a tag for **every entity whose rows it returns or filters by**:
    - uses `visible*WHERE`, `readableAccessControlWHERE` or `listedGoalsWHERE` → `roadmap` + `roadmapIteration` (visibility comes from roadmap access and iteration status);
    - returns `accessControlSelection` or any org name/area → `org`;
-   - returns people's names (`author`, a profile) → `user`;
+   - reads `users` directly (a profile) or is a list about people (org people, comment lists) → `user`. An `author` name embedded in a content row does **not** need it: [bylines are untagged](#author-names-bylines-are-not-tagged);
    - returns series values or recipes → `dataSeries`; filters by `visibleDataSeriesWHERE` → also `goal` + `action` (a series is visible through its goal or effect);
    - returns `_count` or ids of goals/actions/effects → `goal` / `action`;
    - returns related rows (effects, goal names on actions, action names on goals, ...) → their tags.
