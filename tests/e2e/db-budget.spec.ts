@@ -35,6 +35,11 @@ const QueryBudget = {
   RoadmapIteration: 4,
   /** The same page narrowed to the goals admin's org liked (`?likes=org`): the likes are one cached grouped read. Measured: the same as the whole list */
   RoadmapIterationLiked: 4,
+  /**
+   * `/org/<Boden>/report`, the org's printable report. Measured: 4, like the other pages on the same run.
+   * (Cold, its own loader is a fixed ~20 statements whatever the number of goals; a warm load can't show that.)
+   */
+  OrgReport: 4,
 } as const;
 
 const REPEATS = 3;
@@ -145,5 +150,10 @@ test.describe("DB query budget", () => {
 
   test("Roadmap iteration, liked goals", async ({ page }) => {
     await check(page, "Roadmap iteration (liked goals)", `${urls.roadmap}?likes=org`, QueryBudget.RoadmapIterationLiked);
+  });
+
+  test("Org report", async ({ page }) => {
+    const orgId = new URL(urls.orgLanding, "http://localhost").searchParams.get("org") ?? "";
+    await check(page, "Org report", `/org/${orgId}/report`, QueryBudget.OrgReport);
   });
 });

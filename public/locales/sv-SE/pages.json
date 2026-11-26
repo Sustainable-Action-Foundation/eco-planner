@@ -590,5 +590,53 @@
       "name": "Namn",
       "role": "Roll"
     }
+  },
+  "org_report": {
+    "export_button": "Exportera till PDF",
+    "toolbar": {
+      "title": "Exportera till PDF",
+      "hint": "Skriv ut sidan och välj \"Spara som PDF\" som skrivare. Dokumentet är anpassat för A4.",
+      "print": "Skriv ut eller spara som PDF",
+      "version_label": "Version av exporten",
+      "viewer_version": "Allt jag kan se",
+      "public_version": "Publik version",
+      "viewer_note": "Exporten innehåller allt du kan läsa i organisationen, även sådant som inte är publikt.",
+      "public_note": "Exporten innehåller det en besökare som inte är inloggad kan se.",
+      "unlisted_off": "Ta med dolda $t(common:goal_other)",
+      "unlisted_on": "Dolda $t(common:goal_other) ingår"
+    },
+    "cover": {
+      "kicker": "Sammanställning av $t(common:roadmap_other), $t(common:goal_other) och $t(common:action_other)",
+      "exported": "Exporterad {{date, datetime}}",
+      "public_version": "Publik version: det som är synligt för alla",
+      "viewer_version": "Inloggad version: kan innehålla sådant som inte är publikt",
+      "contents": "Innehåll"
+    },
+    "summary": {
+      "title": "Läget och var vi är nu"
+    },
+    "roadmap": {
+      "updated": "Senast ändrad {{date, datetime}}",
+      "no_version": "$t(common:roadmap_definite_one, titleCase) har ingen publicerad version.",
+      "no_goals": "Den här versionen har inga synliga $t(common:goal_other).",
+      "unlisted_left_out_one": "{{count}} dold $t(common:goal_one) ingår inte i exporten.",
+      "unlisted_left_out_other": "{{count}} dolda $t(common:goal_other) ingår inte i exporten."
+    },
+    "goal": {
+      "indicator": "Indikator: {{indicator}}",
+      "unit": "Enhet: {{unit}}",
+      "year": "År",
+      "historical": "$t(common:historical_data, titleCase)",
+      "no_data": "$t(common:goal_definite_one, titleCase) saknar värden.",
+      "graph_label": "Graf över $t(common:goal_definite_one) {{goal}}",
+      "effects_title": "$t(common:action_other, titleCase) som påverkar $t(common:goal_definite_one)"
+    },
+    "actions": {
+      "in_roadmap": "$t(common:action_other, titleCase) i {{roadmap}}",
+      "without_roadmap": "$t(common:action_other, titleCase) utan $t(common:roadmap_one)",
+      "older_versions": "$t(common:action_other, titleCase) i tidigare versioner",
+      "linked_goals": "Påverkar $t(common:goal_other)",
+      "none": "Inga $t(common:action_other) att visa."
+    }
   }
 }

@@ -19,6 +19,16 @@ Rules:
 - An org can have a landing banner. A manager uploads it; the server transcodes it with sharp (`src/lib/orgBannerImage.ts`, limits in `src/functions/orgBanner.ts`) and stores it in the same bucket as attachments.
 - `GET /api/org/[orgId]/banner` serves it through the app, not through a presigned link, so the browser can cache it: the current version is immutable under its `?v=`. It is private to those who see the org.
 
+## Report (PDF export)
+`/org/[orgId]/report` renders an org's whole content as one document: profile, the landing's key numbers and process, each listed roadmap's current version with its goals (graph, key years, the actions acting on it), then the org's actions. The landing's "Exportera till PDF" button opens it with `?print=true`, which opens the browser's print dialog; saving as PDF is the browser's job. There is no server-side PDF renderer.
+
+- **Access is the landing's.** The page is open to anyone and shows what the viewer may read. Those who can write in the org get everything they can read and may ask for the public version (`?view=public`, a visitor's document). `getOrgReport` applies the access filters in its queries; the page decides nothing.
+- **Unlisted goals stay out for everyone**, as in the counts, so the numbers on the first page match the content. `?unlisted=true` adds the ones the viewer can edit and gives nothing to anyone else.
+- **Graphs are static SVG drawn on the server** (`StaticGoalGraph`), not the interactive charts. Why: an org with a copied national scenario has hundreds of goals, a chart instance each takes tens of seconds to mount and has to finish before printing, and the print dialog cannot wait for them. Descriptions are rendered without the editor for the same reason (`StaticRichText`).
+- **Nothing streams.** No `Suspense` in the document: it must be whole when the print dialog opens.
+- **Print CSS.** The document is laid out at A4's content width on screen too, so the preview is what prints. Page size, margins and the running footer (org, date, page numbers) are a named `@page` rule per document, because visited routes stay mounted and an unnamed rule would apply to whatever is printed next. `.print-hidden` (global) takes the app's chrome off paper on every page.
+- A roadmap with goals starts on a new page; a goal is never split across pages. Actions are printed in full once, in their own section, and goals refer to them; actions of superseded versions are only named.
+
 ## Goal likes
 - `GoalLikes` (goal + user). `POST` / `DELETE /api/goal-like` with `{ goalId }`, idempotent, needs view access.
 - A like can be refined with aspects (`GoalLikeAspects`): through which kind of "rådighet" (ability to act) the liker's org can act on the goal. `LikeAspect` is a config list in `src/types/enums.ts` rather than a database enum, so it can change without a migration.

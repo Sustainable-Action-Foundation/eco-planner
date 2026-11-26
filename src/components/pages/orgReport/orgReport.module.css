@@ -1,0 +1,447 @@
+/*
+ * The org report: one document, laid out at A4's content width (180 mm) both on screen and
+ * on paper, so what the preview shows is what prints. Black on white whatever the screen
+ * looks like. The page size, margins and running footer are set per document in an inline
+ * named @page rule (see orgReport.tsx).
+ */
+
+/* Screen only: what the export is and the controls for it */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-block: 1.5rem 1rem;
+}
+
+.toolbar h1 {
+  margin: 0 0 .25rem;
+  font-size: 1.5rem;
+}
+
+.toolbar p {
+  margin: 0;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* The desk the sheet lies on; scrolls sideways on screens narrower than the paper */
+.frame {
+  overflow-x: auto;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  border-radius: .25rem;
+  background-color: var(--gray-90, #e6e6e6);
+}
+
+.document {
+  box-sizing: content-box;
+  width: 180mm;
+  margin-inline: auto;
+  padding: 15mm;
+  background-color: white;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .25);
+  color: black;
+  color-scheme: light;
+  font-size: 10.5pt;
+  line-height: 1.4;
+  /* Colours carry meaning here (graph lines, meters, the step in focus): keep them on paper */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.document p {
+  width: auto;
+  margin-block: 0 .5em;
+  line-height: 1.4;
+}
+
+.document a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Addresses outside the app are spelled out: a printed link can't be followed */
+.document a[href^="http"] {
+  text-decoration: underline;
+}
+
+.document a[href^="http"]::after {
+  content: " (" attr(href) ")";
+  font-weight: normal;
+  overflow-wrap: anywhere;
+}
+
+.document h1,
+.document h2,
+.document h3,
+.document h4 {
+  margin: 0;
+  line-height: 1.2;
+  break-after: avoid;
+}
+
+.document h1 {
+  font-size: 24pt;
+}
+
+.document h2 {
+  font-size: 15pt;
+}
+
+.document h3 {
+  font-size: 11.5pt;
+}
+
+.document h4 {
+  font-size: 10.5pt;
+}
+
+.kicker {
+  margin: 0 0 .15rem !important;
+  font-size: 9pt;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #444;
+  break-after: avoid;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .75rem;
+  align-items: center;
+  margin: .2rem 0 .4rem !important;
+  font-size: 9pt;
+  color: #444;
+  break-after: avoid;
+}
+
+/* The app's badges and sharing line, at the document's size and dark enough for paper */
+.meta > span {
+  font-size: 9pt !important;
+}
+
+.meta > span[data-testid="sharing-line"],
+.document :global(.color-gray) {
+  color: #444 !important;
+}
+
+.meta svg,
+.goal h3 svg {
+  width: 11px;
+  height: 11px;
+  min-width: 11px !important;
+}
+
+.muted {
+  color: #555;
+}
+
+.note {
+  padding: .35rem .6rem;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  font-size: 9.5pt;
+}
+
+.footnote {
+  font-size: 8.5pt;
+  color: #444;
+}
+
+.description {
+  margin-bottom: .5rem;
+}
+
+.description ul,
+.description ol {
+  margin-block: 0 .5em;
+  padding-left: 1.4em;
+}
+
+/* Cover: who the org is */
+.cover h1 {
+  margin-bottom: .25rem;
+}
+
+.banner {
+  position: relative;
+  height: 45mm;
+  margin-bottom: 6mm;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: var(--seagreen, #2e8a56);
+}
+
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 8mm;
+  align-items: start;
+  margin-top: 6mm;
+}
+
+.about h2,
+.contents h2 {
+  margin-bottom: .35rem;
+  font-size: 11.5pt;
+}
+
+.about dl {
+  padding: .25rem .75rem;
+  font-size: 9.5pt;
+  background: none;
+  break-inside: avoid;
+}
+
+.contents {
+  margin-top: 6mm;
+  break-inside: avoid;
+}
+
+.contents ol {
+  margin: 0;
+  padding-left: 1.4em;
+  columns: 2;
+  column-gap: 8mm;
+  font-size: 9.5pt;
+}
+
+.contents li {
+  break-inside: avoid;
+}
+
+/* Summary: the landing's key numbers and process, side by side with nothing to click */
+.summary {
+  display: grid;
+  gap: 6mm;
+  margin-top: 8mm;
+}
+
+.summary > div {
+  break-inside: avoid;
+}
+
+.summary h2 {
+  margin-bottom: .35rem !important;
+  font-size: 11.5pt !important;
+}
+
+.summary dl {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+/* Five steps in a row at paper width too (the landing stacks them on narrow screens) */
+.summary ol {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  font-size: 9pt;
+}
+
+.summary ol > li {
+  padding: .4rem !important;
+  break-inside: avoid;
+}
+
+.summary ol span {
+  font-size: 8.5pt !important;
+}
+
+/*
+ * Every roadmap, and the actions, start on a page of their own. A roadmap with no goals
+ * to show is a few lines and carries on where the text before it ended, as do the
+ * actions of a document without any goals: a page each would be mostly empty paper.
+ */
+.roadmap,
+.actions {
+  break-before: page;
+  margin-top: 12mm;
+  padding-top: 12mm;
+  border-top: 1px dashed #bbb;
+}
+
+.roadmap[data-goals="0"],
+.document[data-goals="0"] .actions {
+  break-before: auto;
+  break-inside: avoid;
+}
+
+.roadmap > header {
+  margin-bottom: .5rem;
+  padding-bottom: .25rem;
+  border-bottom: 1.5pt solid black;
+}
+
+/* A goal never splits across pages: its graph and numbers are read together */
+.goal {
+  break-inside: avoid;
+  margin-top: 5mm;
+  padding-top: 3mm;
+  border-top: .5pt solid #bbb;
+}
+
+.goal h3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .5rem;
+  align-items: center;
+}
+
+.goal h3 span {
+  font-size: 8.5pt !important;
+}
+
+.goalData {
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+  gap: 5mm;
+  align-items: start;
+}
+
+.years {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  font-variant-numeric: tabular-nums;
+}
+
+.years th,
+.years td {
+  padding: 1.5pt 3pt;
+  border-bottom: .5pt solid #ccc;
+  text-align: right;
+  vertical-align: bottom;
+}
+
+.years thead th {
+  border-bottom: 1pt solid black;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.years th:first-child {
+  text-align: left;
+}
+
+.years tr {
+  break-inside: avoid;
+}
+
+.effects {
+  margin-top: 2mm;
+  font-size: 9.5pt;
+}
+
+.effects h4 {
+  font-size: 9.5pt;
+}
+
+.effects ul,
+.compact {
+  margin: .15rem 0 0;
+  padding-left: 1.4em;
+}
+
+.actions h2 {
+  padding-bottom: .25rem;
+  border-bottom: 1.5pt solid black;
+}
+
+.actions h3 {
+  margin-top: 6mm;
+}
+
+.action {
+  break-inside: avoid;
+  margin-top: 3mm;
+  padding-top: 2.5mm;
+  border-top: .5pt solid #bbb;
+}
+
+.action h4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: .25rem;
+}
+
+.period {
+  font-size: 9pt;
+  font-weight: normal;
+  color: #444;
+  white-space: nowrap;
+}
+
+.fields {
+  margin: 0;
+  font-size: 9.5pt;
+}
+
+.fields > div {
+  display: grid;
+  grid-template-columns: 38mm minmax(0, 1fr);
+  gap: 3mm;
+  padding-block: 1pt;
+}
+
+.fields dt {
+  color: #444;
+}
+
+.fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.compact {
+  font-size: 9.5pt;
+}
+
+.compact li {
+  break-inside: avoid;
+}
+
+@media print {
+  .screenOnly {
+    display: none !important;
+  }
+
+  .frame {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+
+  /* The paper is the sheet now: its margins come from the @page rule */
+  .document {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  /* On screen the dashed rule stands in for the page break */
+  .roadmap,
+  .actions {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  /* Sections that carry on mid-page keep their distance to what is above them */
+  .roadmap[data-goals="0"],
+  .document[data-goals="0"] .actions {
+    margin-top: 10mm;
+  }
+}
