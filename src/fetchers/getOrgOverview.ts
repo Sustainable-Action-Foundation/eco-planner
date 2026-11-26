@@ -127,15 +127,20 @@ export type OrgComment = {
     | { type: "roadmap", id: string, name: string },
 };
 
-const orgCommentSelection = {
+/** What a comment was written on, and when: all the activity list needs (no author, so no `user` tag there) */
+const orgCommentTargetSelection = {
   id: true,
   created_at: true,
-  comment_text: true,
-  author: { select: { username: true, first_name: true, last_name: true } },
   action: { select: { id: true, name: true } },
   goal: { select: { id: true, name: true, indicator_parameter: true } },
   roadmap_iteration: { select: { version: true, roadmap: { select: { id: true, name: true } } } },
   roadmap: { select: { id: true, name: true } },
+} satisfies Prisma.CommentsSelect;
+
+const orgCommentSelection = {
+  ...orgCommentTargetSelection,
+  comment_text: true,
+  author: { select: { username: true, first_name: true, last_name: true } },
 } satisfies Prisma.CommentsSelect;
 
 /** Matches the comments on the org's roadmaps, versions, goals and actions that the user may see */
@@ -156,7 +161,7 @@ function orgCommentsWHERE(orgId: string, accessContext: UserAccessContext | null
   };
 }
 
-function commentTarget(comment: Prisma.CommentsGetPayload<{ select: typeof orgCommentSelection }>): OrgComment["target"] | null {
+function commentTarget(comment: Prisma.CommentsGetPayload<{ select: typeof orgCommentTargetSelection }>): OrgComment["target"] | null {
   if (comment.goal) return { type: "goal", id: comment.goal.id, name: comment.goal.name, indicatorParameter: comment.goal.indicator_parameter };
   if (comment.action) return { type: "action", id: comment.action.id, name: comment.action.name };
   if (comment.roadmap_iteration) return { type: "roadmapIteration", roadmapId: comment.roadmap_iteration.roadmap.id, name: comment.roadmap_iteration.roadmap.name, version: comment.roadmap_iteration.version };
@@ -251,7 +256,7 @@ async function getCachedOrgActivity(orgId: string, accessContext: UserAccessCont
       }),
       prisma.comments.findMany({
         where: orgCommentsWHERE(orgId, accessContext),
-        select: orgCommentSelection,
+        select: orgCommentTargetSelection,
         orderBy: newest,
         take: eventLimit,
       }),
