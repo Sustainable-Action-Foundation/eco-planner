@@ -42,9 +42,8 @@ export async function getOrgPeople(orgId: string, options: { asVisitor?: boolean
 
 /**
  * Caches the org's people per org; the wrapper decides who gets what. Role changes
- * revalidate 'org', likes 'goalLike', name changes 'user'. A first login that enrols a
- * new member revalidates nothing, so the member count catches up with the cache's own
- * revalidation (15 minutes).
+ * revalidate 'org', likes 'goalLike', name changes and a first login (which may enrol a
+ * new member) 'user'.
  */
 async function getCachedOrgPeople(orgId: string): Promise<{ managers: string[], memberCount: number, membersWithoutLikes: number }> {
   'use cache';
