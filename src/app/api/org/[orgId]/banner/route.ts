@@ -1,6 +1,6 @@
-import { getAccessContextFor, getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { MaxOrgBannerBytes, orgBannerPath, orgBannerStorageKey, OrgBannerRejection, rejectOrgBanner } from "@/functions/orgBanner";
-import { managesOrg, seesOrg } from "@/lib/accessChecker";
+import { managesOrg } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
 import { deleteStoredObjects, getStoredObject, isObjectStorageConfigured, putStoredObject } from "@/lib/objectStorage";
 import { transcodeOrgBanner } from "@/lib/orgBannerImage";
@@ -14,8 +14,8 @@ import type { NextRequest } from "next/server";
 
 /*
  * An org's landing banner: one image per org in the bucket, re-encoded as WebP on
- * upload. Managers (and super admins) set and remove it; everyone who sees the org's
- * landing page may fetch it. The org row only carries the upload time, which doubles
+ * upload. Managers (and super admins) set and remove it; anyone may fetch it, since the
+ * org's public view is open to everyone. The org row only carries the upload time, which doubles
  * as the "has a banner" flag and the cache-busting version in the image URL.
  */
 
@@ -43,21 +43,13 @@ async function requireUser(session: Awaited<ReturnType<typeof getSession>>): Pro
 /**
  * The banner itself. Served by the app rather than through a presigned link so the
  * browser can cache it: the current version is immutable under its `?v=`, any other
- * `v` (or none) is revalidated every time. Private, since it takes a membership.
+ * `v` (or none) is revalidated every time.
  */
 export async function GET(request: NextRequest, context: Context) {
-  const [{ orgId }, accessContext, t] = await Promise.all([
+  const [{ orgId }, t] = await Promise.all([
     context.params,
-    getUserAccessContext(),
     serveTea("api"),
   ]);
-
-  // Strangers get the same answer as for an unknown org
-  if (!seesOrg(accessContext, orgId)) {
-    return Response.json({ message: t("api:org.not_found") },
-      { status: 404 },
-    );
-  }
 
   let org: { banner_updated_at: Date | null } | null;
   try {
@@ -98,8 +90,8 @@ export async function GET(request: NextRequest, context: Context) {
     const headers = new Headers({
       "Content-Type": "image/webp",
       "Cache-Control": request.nextUrl.searchParams.get("v") === current
-        ? `private, max-age=${immutableFor}, immutable`
-        : "private, no-cache",
+        ? `public, max-age=${immutableFor}, immutable`
+        : "no-cache",
       "X-Content-Type-Options": "nosniff",
     });
     if (stored.contentLength !== null) headers.set("Content-Length", String(stored.contentLength));

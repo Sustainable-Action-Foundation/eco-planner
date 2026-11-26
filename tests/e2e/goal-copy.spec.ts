@@ -132,7 +132,7 @@ test.describe("Copying a goal into a roadmap", () => {
         const likedRow = visible(page, `[data-testid="liked-goal"][data-goal-id="${goalId}"]`);
         try {
           // Liked but not yet copied into any roadmap of the org
-          await gotoUntil(page, `/?org=${sandbox.orgId}`, async () => {
+          await gotoUntil(page, `/?org=${sandbox.orgId}&tab=liked`, async () => {
             await expect(likedRow).toBeVisible({ timeout: 5_000 });
             await expect(likedRow.getByTestId("liked-goal-copied")).toHaveCount(0, { timeout: 5_000 });
           }, 90_000);
@@ -145,7 +145,7 @@ test.describe("Copying a goal into a roadmap", () => {
           await expect(page.getByTestId("goal-indicator-parameter").filter({ visible: true })).toContainText(leafAsIs, { timeout: 30_000 });
 
           // The landing now says the org has it, naming the copy
-          await gotoUntil(page, `/?org=${sandbox.orgId}`, async () => {
+          await gotoUntil(page, `/?org=${sandbox.orgId}&tab=liked`, async () => {
             await expect(likedRow.getByTestId("liked-goal-copied")).toBeVisible({ timeout: 5_000 });
           }, 90_000);
           await expect(likedRow.getByTestId("liked-goal-copied")).toHaveAttribute("title", new RegExp(leafAsIs));

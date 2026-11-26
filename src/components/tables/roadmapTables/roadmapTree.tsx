@@ -1,7 +1,7 @@
 import "server-only";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { ControlsMenu } from "@/components/elements/controls/controls";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { IterationStatus } from "@/lib/prisma/generated";
 import type { MultiRoadmapInstance, UserAccessContext } from "@/types";
 import Link from "next/link";
@@ -19,6 +19,8 @@ type RoadmapTreeProps = {
   accessContext: UserAccessContext | null;
   /** The versions to show: per roadmap its latest published one plus any drafts the user may see */
   iterations: TreeIteration[];
+  /** Mark the rows the user can read but not edit (the working view, which mixes both) */
+  markReadOnly?: boolean;
 };
 
 /**
@@ -60,6 +62,7 @@ function groupByRoadmap(iterations: TreeIteration[]) {
 export default async function RoadmapTree({
   iterations,
   accessContext,
+  markReadOnly = false,
 }: RoadmapTreeProps) {
   const t = await serveTea("components");
   if (!iterations.length) {
@@ -85,6 +88,7 @@ export default async function RoadmapTree({
           childNodes={topLevelNodes}
           draftsByRoadmap={draftsByRoadmap}
           accessContext={accessContext}
+          markReadOnly={markReadOnly}
         />
       </ul>
     </nav>
@@ -120,7 +124,7 @@ function typeAliasFor(iteration: TreeIteration, t: TFunction): string {
 }
 
 /** The link + meta line for one version; drafts get a badge and green stripes. */
-function IterationLink({ iteration, t }: { iteration: TreeIteration, t: TFunction }) {
+function IterationLink({ iteration, t, readOnly }: { iteration: TreeIteration, t: TFunction, readOnly: boolean }) {
   const isDraft = iteration.status === IterationStatus.DRAFT;
   return (
     <Link
@@ -132,7 +136,7 @@ function IterationLink({ iteration, t }: { iteration: TreeIteration, t: TFunctio
       {/* Name, version */}
       <div className="flex align-items-center gap-50 flex-wrap-wrap">
         {t("components:roadmap_tree.title", { name: iteration.roadmap.name, version: iteration.version })}
-        <VisibilityBadges hidden={iteration.roadmap.hidden} status={iteration.status} />
+        <VisibilityBadges hidden={iteration.roadmap.hidden} status={iteration.status} readOnly={readOnly} />
       </div>
       {/* Type, goal count */}
       <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
@@ -152,16 +156,19 @@ async function NestedRoadmapRenderer({
   childNodes,
   draftsByRoadmap,
   accessContext,
+  markReadOnly,
 }: {
   allNodes: TreeIteration[],
   childNodes: TreeIteration[],
   draftsByRoadmap: Map<string, TreeIteration[]>,
   accessContext: RoadmapTreeProps['accessContext'],
+  markReadOnly: boolean,
 }) {
   const t = await serveTea(["components", "common"]);
   return <>
     {childNodes.map(node => {
       const accessLevel = accessChecker({ access_control: node.roadmap.access_control, status: node.status }, accessContext);
+      const readOnly = markReadOnly && !hasEditAccess(accessLevel);
       const drafts = draftsByRoadmap.get(node.roadmap_id) ?? [];
       const childRoadmapNodes = allNodes.filter(potentialChild => (potentialChild.roadmap.parent_roadmap_id === node.roadmap_id) && (potentialChild.id !== node.id) && (potentialChild.roadmap.parent_roadmap_id != null));
 
@@ -174,7 +181,7 @@ async function NestedRoadmapRenderer({
                 <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                   <div className='inline-flex align-items-center flex-grow-100' key={node.id}>
                     <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
-                    <IterationLink iteration={node} t={t} />
+                    <IterationLink iteration={node} t={t} readOnly={readOnly} />
                   </div>
                   <span className="flex align-items-center padding-inline-25">
                     <ControlsMenu
@@ -191,7 +198,7 @@ async function NestedRoadmapRenderer({
                     <li key={`roadmap-tree-${draft.id}`} className="inline-flex align-items-center flex-grow-100 width-100">
                       <div className='inline-flex align-items-center flex-grow-100'>
                         <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
-                        <IterationLink iteration={draft} t={t} />
+                        <IterationLink iteration={draft} t={t} readOnly={false} />
                       </div>
                       <span className="flex align-items-center padding-inline-25">
                         <ControlsMenu
@@ -206,6 +213,7 @@ async function NestedRoadmapRenderer({
                     childNodes={childRoadmapNodes}
                     draftsByRoadmap={draftsByRoadmap}
                     accessContext={accessContext}
+                    markReadOnly={markReadOnly}
                   />
                 </ul>
               </details>
@@ -214,7 +222,7 @@ async function NestedRoadmapRenderer({
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={node.id}>
                 <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
-                <IterationLink iteration={node} t={t} />
+                <IterationLink iteration={node} t={t} readOnly={readOnly} />
               </div>
               <span className="flex align-items-center padding-inline-25">
                 <ControlsMenu

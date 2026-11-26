@@ -16,9 +16,10 @@ import { cacheTag } from "next/cache";
  *
  * Returns an empty array if none are found or on error.
  * @param orgId Only actions owned by this org; all visible actions when omitted
+ * @param options.asVisitor What a visitor without a login gets, whoever asks (the public view's preview)
  */
-export async function getActionSummaries(orgId?: string): Promise<ActionSummary[]> {
-  const accessContext = await getUserAccessContext();
+export async function getActionSummaries(orgId?: string, options: { asVisitor?: boolean } = {}): Promise<ActionSummary[]> {
+  const accessContext = options.asVisitor ? null : await getUserAccessContext();
   return uncachedFallback(() => getCachedActionSummaries(accessContext, orgId ?? null), [], "Error fetching action summaries", { orgId });
 }
 

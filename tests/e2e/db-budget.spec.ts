@@ -25,8 +25,10 @@ import { orgLandingHref } from "../lib/org-switcher";
 const QueryBudget = {
   /** `/`, admin's default org landing. Measured: 3 */
   Startpage: 4,
-  /** `/?org=<Boden>`. Measured: 3 */
+  /** `/?org=<Boden>`, the working view's overview. Measured: 3 */
   OrgLanding: 4,
+  /** `/?org=<Boden>&view=public`, the public view (admin's preview of it). Measured: 3 */
+  OrgLandingPublic: 4,
   /** First (unlisted, LEAP-copied) goal in table view of Bodens klimatfärdplan. Measured: 3 */
   GoalPage: 4,
   /** Bodens klimatfärdplan, latest iteration. Measured: 3 */
@@ -95,7 +97,8 @@ test.describe("DB query budget", () => {
     await page.goto("/");
     urls.orgLanding = await orgLandingHref(page, orgName);
 
-    await page.goto(urls.orgLanding);
+    // Admin gets the org's working view, whose roadmaps are a tab
+    await page.goto(`${urls.orgLanding}&tab=roadmaps`);
     const roadmapHref = await page.locator('main a[href^="/roadmap/"]').filter({ hasText: roadmapName }).first().getAttribute("href");
     expect(roadmapHref).toBeTruthy();
     urls.roadmap = roadmapHref ?? "";
@@ -126,6 +129,10 @@ test.describe("DB query budget", () => {
 
   test("Org landing", async ({ page }) => {
     await check(page, "Org landing", urls.orgLanding, QueryBudget.OrgLanding);
+  });
+
+  test("Org landing, public view", async ({ page }) => {
+    await check(page, "Org landing (public view)", `${urls.orgLanding}&view=public`, QueryBudget.OrgLandingPublic);
   });
 
   test("Goal page", async ({ page }) => {

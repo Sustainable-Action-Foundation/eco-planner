@@ -115,3 +115,14 @@ export function seesOrg(userAccessContext: UserAccessContext | null | undefined,
   if (!userAccessContext) return false;
   return userAccessContext.isSuperAdmin || userAccessContext.memberships.some(membership => membership.orgId === orgId);
 }
+
+/**
+ * Whether the user may write anything in the org: its managers and super admins, and
+ * anyone with edit access to one of its roadmaps (actions follow their roadmap; roadmapless
+ * ones are manager-only). Pass every roadmap the user can read, hidden ones included.
+ */
+export function writesInOrg(userAccessContext: UserAccessContext | null | undefined, orgId: string, roadmaps: AccessControlled[]): boolean {
+  if (!userAccessContext) return false;
+  if (managesOrg(userAccessContext, orgId)) return true;
+  return roadmaps.some(roadmap => roadmap.access_control.org_id === orgId && hasEditAccess(accessChecker({ access_control: roadmap.access_control }, userAccessContext)));
+}

@@ -6,6 +6,18 @@
     height: fit-content;
 }
 
+/* The view menu beside the list; above it on narrow screens */
+.actions-layout {
+    grid-template-columns: 25ch minmax(0, 1fr);
+}
+
+@media (max-width: 800px) {
+    .actions-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+}
+
 /* Generic */
 .action-title {
     font-size: 1.15rem;
