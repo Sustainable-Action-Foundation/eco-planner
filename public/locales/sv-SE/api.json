@@ -79,7 +79,20 @@
     "not_found": "Medlemskapet hittades inte",
     "own_role": "Du kan inte ändra din egen roll",
     "guest_locked": "Gästroller kan inte ändras här",
-    "updated": "Rollen uppdaterades"
+    "updated": "Rollen uppdaterades",
+    "manager_only": "Endast organisationens ansvariga kan lägga till medlemmar",
+    "super_admin_only": "Endast superadmins kan lägga till ur listan över alla användare. Ange en e-postadress i stället.",
+    "invalid_email": "Ogiltig e-postadress",
+    "no_account": "Det finns inget konto med den adressen. Personen behöver logga in i verktyget en gång först.",
+    "rate_limited": "För många försök på kort tid, vänta en minut",
+    "user_not_found": "Användaren hittades inte",
+    "already_member": "Personen är redan medlem i organisationen",
+    "own_membership": "Du kan inte ta bort eller flytta ditt eget medlemskap",
+    "same_org": "Medlemmen tillhör redan den organisationen",
+    "move_managed_only": "Du kan bara flytta medlemmar till organisationer där du också är ansvarig",
+    "added": "Medlemmen lades till",
+    "removed": "Medlemmen togs bort",
+    "moved": "Medlemmen flyttades"
   },
   "guestInvite": {
     "invalid_email": "Det där ser inte ut som en e-postadress",

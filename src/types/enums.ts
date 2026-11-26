@@ -129,6 +129,21 @@ export const LikeScope = {
 export type LikeScope = (typeof LikeScope)[keyof typeof LikeScope];
 
 /**
+ * Whose likes a roadmap version's goal list counts when it shows only liked
+ * goals: the `LikeScope`s of the viewer's org, plus the viewer's own likes
+ * and everyone's. Named by `?likes=` (lowercase), the param the org landing
+ * uses for its `LikeScope`.
+ */
+export const LikeFilter = {
+  Mine: "MINE",
+  Org: LikeScope.Org,
+  Area: LikeScope.Area,
+  County: LikeScope.County,
+  All: "ALL",
+} as const;
+export type LikeFilter = (typeof LikeFilter)[keyof typeof LikeFilter];
+
+/**
  * The kinds of rådighet (ability to act) a like can be refined with: through
  * which of these the liker's org can act on the goal. Optional on top of the
  * like itself. A config list, not a DB enum (GoalLikeAspects.aspect is a

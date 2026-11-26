@@ -33,6 +33,13 @@ const QueryBudget = {
   GoalPage: 4,
   /** Bodens klimatfärdplan, latest iteration. Measured: 3 */
   RoadmapIteration: 4,
+  /** The same page narrowed to the goals admin's org liked (`?likes=org`): the likes are one cached grouped read. Measured: the same as the whole list */
+  RoadmapIterationLiked: 4,
+  /**
+   * `/org/<Boden>/report`, the org's printable report. Measured: 4, like the other pages on the same run.
+   * (Cold, its own loader is a fixed ~20 statements whatever the number of goals; a warm load can't show that.)
+   */
+  OrgReport: 4,
 } as const;
 
 const REPEATS = 3;
@@ -102,9 +109,10 @@ test.describe("DB query budget", () => {
     urls.roadmap = roadmapHref ?? "";
 
     await page.goto(urls.roadmap);
+    // The view radios are disabled until hydration, so checking one first keeps the tab click from landing before it
+    await page.locator('input[name="table"][value="TABLE"]').first().check({ timeout: 30_000 });
     // Boden's goals are LEAP copies, all unlisted; admin (who can edit) gets them in a separate tab
     await page.getByTestId("unlisted-goals-tab").click({ timeout: 30_000 });
-    await page.locator('input[name="table"][value="TABLE"]').first().check();
     await expect(page.locator("#goalTable")).toBeVisible({ timeout: 30_000 });
     const goalHref = await page.locator('#goalTable a[href^="/goal/"]').first().getAttribute("href");
     expect(goalHref).toBeTruthy();
@@ -138,5 +146,14 @@ test.describe("DB query budget", () => {
 
   test("Roadmap iteration", async ({ page }) => {
     await check(page, "Roadmap iteration", urls.roadmap, QueryBudget.RoadmapIteration);
+  });
+
+  test("Roadmap iteration, liked goals", async ({ page }) => {
+    await check(page, "Roadmap iteration (liked goals)", `${urls.roadmap}?likes=org`, QueryBudget.RoadmapIterationLiked);
+  });
+
+  test("Org report", async ({ page }) => {
+    const orgId = new URL(urls.orgLanding, "http://localhost").searchParams.get("org") ?? "";
+    await check(page, "Org report", `/org/${orgId}/report`, QueryBudget.OrgReport);
   });
 });

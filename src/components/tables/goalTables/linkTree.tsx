@@ -6,27 +6,37 @@ import goalsToTree from '@/functions/goalsToTree';
 import type { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
-import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
+import { IconCaretRightFilled, IconHeartFilled, IconLink } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useIsClient } from "@/functions/useClientState";
+import { countTreeGoals } from '@/functions/likeFilter';
 
-// interface LinkTreeCommonProps {}
+type LinkTreeCommonProps = {
+  /**
+   * Likes per goal id. Given, the tree is the liked goals of a version (the
+   * caller passes only those): every branch starts open, since the point is
+   * to read the selection in its structure, each branch says how many liked
+   * goals it holds, and each goal how many likes it has.
+   */
+  likeCounts?: Record<string, number>,
+}
 
 type LinkTreeWithGoals = {
   goals: GoalTreeEntry[],
   iteration?: never,
-}
+} & LinkTreeCommonProps
 
 type LinkTreeWithIteration = {
   goals?: never,
   iteration: RoadmapIteration,
-}
+} & LinkTreeCommonProps
 
 type LinkTreeProps = LinkTreeWithGoals | LinkTreeWithIteration;
 
 export default function LinkTree({
   goals,
   iteration,
+  likeCounts,
 }: LinkTreeProps) {
   // common is used in goalsToTree, which this TFunction is passed into
   const { t } = useTranslation(["components", "common"]);
@@ -45,7 +55,8 @@ export default function LinkTree({
   }
 
   const handleToggle = (e: SyntheticEvent<HTMLDetailsElement, Event>, key: string) => {
-    if (!iteration) return;
+    // The liked goals open every branch themselves; that is not the user's choice to remember for the whole tree
+    if (!iteration || likeCounts) return;
     let currentStorage: string[] = getSessionStorage(iteration.id) as string[];
     if (!(currentStorage instanceof Array)) {
       setSessionStorage(iteration.id, []);
@@ -74,14 +85,34 @@ export default function LinkTree({
                   <span>
                     {key}
                   </span>
+                  {likeCounts ?
+                    <span
+                      className="display-inline-flex align-items-center gap-25 margin-inline-50 font-size-14px color-gray"
+                      title={t("components:goals.likes.like_count", { count: likeCounts[data[key].id] ?? 0 })}
+                      data-testid="goal-like-count"
+                    >
+                      <IconHeartFilled aria-hidden="true" width={16} height={16} style={{ minWidth: '16px', color: 'var(--seagreen)' }} />
+                      {likeCounts[data[key].id] ?? 0}
+                    </span>
+                    : null}
                 </Link>
               ) : (
-                <details className={styles.details} open={openCategories?.includes(previousKeys + "\\" + key)} onToggle={(e) => handleToggle(e, previousKeys + "\\" + key)}>
+                <details className={styles.details} open={!!likeCounts || openCategories?.includes(previousKeys + "\\" + key)} onToggle={(e) => handleToggle(e, previousKeys + "\\" + key)}>
                   <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                     <div className='inline-flex align-items-center flex-grow-100 padding-block-50 '>
                       <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
                       <span style={{ lineHeight: '1', userSelect: 'none' }}>
                         {key}
+                        {/* Inside the name, so it stays with the last word when the name wraps */}
+                        {likeCounts ?
+                          <span
+                            className="margin-inline-50 font-size-14px color-gray"
+                            title={t("components:goals.likes.branch_count", { count: countTreeGoals(data[key] as GoalTree) })}
+                            data-testid="branch-liked-count"
+                          >
+                            {countTreeGoals(data[key] as GoalTree)}
+                          </span>
+                          : null}
                       </span>
                     </div>
                   </summary>

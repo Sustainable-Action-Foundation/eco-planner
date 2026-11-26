@@ -279,6 +279,7 @@
     "all_actions": "Alla $t(common:action_other)",
     "all_goals": "Alla $t(common:goal_other)",
     "featured_goals": "Utvalda $t(common:goal_other)",
+    "liked_goals_need_login": "Logga in för att se vilka $t(common:goal_other) som är gillade.",
     "show_series": "Visa versioner",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
@@ -349,6 +350,36 @@
       "manager": "Ansvarig",
       "member": "Medlem",
       "guest": "Gäst"
+    },
+    "member_admin": {
+      "manage_heading": "Lägg till och ta bort medlemmar",
+      "manage_description": "Organisationens ansvariga bestämmer vilka som är medlemmar. Medlemmar kan läsa allt som delas med hela organisationen. En ändring gäller från personens nästa sidvisning.",
+      "email_label": "Lägg till en person med e-postadress",
+      "email_placeholder": "namn@exempel.se",
+      "email_hint": "Skriv hela adressen. Personen behöver redan ha ett konto, det vill säga ha loggat in i verktyget minst en gång.",
+      "own_membership_hint": "Ditt eget medlemskap kan du inte ta bort eller flytta.",
+      "remove_label": "Ta bort en medlem",
+      "heading": "Alla användare och flytt till valfri organisation",
+      "badge": "Superadmin",
+      "description": "Bara superadmins kan välja bland alla användare och flytta en medlem till vilken organisation som helst. Det som sätts här ligger kvar: användare placeras bara automatiskt efter e-postdomän när kontot skapas, inte vid senare inloggningar.",
+      "add_label": "Lägg till en användare ur listan",
+      "user_placeholder": "Sök användare på namn eller e-postadress",
+      "no_org": "ingen organisation",
+      "role_label": "Roll",
+      "add": "Lägg till",
+      "added_toast": "{{name}} lades till i {{org}}",
+      "change_label": "Ta bort eller flytta en medlem",
+      "move_any_label": "Flytta en medlem till en annan organisation",
+      "member_placeholder": "Välj medlem",
+      "move_label": "Flytta {{name}} till en annan organisation",
+      "target_placeholder": "Välj organisation",
+      "move": "Flytta",
+      "move_hint": "Vid en flytt tas medlemskapet här bort och ett nytt skapas i den valda organisationen. Grupper följer inte med, eftersom de tillhör organisationen. Innehåll som personen har skapat ligger kvar hos organisationen.",
+      "move_managed_hint": "Du kan flytta medlemmar till andra organisationer där du är ansvarig. Medlemskapet här tas bort och ett nytt skapas där. Grupper följer inte med, eftersom de tillhör organisationen.",
+      "moved_toast": "{{name}} flyttades till {{org}}",
+      "remove": "Ta bort ur {{org}}",
+      "removed_toast": "{{name}} togs bort ur {{org}}",
+      "last_manager_warning": "{{name}} är den enda ansvariga i {{org}}. Utan en ansvarig kan bara superadmins hantera organisationens delning, grupper och roller, tills någon annan görs till ansvarig."
     },
     "members_heading": "Medlemmar",
     "groups_heading": "Grupper",
@@ -590,6 +621,54 @@
       "manage": "Hantera medlemmar och grupper",
       "name": "Namn",
       "role": "Roll"
+    }
+  },
+  "org_report": {
+    "export_button": "Exportera till PDF",
+    "toolbar": {
+      "title": "Exportera till PDF",
+      "hint": "Skriv ut sidan och välj \"Spara som PDF\" som skrivare. Dokumentet är anpassat för A4.",
+      "print": "Skriv ut eller spara som PDF",
+      "version_label": "Version av exporten",
+      "viewer_version": "Allt jag kan se",
+      "public_version": "Publik version",
+      "viewer_note": "Exporten innehåller allt du kan läsa i organisationen, även sådant som inte är publikt.",
+      "public_note": "Exporten innehåller det en besökare som inte är inloggad kan se.",
+      "unlisted_off": "Ta med dolda $t(common:goal_other)",
+      "unlisted_on": "Dolda $t(common:goal_other) ingår"
+    },
+    "cover": {
+      "kicker": "Sammanställning av $t(common:roadmap_other), $t(common:goal_other) och $t(common:action_other)",
+      "exported": "Exporterad {{date, datetime}}",
+      "public_version": "Publik version: det som är synligt för alla",
+      "viewer_version": "Inloggad version: kan innehålla sådant som inte är publikt",
+      "contents": "Innehåll"
+    },
+    "summary": {
+      "title": "Läget och var vi är nu"
+    },
+    "roadmap": {
+      "updated": "Senast ändrad {{date, datetime}}",
+      "no_version": "$t(common:roadmap_definite_one, titleCase) har ingen publicerad version.",
+      "no_goals": "Den här versionen har inga synliga $t(common:goal_other).",
+      "unlisted_left_out_one": "{{count}} dold $t(common:goal_one) ingår inte i exporten.",
+      "unlisted_left_out_other": "{{count}} dolda $t(common:goal_other) ingår inte i exporten."
+    },
+    "goal": {
+      "indicator": "Indikator: {{indicator}}",
+      "unit": "Enhet: {{unit}}",
+      "year": "År",
+      "historical": "$t(common:historical_data, titleCase)",
+      "no_data": "$t(common:goal_definite_one, titleCase) saknar värden.",
+      "graph_label": "Graf över $t(common:goal_definite_one) {{goal}}",
+      "effects_title": "$t(common:action_other, titleCase) som påverkar $t(common:goal_definite_one)"
+    },
+    "actions": {
+      "in_roadmap": "$t(common:action_other, titleCase) i {{roadmap}}",
+      "without_roadmap": "$t(common:action_other, titleCase) utan $t(common:roadmap_one)",
+      "older_versions": "$t(common:action_other, titleCase) i tidigare versioner",
+      "linked_goals": "Påverkar $t(common:goal_other)",
+      "none": "Inga $t(common:action_other) att visa."
     }
   }
 }

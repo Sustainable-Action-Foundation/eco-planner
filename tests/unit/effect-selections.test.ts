@@ -72,8 +72,9 @@ test.describe("fetchers that name effects themselves", () => {
     const offenders = fs.readdirSync(fetchers)
       .filter(file => file.endsWith(".ts") && file !== "inclusionSelectors.ts")
       .flatMap(file => fs.readFileSync(path.join(fetchers, file), "utf-8").split("\n")
-        .map((line, index) => ({ at: `${file}:${index + 1}`, line: line.trim() }))
-        .filter(({ line }) => /\beffects:\s*(true|\{)/.test(line) && !line.includes("visibleEffectsWHERE(")))
+        // The filter sits on the same line, or on the next when the selection spans several
+        .map((line, index, lines) => ({ at: `${file}:${index + 1}`, line: line.trim(), next: lines[index + 1] ?? "" }))
+        .filter(({ line, next }) => /\beffects:\s*(true|\{)/.test(line) && !line.includes("visibleEffectsWHERE(") && !next.includes("where: visibleEffectsWHERE(")))
       .map(({ at, line }) => `${at} ${line}`);
     expect(offenders).toEqual([expect.stringMatching(/^getOneGoal\.ts:\d+ _count: \{ select: \{ effects: true \} \},$/)]);
   });

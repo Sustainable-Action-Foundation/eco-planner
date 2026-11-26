@@ -279,6 +279,7 @@
     "all_actions": "All $t(common:action_other)",
     "all_goals": "All $t(common:goal_other)",
     "featured_goals": "Featured $t(common:goal_other)",
+    "liked_goals_need_login": "Log in to see which $t(common:goal_other) are liked.",
     "show_series": "Show versions",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
@@ -349,6 +350,36 @@
       "manager": "Manager",
       "member": "Member",
       "guest": "Guest"
+    },
+    "member_admin": {
+      "manage_heading": "Add and remove members",
+      "manage_description": "The organization's managers decide who its members are. Members can read everything shared with the whole organization. A change applies from the person's next page view.",
+      "email_label": "Add a person by email address",
+      "email_placeholder": "name@example.com",
+      "email_hint": "Type the whole address. The person must already have an account, that is, have logged in to the tool at least once.",
+      "own_membership_hint": "You cannot remove or move your own membership.",
+      "remove_label": "Remove a member",
+      "heading": "All users and moves to any organization",
+      "badge": "Super admin",
+      "description": "Only super admins can pick from all users and move a member to any organization. What is set here stays: users are only placed automatically by email domain when their account is created, not at later logins.",
+      "add_label": "Add a user from the list",
+      "user_placeholder": "Search users by name or email address",
+      "no_org": "no organization",
+      "role_label": "Role",
+      "add": "Add",
+      "added_toast": "{{name}} was added to {{org}}",
+      "change_label": "Remove or move a member",
+      "move_any_label": "Move a member to another organization",
+      "member_placeholder": "Select member",
+      "move_label": "Move {{name}} to another organization",
+      "target_placeholder": "Select organization",
+      "move": "Move",
+      "move_hint": "A move removes the membership here and creates a new one in the selected organization. Groups do not come along, since they belong to the organization. Content the person has created stays with the organization.",
+      "move_managed_hint": "You can move members to other organizations that you manage. The membership here is removed and a new one created there. Groups do not come along, since they belong to the organization.",
+      "moved_toast": "{{name}} was moved to {{org}}",
+      "remove": "Remove from {{org}}",
+      "removed_toast": "{{name}} was removed from {{org}}",
+      "last_manager_warning": "{{name}} is the only manager of {{org}}. Without a manager, only super admins can handle the organization's sharing, groups and roles, until someone else is made a manager."
     },
     "members_heading": "Members",
     "groups_heading": "Groups",
@@ -590,6 +621,54 @@
       "manage": "Manage members and groups",
       "name": "Name",
       "role": "Role"
+    }
+  },
+  "org_report": {
+    "export_button": "Export to PDF",
+    "toolbar": {
+      "title": "Export to PDF",
+      "hint": "Print the page and choose \"Save as PDF\" as the printer. The document is laid out for A4.",
+      "print": "Print or save as PDF",
+      "version_label": "Version of the export",
+      "viewer_version": "Everything I can see",
+      "public_version": "Public version",
+      "viewer_note": "The export holds everything you can read in the organisation, including what is not public.",
+      "public_note": "The export holds what a visitor who is not logged in can see.",
+      "unlisted_off": "Include unlisted $t(common:goal_other)",
+      "unlisted_on": "Unlisted $t(common:goal_other) included"
+    },
+    "cover": {
+      "kicker": "Summary of $t(common:roadmap_other), $t(common:goal_other) and $t(common:action_other)",
+      "exported": "Exported {{date, datetime}}",
+      "public_version": "Public version: what is visible to everyone",
+      "viewer_version": "Logged-in version: may hold content that is not public",
+      "contents": "Contents"
+    },
+    "summary": {
+      "title": "The state of things and where we are now"
+    },
+    "roadmap": {
+      "updated": "Last changed {{date, datetime}}",
+      "no_version": "The $t(common:roadmap_one) has no published version.",
+      "no_goals": "This version has no listed $t(common:goal_other).",
+      "unlisted_left_out_one": "{{count}} unlisted $t(common:goal_one) is not in the export.",
+      "unlisted_left_out_other": "{{count}} unlisted $t(common:goal_other) are not in the export."
+    },
+    "goal": {
+      "indicator": "Indicator: {{indicator}}",
+      "unit": "Unit: {{unit}}",
+      "year": "Year",
+      "historical": "$t(common:historical_data, titleCase)",
+      "no_data": "The $t(common:goal_one) has no values.",
+      "graph_label": "Graph of the $t(common:goal_one) {{goal}}",
+      "effects_title": "$t(common:action_other, titleCase) affecting the $t(common:goal_one)"
+    },
+    "actions": {
+      "in_roadmap": "$t(common:action_other, titleCase) in {{roadmap}}",
+      "without_roadmap": "$t(common:action_other, titleCase) without a $t(common:roadmap_one)",
+      "older_versions": "$t(common:action_other, titleCase) in earlier versions",
+      "linked_goals": "Affects $t(common:goal_other)",
+      "none": "No $t(common:action_other) to show."
     }
   }
 }

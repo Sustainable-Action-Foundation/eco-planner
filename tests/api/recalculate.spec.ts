@@ -46,7 +46,7 @@ test("a child series follows its parent once recalculated", async ({ admin, sand
   expect(response.status(), text).toBe(200);
   expect(JSON.parse(text)).toMatchObject({ id: childSeriesId });
 
-  // Recalculation revalidates with `max` (stale-while-revalidate), so the page catches up on a later read
+  // Polled like the other read-backs here; that the very next read has the new values is pinned in caching.spec.ts
   const child = await pageEntityWhen(admin, `/goal/${childId}`, childId, goal => seriesValues(goal?.data_series).length === 4, "the recalculated child series");
   expect(seriesValues(child?.data_series)).toEqual([2, 4, 6, 8]);
   expect((child?.data_series as { unit: string }).unit).toBe("ton");

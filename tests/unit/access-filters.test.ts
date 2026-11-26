@@ -9,6 +9,7 @@ import {
   editableAttachmentsWHERE,
   editableDataSeriesWHERE,
   everythingWHERE,
+  listedActionsWHERE,
   listedGoalsWHERE,
   listedRoadmapsWHERE,
   managedOrgIds,
@@ -339,6 +340,24 @@ test.describe("actions", () => {
     expect(matches(editableActionsWHERE(contexts.member), roadmapless)).toBe(false);
     expect(matches(editableActionsWHERE(null), roadmapless)).toBe(false);
     expect(editableActionsWHERE(null)).toEqual({ org_id: { in: [] } });
+  });
+
+  test("action lists show the visible actions, without those of hidden roadmaps, optionally of one org", () => {
+    for (const contextName of contextNames) {
+      const listed = listedActionsWHERE(contexts[contextName]);
+      const listedInOrg = listedActionsWHERE(contexts[contextName], ORG);
+      for (const iteration of iterations) {
+        const visible = hasViewAccess(accessChecker(iteration, contexts[contextName]));
+        const action = (hidden: boolean) => ({ org_id: ORG, roadmap_iteration: { ...iteration, roadmap: { ...iteration.roadmap, hidden } } });
+        expect(matches(listed, action(false)), `${contextName} lists action in ${iteration.name}`).toBe(visible);
+        expect(matches(listedInOrg, action(false)), `${contextName} lists the org's action in ${iteration.name}`).toBe(visible);
+        // Not even for those who can write to the hidden roadmap: lists leave it out for everyone
+        expect(matches(listed, action(true)), `${contextName} lists action of a hidden ${iteration.name}`).toBe(false);
+      }
+      expect(matches(listed, { org_id: ORG, roadmap_iteration: null }), `${contextName} lists a roadmapless action`).toBe(true);
+      expect(matches(listedInOrg, { org_id: ORG, roadmap_iteration: null })).toBe(true);
+      expect(matches(listedInOrg, { org_id: OTHER_ORG, roadmap_iteration: null }), `${contextName} lists another org's action as the org's`).toBe(false);
+    }
   });
 });
 
