@@ -298,6 +298,47 @@ test.describe("someone who edits the copy but cannot see the original", () => {
     }
   });
 
+  test("gets nothing back by passing the original's series off as fetched statistics", async ({ admin, anita, sandbox }) => {
+    const world = await buildClosedWorld(admin, sandbox.orgId, sandbox.label);
+    try {
+      // A recipe variable that carries a statistics selection is not checked against the user's
+      // read access when saved (`assertReadableLinkedSeries` skips it: materialized statistics
+      // fill no slot). Whoever knows a series id could link it that way. The reader must still
+      // not hand the series over: it has an owner, and anita may not see it
+      const response = await anita.post("/api/goal", {
+        data: {
+          target: "DATA_SERIES", goalId: world.copyId, timestamp: freshTimestamp(),
+          dataSeriesRecipe: JSON.stringify({
+            name: "Statistics",
+            equation: "${stat}", // eslint-disable-line no-template-curly-in-string -- recipe variable syntax, not a template
+            variables: [{ id: "stat", name: "stat", type: "data-series", pick: "whole", unit: "ton", dataSeriesId: world.original.dataSeriesId, value: null, externalSource: { dataset: "SCB", tableId: "TAB1", selection: [] } }],
+            unit: "ton",
+            meta: { v: 1, isSuggestedRecipe: false, isManual: false },
+          }),
+          dataSeries: { unit: "ton", dateValues: yearlyDateValues([1, 2, 3]) },
+        },
+      });
+      // Refusing the write outright would be fine too; what must hold either way is below
+      expect([200, 403], await response.text()).toContain(response.status());
+
+      for (const url of [`/goal/${world.copyId}`, `/goal/${world.copyId}/edit`]) {
+        await expect.poll(async () => seriesValues((await pageEntity(anita, url, world.copyId))?.data_series), { message: `${url} after the write`, timeout: 60_000 })
+          .toEqual(response.status() === 200 ? [1, 2, 3] : COPY_SERIES);
+        const body = await pageBody(anita, url);
+        expect(body.includes(String(SOURCE_SERIES[0])), `${url}: the original's values`).toBe(false);
+        expect(body.includes(world.original.name), `${url}: the original's name`).toBe(false);
+        expect(sourceIds(await pageEntity(anita, url, world.copyId)), `${url}: the series the copy reads`).toEqual([]);
+      }
+      // Nor does a recalculation read it for her
+      const recalculation = await anita.post("/api/recalculate", { data: { dataSeriesId: world.copySeriesId } });
+      expect(recalculation.status(), await recalculation.text()).toBe(403);
+    }
+    finally {
+      await deleteRoadmap(admin, world.editableRoadmapId);
+      await deleteRoadmap(admin, world.closedRoadmapId);
+    }
+  });
+
   test("cannot recompute the copy from a part of its sources: recalculation and re-linking are refused, other edits leave the series alone", async ({ admin, anita, sandbox }) => {
     const world = await buildClosedWorld(admin, sandbox.orgId, sandbox.label);
     try {
