@@ -312,9 +312,12 @@ test.describe("someone who edits the copy but cannot see the original", () => {
       };
       const untouched = { values: COPY_SERIES, sources: [world.original.dataSeriesId] };
 
-      // anita may edit the copy, but a recalculation would have to read a series she may not: it does not run
+      // anita may edit the copy, but a recalculation would have to read a series she may not: it does not run,
+      // and the refusal says nothing of what it could not read
       const refused = await anita.post("/api/recalculate", { data: { dataSeriesId: world.copySeriesId } });
-      expect(refused.status(), await refused.text()).toBe(500);
+      const refusal = await refused.text();
+      expect(refused.status(), refusal).toBe(403);
+      expect(tracesOfOriginal(refusal, world.original), "the refusal").toEqual(NO_TRACES);
       // Nor may she store a recipe that reads the original, even the one already stored
       await putJson(anita, "/api/goal", {
         target: "DATA_SERIES", goalId: world.copyId, timestamp: freshTimestamp(),

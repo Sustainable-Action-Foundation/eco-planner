@@ -235,4 +235,14 @@ test.describe("a recipe is evaluated from all of its sources or not at all", () 
     const readable = Recipe.from({ name: "One", equation: `${ref("a")} * 2`, variables: [variable("a", SEEN)], unit: "ton", meta: { v: 1 } });
     expect(Object.values((await readable.evaluate([], { dataSeriesGetter: getter }))?.dateValues ?? {})).toEqual([20]);
   });
+
+  test("recalculation checks the recipe's sources against the viewer before it evaluates", () => {
+    const source = fs.readFileSync(path.join(process.cwd(), "src/app/api/recalculate/route.ts"), "utf-8");
+    const guard = source.indexOf("AND: [visibleSourceSeriesWHERE(accessContext)]");
+    expect(guard, "the guard").toBeGreaterThan(-1);
+    expect(source.indexOf("if (readable !== linkedSeriesIds.length)"), "the refusal").toBeGreaterThan(guard);
+    expect(source.indexOf("recipe.evaluate("), "the evaluation comes after").toBeGreaterThan(guard);
+    // The stored recipe, never the one a reader's selection may have emptied
+    expect(source).toContain("getOneRecipe(dataSeries.recipe_used_id)");
+  });
 });

@@ -5,7 +5,8 @@ import { getAccessContextFor } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeError, friendlyRecipeErrorMessage } from "@/functions/recipe/types/errors";
-import { editableDataSeriesWHERE } from "@/lib/accessFilters";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { editableDataSeriesWHERE, visibleSourceSeriesWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { UnitFlags } from "@/types/enums";
@@ -71,6 +72,22 @@ export async function POST(request: NextRequest) {
 
     // Try to recalculate the data series
     const recipe = Recipe.from(dbRecipe.recipe);
+
+    // A recalculation reads every series the recipe links, or does not run. Edit access to this
+    // series says nothing about the ones it is computed from: someone who may not read one of
+    // them gets a plain refusal, before the evaluator (whose errors name the variables, and a
+    // variable is labelled with the goal it reads) is given anything.
+    const linkedSeriesIds = [...new Set(recipe.variables.flatMap(variable =>
+      variable.type !== RecipeDataTypes.Scalar && variable.dataSeriesId ? [variable.dataSeriesId] : []))];
+    if (linkedSeriesIds.length > 0) {
+      const readable = await prisma.dataSeries.count({
+        where: { id: { in: linkedSeriesIds }, AND: [visibleSourceSeriesWHERE(accessContext)] },
+      });
+      if (readable !== linkedSeriesIds.length) {
+        throw new Error(ClientError.IllegalSource);
+      }
+    }
+
     const warnings: string[] = [];
     const evaluationResult = await recipe.evaluate(warnings, { dataSeriesGetter: clientSafeGetOneDataSeries })
       .catch((err: unknown) => {
@@ -141,6 +158,10 @@ export async function POST(request: NextRequest) {
         );
       } else if (err.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
+          { status: 403 },
+        );
+      } else if (err.message === ClientError.IllegalSource) {
+        return Response.json({ message: ClientError.IllegalSource },
           { status: 403 },
         );
       } else if (err instanceof RecipeError) {
