@@ -57,7 +57,11 @@ function memberOption(member: OrgManagement["members"][number], t: TFunction): O
  * re-member/delete. The server page has already verified the requester
  * manages the org.
  */
-export default function GroupManager({ management }: { management: OrgManagement }) {
+export default function GroupManager({ management, memberAdmin }: {
+  management: OrgManagement,
+  /** Super-admin membership administration (see memberAdmin.tsx), shown with the members; absent for managers */
+  memberAdmin?: React.ReactNode,
+}) {
   const { t } = useTranslation(["pages", "common"]);
 
   return (
@@ -82,6 +86,7 @@ export default function GroupManager({ management }: { management: OrgManagement
           </summary>
           <MemberRoles management={management} />
         </details>
+        {memberAdmin}
       </section>
 
       <section>

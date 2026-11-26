@@ -1,5 +1,7 @@
 import { getOrgManagement } from "@/fetchers";
 import GroupManager from "@/components/pages/groupManager";
+import MemberAdmin from "@/components/pages/memberAdmin";
+import { getOrgMemberAdmin } from "@/fetchers/getOrgMemberAdmin";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -18,9 +20,11 @@ export async function generateMetadata(props: { params: Promise<{ orgId: string 
 
 export default async function Page(props: { params: Promise<{ orgId: string }> }) {
   const params = await props.params;
-  const [t, management] = await Promise.all([
+  const [t, management, memberAdmin] = await Promise.all([
     serveTea(["pages", "common"]),
     getOrgManagement(params.orgId),
+    // Who the members are: for the same people as the page, with the user list only for super admins
+    getOrgMemberAdmin(params.orgId),
   ]);
 
   // Managers only; hide the page's existence from everyone else
@@ -37,7 +41,10 @@ export default async function Page(props: { params: Promise<{ orgId: string }> }
           {t("pages:org_groups.heading", { org: management.org.name })}
         </h1>
         <p className="margin-bottom-200">{t("pages:org_groups.description")}</p>
-        <GroupManager management={management} />
+        <GroupManager
+          management={management}
+          memberAdmin={memberAdmin ? <MemberAdmin admin={memberAdmin} orgName={management.org.name} /> : null}
+        />
       </main>
     </>
   );

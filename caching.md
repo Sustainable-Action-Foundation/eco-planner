@@ -40,7 +40,7 @@ Next.js docs (this Next differs from older versions, read these and not your mem
 | `dataSeries` | `dataSeries`, their values, and `recipes` | goal POST/PUT (full and section), effect *, action POST with effect, recalculate |
 | `recipe` | `recipes` | **nobody** (recipe writes revalidate `dataSeries`) |
 | `goalLike` | `goalLikes` | goal-like POST/DELETE |
-| `org` | `orgs` (name, geo area, banner, public profile), who manages an org | org PUT, org banner POST/DELETE, org-membership PUT |
+| `org` | `orgs` (name, geo area, banner, public profile), who manages an org and who its members are | org PUT, org banner POST/DELETE, org-membership PUT/POST/DELETE/PATCH |
 | `user` | `users` (existence, first and last name) as read by profiles and the org's people and comment lists. **Not** the author names on content pages: [bylines are untagged](#author-names-bylines-are-not-tagged) | first login (login-link PATCH creating the account), user PATCH (name) |
 | `curatedHistoricalData` | upstream SCB/Trafa data behind the curated catalog | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbPopulationQuery` | SCB population table TAB6471 | nobody (TTL `days`, failures `minutes`; upstream handler) |
@@ -91,7 +91,7 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedUserComments` (getUserComments) | user, rm + it, goal, action, org | authorId, ctx | the author's visible comments with the commented object's name |
 | `getCachedOrgs` (getUserOrgs) | org | org id list | org names + geo area + banner timestamp |
 | `getCachedOrgProfile` (getOrgProfile) | org | orgId | org name, area (+ county), banner version, public profile (description, type, contact, website); no ctx: the public view is open to everyone |
-| `getCachedOrgPeople` (getOrgPeople) | org, goalLike, user | orgId | manager names, member count, members without likes; the wrapper cuts it down per viewer. A new member's first login revalidates `user` |
+| `getCachedOrgPeople` (getOrgPeople) | org, goalLike, user | orgId | manager names, member count, members without likes; the wrapper cuts it down per viewer. A new member's first login revalidates `user`; members added, removed or moved by hand revalidate `org` |
 | `getCachedOrgCounts` (getOrgOverview) | goal, action, rm + it | orgId, ctx | goal / baseline / linked-action / action counts for the landing's process and key numbers |
 | `getCachedAreaOrgs` (getOrgOverview) | org | areaCode | orgs placed in the area (name, type) |
 | `getCachedOrgActivity` (getOrgOverview) | rm + it, goal, action, goalLike, org | orgId, ctx | latest ten events derived from creation timestamps |
@@ -122,7 +122,7 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 Readers that reach effects through a goal or an action narrow them with `visibleEffectsWHERE` (see [access-control.md](docs/context/access-control.md)), counts included. What decides an effect's visibility is the sharing and status on **both** sides, so such a reader needs `goal`, `action`, `roadmap` and `roadmapIteration`; all of them already declared these, and `getCachedOrgCounts` (whose "goals with actions" is filtered too) as well.
 
 ## Mutation → revalidation matrix
-✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships, logout and the super-admin switch revalidate nothing by design (they only change the per-request access context, i.e. the key). `user` reaches profiles and the org's people and comment lists only; [bylines are untagged](#author-names-bylines-are-not-tagged), so a name change expires no content page.
+✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), logout and the super-admin switch revalidate nothing by design (they only change the per-request access context, i.e. the key). Membership changes change the key too, and also revalidate `org` for the readers keyed by org rather than by viewer: a role change (PUT) for who manages an org (`getCachedOrgPeople`); adding, removing and moving a member (POST/DELETE/PATCH) for the same reader's member count and for the like rankings, which count an org's members' likes (`getCachedLikedGoals`). `user` reaches profiles and the org's people and comment lists only; [bylines are untagged](#author-names-bylines-are-not-tagged), so a name change expires no content page.
 
 | Mutation | roadmap | roadmapIteration | goal | action | dataSeries | goalLike | org | user |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +142,7 @@ Readers that reach effects through a goal or an action narrow them with `visible
 | goal-like POST/DELETE | | | | | | ✓ | | |
 | org PUT (name, geo area, public profile), org banner POST/DELETE, org-membership PUT (role) | | | | | | | ✓ | |
 | group DELETE (grants cascade) | ✓ | | | | | | | |
+| org-membership POST/DELETE/PATCH (add, remove, move a member) | | | | | | | ✓ | |
 | login-link PATCH creating an account (first login) | | | | | | | | ✓ |
 | user PATCH (first and last name) | | | | | | | | ✓ |
 | group POST/PUT, login-link POST, logout, user privileges | | | | | | | | |

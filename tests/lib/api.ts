@@ -555,3 +555,29 @@ export async function publicGoalId(request: APIRequestContext, roadmapName: stri
   expect(id, `id of goal "${leaf}"`).toBeTruthy();
   return id ?? "";
 }
+
+/** A user as the super-admin membership administration of an org lists them (see `getOrgMemberAdmin`) */
+export type MemberAdminEntry = {
+  name: string;
+  email: string;
+  otherOrgs: string[];
+  /** Set for users outside the org: the id `POST /api/org-membership` takes */
+  userId?: string;
+  /** Set for the org's members: the id `DELETE` and `PATCH /api/org-membership` take */
+  membershipId?: string;
+  role?: string;
+};
+
+/**
+ * How the membership administration on `/org/<orgId>/groups` lists the user with this
+ * address: as a member of the org (`membershipId`) or as someone who can be added
+ * (`userId`). Null when the page carries no such user, which is also what everyone but
+ * a super admin with their powers on gets.
+ */
+export async function memberAdminEntry(request: APIRequestContext, orgId: string, email: string): Promise<MemberAdminEntry | null> {
+  const text = await flightPayload(request, `/org/${orgId}/groups`);
+  const at = text.indexOf(`"email":${JSON.stringify(email)}`);
+  if (at === -1) return null;
+  const raw = flightObjectAt(text, text.lastIndexOf('{"name":', at));
+  return raw ? JSON.parse(raw) as MemberAdminEntry : null;
+}

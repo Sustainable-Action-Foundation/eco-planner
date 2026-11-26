@@ -1,0 +1,46 @@
+/* Membership administration on the org manage page, one box per role (see "Role colours" in
+   docs/context/access-control.md): what the org's managers may do in the manager yellow, what
+   only super-admin powers give in the super-admin orange */
+.panel {
+  margin-block: .75rem;
+  padding: .75rem 1rem;
+  max-width: 44rem;
+  border: 1px solid var(--panel-border);
+  border-radius: .5rem;
+  background-color: var(--panel-surface);
+}
+
+.manager {
+  --panel-surface: var(--admin-surface);
+  --panel-surface-alt: var(--admin-surface-alt);
+  --panel-border: var(--admin-border);
+}
+
+.super-admin {
+  --panel-surface: var(--super-admin-surface);
+  --panel-surface-alt: var(--super-admin-surface-alt);
+  --panel-border: var(--super-admin-border);
+}
+
+.badge {
+  padding: .125rem .5rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 1rem;
+  background-color: var(--panel-surface-alt);
+  font-size: .75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* What happens to the picked member sits apart from the picking */
+.actions {
+  margin-top: .75rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.warning {
+  padding: .5rem .75rem;
+  border-left: 4px solid var(--panel-border);
+  background-color: var(--panel-surface-alt);
+}
