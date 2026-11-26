@@ -1,7 +1,7 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { listedGoalsWHERE, listedRoadmapsWHERE, readableAccessControlWHERE, visibleActionsWHERE, visibleCommentsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { listedGoalsWHERE, listedRoadmapsWHERE, readableAccessControlWHERE, visibleActionsWHERE, visibleCommentsWHERE, visibleEffectsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { GoalListing, IterationStatus, OrgRole } from "@/lib/prisma/generated";
 import type { OrgType } from "@/lib/prisma/generated";
@@ -19,7 +19,7 @@ export type OrgCounts = {
   goals: number,
   /** Of those, the ones with a baseline */
   goalsWithBaseline: number,
-  /** Of those, the ones an action has an effect on */
+  /** Of those, the ones an action the viewer may see has an effect on */
   goalsWithActions: number,
   /** The org's actions, as its action list shows them */
   actions: number,
@@ -74,7 +74,8 @@ async function getCachedOrgCounts(orgId: string, accessContext: UserAccessContex
     const [goalCount, goalsWithBaseline, goalsWithActions, actions] = await Promise.all([
       prisma.goals.count({ where: goals }),
       prisma.goals.count({ where: { ...goals, baseline_id: { not: null } } }),
-      prisma.goals.count({ where: { ...goals, effects: { some: {} } } }),
+      // Only effects the viewer may see count: an action hidden from them is not "an action on the goal" to them
+      prisma.goals.count({ where: { ...goals, effects: { some: visibleEffectsWHERE(accessContext) } } }),
       // Same filter as the org's action list (getActionSummaries)
       prisma.actions.count({
         where: {

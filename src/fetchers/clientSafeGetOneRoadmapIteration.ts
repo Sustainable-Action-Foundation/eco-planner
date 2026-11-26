@@ -32,7 +32,7 @@ async function getCachedClientSafeRoadmapIteration(id: string, accessContext: Us
         ...visibleRoadmapIterationsWHERE(accessContext),
         id,
       },
-      select: clientSafeRoadmapIterationSelection,
+      select: clientSafeRoadmapIterationSelection(accessContext),
     }) satisfies ClientRoadmapIteration | null;
 
     iteration?.goals.sort(goalSorter);

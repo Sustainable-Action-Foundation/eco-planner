@@ -30,7 +30,7 @@ async function getCachedActions(accessContext: UserAccessContext | null): Promis
     // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
     const actions: Action[] = await prisma.actions.findMany({
       where: visibleActionsWHERE(accessContext),
-      include: actionInclusionSelection,
+      include: actionInclusionSelection(accessContext),
     });
 
     return actions;

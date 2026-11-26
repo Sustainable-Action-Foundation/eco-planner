@@ -30,7 +30,7 @@ async function clientSafeGetCachedGoal(id: string, accessContext: UserAccessCont
         id,
         roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
       },
-      select: clientSafeGoalSelection,
+      select: clientSafeGoalSelection(accessContext),
     }) satisfies ClientGoal | null;
 
     return goal;
