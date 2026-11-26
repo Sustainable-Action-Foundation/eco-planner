@@ -40,7 +40,7 @@ Next.js docs (this Next differs from older versions, read these and not your mem
 | `dataSeries` | `dataSeries`, their values, and `recipes` | goal POST/PUT (full and section), effect *, recalculate |
 | `recipe` | `recipes` | **nobody** (recipe writes revalidate `dataSeries`) |
 | `goalLike` | `goalLikes` | goal-like POST/DELETE |
-| `org` | `orgs` (name, geo area, banner, public profile), who manages an org | org PUT, org banner POST/DELETE, org-membership PUT |
+| `org` | `orgs` (name, geo area, banner, public profile), who manages an org and who its members are | org PUT, org banner POST/DELETE, org-membership PUT/POST/DELETE/PATCH |
 | `user` | `users` | signup |
 | `curatedHistoricalData` | upstream SCB/Trafa data behind the curated catalog | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbPopulationQuery` | SCB population table TAB6471 | nobody (TTL `days`, failures `minutes`; upstream handler) |
@@ -81,7 +81,7 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedUserInfo` (getUserInfo) | user, rm + it, goal, action, org | username, ctx | authored roadmaps/iterations with counts and comments |
 | `getCachedOrgs` (getUserOrgs) | org | org id list | org names + geo area |
 | `getCachedOrgProfile` (getOrgProfile) | org | orgId | org name, area (+ county), banner version, public profile (description, type, contact, website); no ctx: the public view is open to everyone |
-| `getCachedOrgPeople` (getOrgPeople) | org, goalLike, user | orgId | manager names, member count, members without likes; the wrapper cuts it down per viewer. A new member's first login revalidates nothing (heals on the 15 min revalidate) |
+| `getCachedOrgPeople` (getOrgPeople) | org, goalLike, user | orgId | manager names, member count, members without likes; the wrapper cuts it down per viewer. A new member's first login revalidates nothing (heals on the 15 min revalidate); members added, removed or moved by hand revalidate `org` |
 | `getCachedOrgCounts` (getOrgOverview) | goal, action, rm + it | orgId, ctx | goal / baseline / linked-action / action counts for the landing's process and key numbers |
 | `getCachedAreaOrgs` (getOrgOverview) | org | areaCode | orgs placed in the area (name, type) |
 | `getCachedOrgActivity` (getOrgOverview) | rm + it, goal, action, goalLike, org | orgId, ctx | latest ten events derived from creation timestamps |
@@ -108,7 +108,7 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | `effect`, `recipe`, `user` | 1 each |
 
 ## Mutation → revalidation matrix
-✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), membership roles and auth routes revalidate nothing by design (they only change the per-request access context, i.e. the key). Adding, removing and moving a member also changes the key, and revalidates `org` for the readers that are keyed by org and count its members' likes (`getCachedLikedGoals`).
+✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE) and auth routes revalidate nothing by design (they only change the per-request access context, i.e. the key). Membership changes change the key too, and also revalidate `org` for the readers keyed by org rather than by viewer: a role change (PUT) for who manages an org (`getCachedOrgPeople`); adding, removing and moving a member (POST/DELETE/PATCH) for the same reader's member count and for the like rankings, which count an org's members' likes (`getCachedLikedGoals`).
 
 | Mutation | roadmap | roadmapIteration | goal | action | dataSeries | goalLike | org | user |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
