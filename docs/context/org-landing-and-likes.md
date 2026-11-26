@@ -37,6 +37,14 @@ Rules:
 - Only goals the viewer can see and that are listed appear.
 - The "copied" badge is derived: an org goal whose recipe reads the liked goal's series (`findCopies` in `src/fetchers/getGoalLikes.ts`). A copy that drops that reference is not recognised. If a goal-origin column is ever added (as actions have), switch `findCopies` to it.
 
+## Liked goals in the goal tree
+- A roadmap version page can narrow its goal list (tree and table) to liked goals: `?likes=<filter>`. The tree is built from the liked goals only, so it keeps the version's branches and has none without a liked goal; every branch opens, branches say how many liked goals they hold and goals how many likes they have. This is the "compiled" view of what a workshop liked, in the structure of the roadmap it liked it in.
+- `LikeFilter` (`src/types/enums.ts`) is `LikeScope` plus `MINE` and `ALL`, and uses the landing's param, so a link can carry a scope from the ranking to the tree. `?org=` picks the org the scopes belong to, as on the start page; the default is the viewer's first proper membership.
+- Who may count whose likes follows what is visible elsewhere, and is decided in `getGoalListLikes` (`src/fetchers/getGoalListLikes.ts`): own likes and everyone's (the count on a goal's page) for any signed-in user; org, area and county only through an org the viewer belongs to (`getLikeScopes`). Anonymous visitors get no filter. A filter the viewer lacks falls back to their default: the org's, or everyone's without an org.
+- The state lives in the address only. The page reads it and passes the counts down; the controls navigate (`replace`, no scroll). Why: hidden routes stay mounted (see [caching-and-navigation.md](caching-and-navigation.md)), and component state would show a stale filter when a link or the back button brings the page back.
+- Cost: nothing while the filter is off; on, one grouped query per version and filter, cached (`getCachedGoalListLikeCounts`), never one per goal.
+- Both readers that count likes per scope share `likersInScopeWHERE`, so the tree and the ranking agree on who is in a scope.
+
 ## Comments
 - Comments hang on roadmaps, versions, goals and actions (`/api/comment`). Posting needs view access and an account; no grant is needed on public content.
 - A comment revalidates its parent's cache tag.

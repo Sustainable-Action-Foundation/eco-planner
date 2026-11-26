@@ -66,6 +66,7 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedLikeScopes` (getGoalLikes) | org | orgId | org/area/county scopes |
 | `getCachedLikeArea` (getGoalLikes) | org | areaCode | a municipality or county with the orgs placed in it (names) |
 | `getCachedLikedGoals` (getGoalLikes) | goalLike, goal, rm + it, dataSeries, org | orgId, areaCode, ctx | org landing liked goals + copies |
+| `getCachedGoalListLikeCounts` (getGoalListLikes) | goalLike, goal, rm + it, org | iterationId, filter, orgId, areaCode, ctx | like count per goal of one version within a `LikeFilter` (one grouped query); only read while `?likes=` is on the version page |
 | `getCachedNationalGoals` (getNationalGoalMatches) | goal, rm + it, dataSeries | indicators, ctx | national goals with series |
 | `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org | id, ctx | action, fields, the effects on goals the viewer may see (series, goal scalars), iteration + roadmap (name, AC), comments, attachments |
 | `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org | ctx | all visible actions, same shape |
@@ -104,17 +105,17 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 
 `src/app/layout.tsx`, `src/lib/sorters.ts`, `src/lib/api/guardExternalApi.ts`, `getPxWebTableContent.ts`, `getTrafaTableContent.ts` only mention `use cache` in comments; they hold no cached scope.
 
-### Tag fan-out (37 DB readers)
+### Tag fan-out (38 DB readers)
 | Tag | Readers declaring it |
 | --- | --- |
-| `roadmap`, `roadmapIteration` | 31 (all but the org-only readers: `getCachedLikeScopes`, `getCachedLikeArea`, `getCachedOrgs`, `getCachedOrgProfile`, `getCachedOrgPeople`, `getCachedAreaOrgs`) |
-| `goal` | 26 |
+| `roadmap`, `roadmapIteration` | 32 (all but the org-only readers: `getCachedLikeScopes`, `getCachedLikeArea`, `getCachedOrgs`, `getCachedOrgProfile`, `getCachedOrgPeople`, `getCachedAreaOrgs`) |
+| `goal` | 27 |
 | `action` | 25 |
-| `goal` or `action` | 31 |
+| `goal` or `action` | 32 |
 | `dataSeries` | 14 |
-| `org` | 24 |
+| `org` | 25 |
 | `user` | 4 (bylines are untagged) |
-| `goalLike` | 4 |
+| `goalLike` | 5 |
 | `effect`, `recipe` | 1 each |
 
 ### Effects are filtered per viewer
