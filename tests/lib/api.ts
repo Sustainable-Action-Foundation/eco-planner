@@ -507,9 +507,9 @@ export async function deleteEffect(request: APIRequestContext, goalId: string, a
 }
 
 /**
- * Waits for a page's effective status. Deletes revalidate their tags with
- * `max` (stale-while-revalidate), so the first fetch after one may still serve
- * the cached page; creates and updates expire immediately.
+ * Waits for a page's effective status. Every write expires its tags immediately
+ * (`{ expire: 0 }`), so the next read is fresh; tests/api/caching.spec.ts pins
+ * that with single reads. The poll here only absorbs a loaded shared server.
  */
 export async function expectPageStatus(request: APIRequestContext, url: string, status: number): Promise<void> {
   await expect.poll(() => pageStatus(request, url), { message: `${url} to answer ${status}`, timeout: 60_000 }).toBe(status);
