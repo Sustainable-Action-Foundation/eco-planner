@@ -36,7 +36,7 @@ async function getCachedAction(id: string, accessContext: UserAccessContext | nu
         ...visibleActionsWHERE(accessContext),
         id,
       },
-      include: actionInclusionSelection,
+      include: actionInclusionSelection(accessContext),
     }) satisfies Action | null;
 
     return action;

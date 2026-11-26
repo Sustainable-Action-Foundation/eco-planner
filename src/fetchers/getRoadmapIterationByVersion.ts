@@ -44,7 +44,7 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
           AND: [visibleRoadmapIterationsWHERE(accessContext)],
         },
         orderBy: { version: "desc" },
-        include: roadmapIterationInclusionSelection,
+        include: roadmapIterationInclusionSelection(accessContext),
       }) satisfies RoadmapIteration | null;
     }
     else {
@@ -54,7 +54,7 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
           // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
           AND: [visibleRoadmapIterationsWHERE(accessContext)],
         },
-        include: roadmapIterationInclusionSelection,
+        include: roadmapIterationInclusionSelection(accessContext),
       }) satisfies RoadmapIteration | null;
     }
 

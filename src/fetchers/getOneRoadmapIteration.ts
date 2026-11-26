@@ -37,7 +37,7 @@ async function getCachedRoadmapIteration(id: string, accessContext: UserAccessCo
         ...visibleRoadmapIterationsWHERE(accessContext),
         id,
       },
-      include: roadmapIterationInclusionSelection,
+      include: roadmapIterationInclusionSelection(accessContext),
     }) satisfies RoadmapIteration | null;
 
     iteration?.goals.sort(goalSorter);

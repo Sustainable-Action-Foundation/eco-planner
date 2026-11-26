@@ -76,6 +76,8 @@
     "description": "Description",
     "foreign_effects": "$t(common:effect_other, titleCase) from other $t(common:action_other)",
     "goals_working_towards": "$t(common:goal_other, titleCase) working towards {{goalName}}",
+    "hidden_effects_one": "{{count}} $t(common:effect_one) from an $t(common:action_one) you do not have access to is not shown here and is left out of the expected outcome.",
+    "hidden_effects_other": "{{count}} $t(common:effect_other) from $t(common:action_other) you do not have access to are not shown here and are left out of the expected outcome.",
     "link_effect": "Link $t(common:effect_one)",
     "menu": "Menu",
     "related_goals": "Related $t(common:goal_other)",
