@@ -10,6 +10,7 @@ import { seedPlaces } from "../../scripts/prisma/seed/places";
 
 /*
  * The org landing page per role, and org administration on the groups page.
+ * The landing's two views themselves (who gets which) are in org-views.spec.ts.
  * Only "Malmö stad" is ever changed: its manager renames it, moves it to
  * another area and creates groups, each test under one cross-process lock
  * (the browser projects run in parallel) and restored in `finally`.
@@ -49,7 +50,8 @@ function homeTitle(page: Page): Locator {
 
 /** The landing's link to the org's groups page (managers and super admins only) */
 function manageLink(page: Page, orgId?: string): Locator {
-  return visible(page, "main").locator(orgId ? `a[href="/org/${orgId}/groups"]` : 'a[href^="/org/"][href$="/groups"]');
+  // By test id: the overview's gaps link to the same page
+  return page.getByTestId("org-manage-link").filter({ visible: true }).and(page.locator(orgId ? `a[href="/org/${orgId}/groups"]` : 'a[href^="/org/"][href$="/groups"]'));
 }
 
 /** Roadmap links in the visible page */
@@ -152,12 +154,12 @@ test.describe("Org landing as super admin", () => {
     const others = () => visible(page, "main").locator('a[href^="/roadmap/"]:not([href="/roadmap/create"])').filter({ visible: true }).filter({ hasNotText: Seed.nationalRoadmap });
 
     // Unfiltered, the org has other top-level roadmaps besides the national one
-    await page.goto(`/?org=${orgId}`);
+    await page.goto(`/?org=${orgId}&tab=roadmaps`);
     await expect(homeTitle(page)).toHaveText(Seed.orgName);
     await expect(roadmapLinks(page, Seed.nationalRoadmap).first()).toBeVisible();
     await expect(others().first()).toBeVisible();
 
-    await page.goto(`/?org=${orgId}&searchFilter=${encodeURIComponent(Seed.nationalRoadmap)}`);
+    await page.goto(`/?org=${orgId}&tab=roadmaps&searchFilter=${encodeURIComponent(Seed.nationalRoadmap)}`);
     await expect(homeTitle(page)).toHaveText(Seed.orgName);
     await expect(roadmapLinks(page, Seed.nationalRoadmap).first()).toBeVisible();
     await expect(others()).toHaveCount(0);
@@ -418,8 +420,8 @@ test.describe("Org administration (Malmö stad)", () => {
         await saveLike(page, aspect);
         await expect(aspect).toHaveAttribute("aria-pressed", "true");
 
-        // Ranked on Malmö's landing in the org's own scope, with the aspect counted
-        await expectAfterReload(page, "/", async () => {
+        // Ranked on the liked tab of Malmö's landing in the org's own scope, with the aspect counted
+        await expectAfterReload(page, "/?tab=liked", async () => {
           await expect(likedRow(page)).toHaveCount(1, { timeout: 5_000 });
           await expect(likedRow(page).getByTestId("liked-goal-aspects").locator('[data-aspect="AUTHORITY_PLANNING"]')).toBeVisible({ timeout: 5_000 });
         });
@@ -430,13 +432,13 @@ test.describe("Org administration (Malmö stad)", () => {
         await expect(scopeLink(page, "ORG")).toHaveAttribute("aria-current", "true");
         await expect(likeButton(likedRow(page))).toHaveAttribute("aria-pressed", "true");
 
-        // The other member sees the org's like, not as her own
+        // The other member has no write access, so she gets the public view: the goal is among the area's most liked
         const memberPage = await member.newPage();
+        const publicRow = memberPage.getByTestId("org-top-liked").filter({ visible: true }).locator(`li[data-goal-id="${goalId}"]`);
         await expectAfterReload(memberPage, "/", async () => {
-          await expect(likedRow(memberPage)).toHaveCount(1, { timeout: 5_000 });
+          await expect(publicRow).toHaveCount(1, { timeout: 5_000 });
         });
-        await expect(likeButton(likedRow(memberPage))).toHaveAttribute("aria-pressed", "false");
-        await expect(likeButton(likedRow(memberPage)).getByTestId("goal-like-count")).toHaveText("1");
+        await expect(publicRow.locator(`a[href="/goal/${goalId}"]`)).toBeVisible();
 
         // Malmö is a municipality: the area and the county widen the list, the like stays in it
         for (const scope of ["AREA", "COUNTY"] as const) {
@@ -453,7 +455,7 @@ test.describe("Org administration (Malmö stad)", () => {
         await scopeLink(page, "ORG").click();
         await expect(scopeLink(page, "ORG")).toHaveAttribute("aria-current", "true");
         await saveLike(page, likeButton(likedRow(page)));
-        await expectAfterReload(page, "/", async () => {
+        await expectAfterReload(page, "/?tab=liked", async () => {
           await expect(likedRow(page)).toHaveCount(0, { timeout: 5_000 });
         });
       });

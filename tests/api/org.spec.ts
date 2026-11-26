@@ -4,7 +4,7 @@ import { groupIdByName, membershipIdByUsername, membershipRole, orgIdByName, pag
 import { memberSlug } from "../../scripts/prisma/seed/places";
 
 /*
- * Org management: /api/org (rename, geo area), /api/org-membership (roles) and
+ * Org management: /api/org (rename, geo area, process focus), /api/org-membership (roles) and
  * /api/group (CRUD). Managers of the org and super admins may; members and
  * strangers get a 404 (the org's existence is not leaked) or a 403 on create.
  *
@@ -111,6 +111,52 @@ test.describe.serial(`mutations of ${org.name}`, () => {
       await expectStatus(actors.manager, "put", "/api/org", { orgId }, 400, "manager");
       await expectStatus(actors.manager, "put", "/api/org", { orgId, name: "   " }, 400, "manager");
       await expectStatus(actors.manager, "put", "/api/org", { name: "x" }, 400, "manager, no orgId");
+    });
+
+    test("a manager sets the focus of the process and its period, and clears them again", async ({ actors }) => {
+      /** The focus as the management page carries it */
+      const focus = async () => {
+        const stored = await pageEntity(actors.manager, `/org/${orgId}/groups`, orgId);
+        return { focusStep: stored?.focusStep, focusPeriod: stored?.focusPeriod };
+      };
+      try {
+        await putJson(actors.manager, "/api/org", { orgId, focusStep: "BASELINE", focusPeriod: "  hösten 2026 " });
+        await eventually(async () => expect(await focus()).toEqual({ focusStep: "BASELINE", focusPeriod: "hösten 2026" }));
+
+        // Each on its own: the other is left alone
+        await putJson(actors.manager, "/api/org", { orgId, focusStep: "DECISION" });
+        await eventually(async () => expect(await focus()).toEqual({ focusStep: "DECISION", focusPeriod: "hösten 2026" }));
+        await putJson(actors.manager, "/api/org", { orgId, focusPeriod: "" });
+        await eventually(async () => expect(await focus()).toEqual({ focusStep: "DECISION", focusPeriod: null }));
+
+        // What isn't a step or a short line changes nothing
+        await expectStatus(actors.manager, "put", "/api/org", { orgId, focusStep: "DONE" }, 400, "manager, unknown step");
+        await expectStatus(actors.manager, "put", "/api/org", { orgId, focusStep: 3 }, 400, "manager, step not text");
+        await expectStatus(actors.manager, "put", "/api/org", { orgId, focusPeriod: "x".repeat(61) }, 400, "manager, long period");
+        await expectStatus(actors.manager, "put", "/api/org", { orgId, focusStep: "GOALS", focusPeriod: "två\nrader" }, 400, "manager, two lines");
+        expect(await focus()).toEqual({ focusStep: "DECISION", focusPeriod: null });
+      }
+      finally {
+        await putJson(actors.manager, "/api/org", { orgId, focusStep: null, focusPeriod: null });
+      }
+      await eventually(async () => expect(await focus()).toEqual({ focusStep: null, focusPeriod: null }));
+    });
+
+    test("a super admin sets the focus; members, strangers and anonymous visitors are refused", async ({ actors, admin }) => {
+      const stored = async () => (await pageEntity(actors.manager, `/org/${orgId}/groups`, orgId))?.focusStep;
+      try {
+        const body = { orgId, focusStep: "ACTIONS", focusPeriod: "kapat" };
+        await expectStatus(actors.anonymous, "put", "/api/org", body, 401, "anonymous");
+        await expectStatus(actors.orgless, "put", "/api/org", body, 404, "orgless");
+        await expectStatus(actors.member, "put", "/api/org", body, 404, "member");
+        expect(await stored(), "unchanged by those refused").toBeNull();
+
+        await putJson(admin, "/api/org", { orgId, focusStep: "GOALS" });
+        await eventually(async () => expect(await stored()).toBe("GOALS"));
+      }
+      finally {
+        await putJson(actors.manager, "/api/org", { orgId, focusStep: null, focusPeriod: null });
+      }
     });
 
     test("members, strangers and anonymous visitors cannot rename", async ({ actors }) => {

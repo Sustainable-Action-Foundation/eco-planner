@@ -22,4 +22,5 @@ export { getUserComments } from "./getUserComments";
 export { getGuestInvite } from "./getGuestInvite";
 export { getOrgManagement } from "./getOrgManagement";
 export { getUserOrgs } from "./getUserOrgs";
+export { getOrgProfile } from "./getOrgProfile";
 export * from "@/fetchers/inclusionSelectors";

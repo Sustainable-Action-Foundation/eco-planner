@@ -40,7 +40,7 @@ Next.js docs (this Next differs from older versions, read these and not your mem
 | `dataSeries` | `dataSeries`, their values, and `recipes` | goal POST/PUT (full and section), effect *, action POST with effect, recalculate |
 | `recipe` | `recipes` | **nobody** (recipe writes revalidate `dataSeries`) |
 | `goalLike` | `goalLikes` | goal-like POST/DELETE |
-| `org` | `orgs` (name, geo area, banner) | org PUT, org banner PUT/DELETE |
+| `org` | `orgs` (name, geo area, banner, public profile), who manages an org | org PUT, org banner POST/DELETE, org-membership PUT |
 | `user` | `users` (existence, first and last name) | first login (login-link PATCH creating the account), user PATCH (name) |
 | `curatedHistoricalData` | upstream SCB/Trafa data behind the curated catalog | nobody (TTL `days`, failures `minutes`; upstream handler) |
 | `scbPopulationQuery` | SCB population table TAB6471 | nobody (TTL `days`, failures `minutes`; upstream handler) |
@@ -82,6 +82,12 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 | `getCachedUserInfo` (getUserInfo) | user, rm + it, goal, action, org | username, ctx | authored roadmaps/iterations with counts and comments |
 | `getCachedUserComments` (getUserComments) | user, rm + it, goal, action, org | authorId, ctx | the author's visible comments with the commented object's name |
 | `getCachedOrgs` (getUserOrgs) | org | org id list | org names + geo area + banner timestamp |
+| `getCachedOrgProfile` (getOrgProfile) | org | orgId | org name, area (+ county), banner version, public profile (description, type, contact, website); no ctx: the public view is open to everyone |
+| `getCachedOrgPeople` (getOrgPeople) | org, goalLike, user | orgId | manager names, member count, members without likes; the wrapper cuts it down per viewer. A new member's first login revalidates `user` |
+| `getCachedOrgCounts` (getOrgOverview) | goal, action, rm + it | orgId, ctx | goal / baseline / linked-action / action counts for the landing's process and key numbers |
+| `getCachedAreaOrgs` (getOrgOverview) | org | areaCode | orgs placed in the area (name, type) |
+| `getCachedOrgActivity` (getOrgOverview) | rm + it, goal, action, goalLike, org | orgId, ctx | latest ten events derived from creation timestamps |
+| `getCachedOrgComments` (getOrgOverview) | user, rm + it, goal, action, org | orgId, ctx | comments on the org's roadmaps, versions, goals and actions |
 | `getCachedSeries` (getCuratedHistoricalData) | curatedHistoricalData; `'use cache: upstream'`, `days` / `minutes` on failure | source, geoArea | one curated external series |
 | `getCachedPxWebTableMetadata` (getCuratedHistoricalData) | curatedHistoricalData; upstream, `days` / `minutes` | tableId, dataset | PxWeb table metadata + `failed` flag |
 | `getCachedQuery` (scbPopulationQuery) | scbPopulationQuery; upstream, `days` / `minutes` | areaCode | population number |
@@ -123,11 +129,11 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | comment POST | object's tag | object's tag | object's tag | object's tag | | | | |
 | attachment POST/DELETE | | parent's tag | parent's tag | parent's tag | | | | |
 | goal-like POST/DELETE | | | | | | ✓ | | |
-| org PUT (name, geo area), org banner PUT/DELETE | | | | | | | ✓ | |
+| org PUT (name, geo area, public profile), org banner POST/DELETE, org-membership PUT (role) | | | | | | | ✓ | |
 | group DELETE (grants cascade) | ✓ | | | | | | | |
 | login-link PATCH creating an account (first login) | | | | | | | | ✓ |
 | user PATCH (first and last name) | | | | | | | | ✓ |
-| group POST/PUT, org-membership PUT, login-link POST, logout, user privileges | | | | | | | | |
+| group POST/PUT, login-link POST, logout, user privileges | | | | | | | | |
 
 ## Audit
 ### Stale cache (a mutation does not revalidate a tag the reader would need)

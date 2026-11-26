@@ -149,5 +149,13 @@
     "influence_upward": "Påverkan uppåt",
     "influence_upward_description": "Påverkan på ramvillkoren hos stat, region, EU, nätägare och Svenska kraftnät, till exempel elnätskapacitet, tillståndsprocesser och regelverk.",
     "legend_summary": "Vad betyder kategorierna?"
+  },
+  "org_type": {
+    "municipal_administration": "Kommunförvaltning",
+    "municipal_company": "Kommunalägt bolag",
+    "association": "Förening",
+    "authority": "Myndighet",
+    "trade_organisation": "Branschorganisation",
+    "limited_company": "Aktiebolag"
   }
 }
