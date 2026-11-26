@@ -76,6 +76,8 @@
     "description": "Beskrivning",
     "foreign_effects": "$t(common:effect_other, titleCase) från andra $t(common:action_other)",
     "goals_working_towards": "$t(common:goal_other, titleCase) som jobbar mot {{goalName}}",
+    "hidden_effects_one": "{{count}} $t(common:effect_one) från en $t(common:action_one) som du inte har tillgång till visas inte här och ingår inte i det förväntade utfallet.",
+    "hidden_effects_other": "{{count}} $t(common:effect_other) från $t(common:action_other) som du inte har tillgång till visas inte här och ingår inte i det förväntade utfallet.",
     "link_effect": "Koppla $t(common:effect_one)",
     "menu": "Meny",
     "related_goals": "Angränsande $t(common:goal_other)",

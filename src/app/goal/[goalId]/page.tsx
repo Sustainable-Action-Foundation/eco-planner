@@ -12,7 +12,7 @@ import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess, isSuperAdminAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
-import type { AccessControlled, Goal, MultiRoadmapInstance, RelatedGoal, SiblingGoal, UserAccessContext } from "@/types";
+import type { AccessControlled, GoalWithHiddenEffects, MultiRoadmapInstance, RelatedGoal, SiblingGoal, UserAccessContext } from "@/types";
 import { AccessLevel, HiddenRoadmaps } from "@/types/enums";
 import { IterationStatus, RoadmapType } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
@@ -20,7 +20,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { goalTitleWithLevel } from "@/functions/goalName";
-import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
+import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings, IconEyeOff } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
@@ -100,10 +100,10 @@ export default async function Page(
     TFunction,
     UserAccessContext | null,
     {
-      goal: Goal | null;
+      goal: GoalWithHiddenEffects | null;
       siblingCandidates: SiblingGoal[];
     },
-    Goal | null,
+    GoalWithHiddenEffects | null,
     MultiRoadmapInstance[],
   ];
 
@@ -168,6 +168,7 @@ export default async function Page(
 
   // Actions in the goal's own roadmap version vs. actions from elsewhere (another
   // version's actions, or versionless actions from the public action database).
+  // `goal.effects` holds only the effects whose action the viewer may see.
   // Actions always belong to versions (never to goals), so "own" means sharing the
   // goal's version: that's the set the version's authors maintain themselves.
   const ownEffects = goal.effects.filter(effect => effect.action.roadmap_iteration_id === goal.roadmap_iteration_id);
@@ -293,6 +294,16 @@ export default async function Page(
               </Link>
             }
           </div>
+
+          {/* Effects of actions the viewer may not open are left out of the page altogether (see
+              getOneGoal). Only their number is known here, and said: the lists and the expected
+              outcome in the graph above are otherwise silently short of them. */}
+          {goal.hidden_effect_count > 0 ?
+            <p className="margin-block-100 flex align-items-center gap-50" style={{ color: 'gray' }} data-testid="goal-hidden-effects">
+              <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              {t("pages:goal.hidden_effects", { count: goal.hidden_effect_count })}
+            </p>
+            : null}
 
           <GoalActionEffectList
             effects={ownEffects}

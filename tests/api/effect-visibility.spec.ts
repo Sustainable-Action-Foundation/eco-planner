@@ -1,6 +1,6 @@
 import type { APIRequestContext } from "playwright/test";
 import { expect, test } from "../lib/users";
-import { createAction, createEffect, createGoal, createIteration, createRoadmap, deleteAction, deleteRoadmap, pageEntity, pageStatus, yearlyDateValues } from "../lib/api";
+import { createAction, createEffect, createGoal, createIteration, createRoadmap, deleteAction, deleteEffect, deleteRoadmap, groupIdByName, pageEntity, pageStatus, Seed, yearlyDateValues } from "../lib/api";
 
 /*
  * An effect joins one action to one goal, and the two can sit under different roadmaps (or
@@ -26,6 +26,14 @@ async function pageBody(request: APIRequestContext, url: string): Promise<string
   const response = await request.get(url);
   expect(response.status(), `GET ${url}`).toBe(200);
   return await response.text();
+}
+
+/**
+ * Whether the goal page carries its "N effects are not shown to you" note. The number in it is
+ * asserted on the goal entity (`hidden_effect_count`): the note's text follows the reader's locale.
+ */
+function hasHiddenEffectsNote(body: string): boolean {
+  return body.includes("goal-hidden-effects");
 }
 
 type World = {
@@ -76,12 +84,18 @@ test.describe("goal → effect → action", () => {
 
         const goal = await pageEntity(request, `/goal/${goalId}`, goalId);
         expect((goal?.effects as { action_id: string }[]).map(effect => effect.action_id), `${who}: the goal's effects`).toEqual([visibleActionId]);
+        // All that is said of the hidden effect is that there is one: the lists and the expected outcome are short of it
+        expect(goal?.hidden_effect_count, `${who}: effects left out`).toBe(1);
+        expect(goal?._count, `${who}: effects counted`).toEqual({ effects: 1 });
+        expect(hasHiddenEffectsNote(body), `${who}: the note`).toBe(true);
       }
 
-      // Those who may open the action still get the effect
+      // Those who may open the action still get the effect, and no note
       for (const [who, request] of [["anita", anita], ["admin", admin]] as const) {
         const goal = await pageEntity(request, `/goal/${goalId}`, goalId);
         expect((goal?.effects as { action_id: string }[]).map(effect => effect.action_id).sort(), `${who}: the goal's effects`).toEqual([visibleActionId, hiddenActionId].sort());
+        expect(goal?.hidden_effect_count, `${who}: effects left out`).toBe(0);
+        expect(hasHiddenEffectsNote(await pageBody(request, `/goal/${goalId}`)), `${who}: the note`).toBe(false);
       }
     }
     finally {
@@ -112,6 +126,43 @@ test.describe("goal → effect → action", () => {
     }
     finally {
       await removeWorld(admin, world);
+    }
+  });
+
+  test("someone who edits the goal but cannot see the action gets the count and nothing else", async ({ admin, anita, sandbox }) => {
+    const groupId = await groupIdByName(admin, sandbox.orgId, Seed.groupName);
+    // anita edits this roadmap through her group; the action sits under one only the org's managers read
+    const editableRoadmapId = await createRoadmap(admin, sandbox.orgId, { name: `Editable ${sandbox.label}`, access: { sharing: "ORG", grants: [{ groupId, accessLevel: "RW" }] } });
+    const closedRoadmapId = await createRoadmap(admin, sandbox.orgId, { name: `Closed ${sandbox.label}`, access: { sharing: "GROUPS", grants: [] } });
+    try {
+      const goalId = await createGoal(admin, await createIteration(admin, editableRoadmapId), { name: `Editable goal ${sandbox.label}` });
+      const closedActionName = `Closed action ${sandbox.label}`;
+      const closedActionId = await createAction(admin, await createIteration(admin, closedRoadmapId), { name: closedActionName });
+      await createEffect(admin, goalId, closedActionId, { dateValues: yearlyDateValues(HIDDEN_SERIES) });
+
+      expect(await pageStatus(anita, `/goal/${goalId}/edit`), "anita edits the goal").toBe(200);
+      expect(await pageStatus(anita, `/action/${closedActionId}`), "anita opens the action").toBe(404);
+
+      const body = await pageBody(anita, `/goal/${goalId}`);
+      expect(body.includes(`Editable goal ${sandbox.label}`), "the goal page rendered").toBe(true);
+      expect(body.includes(closedActionName), "the closed action's name").toBe(false);
+      expect(body.includes(closedActionId), "the closed action's id").toBe(false);
+      expect(body.includes(String(HIDDEN_SERIES[0])), "the closed effect's series").toBe(false);
+      expect(hasHiddenEffectsNote(body), "the note").toBe(true);
+      const goal = await pageEntity(anita, `/goal/${goalId}`, goalId);
+      expect(goal?.effects, "the goal's effects").toEqual([]);
+      expect(goal?.hidden_effect_count, "effects left out").toBe(1);
+
+      // Editing the goal gives no hold on the effect either: that takes edit access to both sides
+      await deleteEffect(anita, goalId, closedActionId, 403);
+      // (the edit page answers with a "no access" notice, not a 404)
+      const editBody = await pageBody(anita, `/effect/${closedActionId}/${goalId}/edit`);
+      expect(editBody.includes(closedActionName), "the effect edit page names the action").toBe(false);
+      expect(editBody.includes(String(HIDDEN_SERIES[0])), "the effect edit page carries the series").toBe(false);
+    }
+    finally {
+      await deleteRoadmap(admin, editableRoadmapId);
+      await deleteRoadmap(admin, closedRoadmapId);
     }
   });
 
