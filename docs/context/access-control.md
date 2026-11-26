@@ -18,6 +18,10 @@ Commenting needs view access and a signed-in user; no grant is needed on public 
 - `AccessControls.org_id` is the owning org. `AccessGrants` pairs an access control with a group at level `RO` or `RW`.
 - Actions are org-owned (`Actions.org_id`). Without a version they are the shared, world-readable action database.
 - Data series have no access control. Their visibility is derived from the goal or effect they belong to (`visibleDataSeriesWHERE`). A series derived from another org's series belongs to the deriving org; if access to the source is later revoked, the stored copy stays.
+- An effect is visible only to those who may see **both** its action and its goal (`visibleEffectsWHERE`). The two can sit under different roadmaps or versions (a draft's action on a published goal, a shared-database action on a goal of a closed roadmap), and creating an effect takes edit access to both, so the state is ordinary.
+  - Whoever sees only one side does not get the effect at all: no row, no series, nothing of the other side. It is filtered in the query, never in the page. Every selection in `src/fetchers/inclusionSelectors.ts` that reaches effects through a goal or an action is a function of the access context for that reason; `tests/unit/effect-selections.test.ts` fails on an `effects` without the filter.
+  - Counts follow the same filter (`_count.effects` in lists, the org landing's "goals with actions").
+  - The goal page alone says how many effects it leaves out (`hidden_effect_count` from `getOneGoal`, a note above the lists), because its expected outcome is computed from the effects shown. Nothing but the number is known there. This holds for editors of the goal too: edit access to the goal gives nothing on an action they cannot see.
 
 ## Orgs, groups, memberships
 - `OrgMemberships` (user + org, role `GUEST` / `MEMBER` / `MANAGER`). Managers are deliberately coarse until usage demands finer roles.

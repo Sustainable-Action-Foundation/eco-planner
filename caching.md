@@ -51,15 +51,15 @@ Key = arguments; "ctx" = the full `UserAccessContext` (per user, `null` for anon
 
 | Function (file) | Tags (besides `database`) | Key | Returns |
 | --- | --- | --- | --- |
-| `getCachedGoal` (getOneGoal) | goal, action, dataSeries, rm + it, org | id, ctx | goal + series (incl. recipe source series with `updated_at`), effects (with actions), iteration + roadmap (name, type, geo, AC incl. org name), comments |
+| `getCachedGoal` (getOneGoal) | goal, action, dataSeries, rm + it, org | id, ctx | goal + series (incl. recipe source series with `updated_at`), the effects the viewer may see (with actions) and a count of the rest, iteration + roadmap (name, type, geo, AC incl. org name), comments |
 | `clientSafeGetCachedGoal` (clientSafeGetOneGoal) | goal, action, dataSeries, rm + it | id, ctx | goal scalars + series |
-| `getCachedGoalByIndicator` (getGoalByIndicator) | goal, action, dataSeries, rm + it | iterationId, indicator, unit, ctx | slim parent/child goal for the goal page graphs: series values, effects' series + action name, roadmap name |
+| `getCachedGoalByIndicator` (getGoalByIndicator) | goal, action, dataSeries, rm + it | iterationId, indicator, unit, ctx | slim parent/child goal for the goal page graphs: series values, visible effects' series + action name, roadmap name |
 | `getCachedGoalSiblings` (getGoalSiblings) | rm + it, goal, dataSeries | iterationId, indicator prefixes, ctx | listed sibling candidates with plotted series (one entry per parent path) |
 | `getCachedGoalLikeSummary` (getGoalLikes) | goalLike, goal, rm + it | goalId, ctx | like count, liked by viewer |
 | `getCachedLikeScopes` (getGoalLikes) | org | orgId | org/area/county scopes |
 | `getCachedLikedGoals` (getGoalLikes) | goalLike, goal, rm + it, dataSeries, org | orgId, areaCode, ctx | org landing liked goals + copies |
 | `getCachedNationalGoals` (getNationalGoalMatches) | goal, rm + it, dataSeries | indicators, ctx | national goals with series |
-| `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org | id, ctx | action, fields, effects (series, goal scalars), iteration + roadmap (name, AC), comments |
+| `getCachedAction` (getOneAction) | action, goal, rm + it, dataSeries, org | id, ctx | action, fields, the effects on goals the viewer may see (series, goal scalars), iteration + roadmap (name, AC), comments |
 | `getCachedActions` (getActions) | action, goal, rm + it, dataSeries, org | ctx | all visible actions, same shape |
 | `getCachedActionSummaries` (getActionSummaries) | action, rm + it | ctx, orgId | list-card fields only (name, years, origin, fields, author); org landing and action list |
 | `getCachedActionNeighbours` (getActionNeighbours) | action, rm + it, org | rootId, selfId, ctx | origin/copies with org name + geo, roadmap name, fields |
@@ -106,6 +106,9 @@ Request-scoped (React `cache()`, not `'use cache'`): `getUserAccessContext`, `ge
 | `org` | 16 |
 | `goalLike` | 2 |
 | `effect`, `recipe`, `user` | 1 each |
+
+### Effects are filtered per viewer
+Readers that reach effects through a goal or an action narrow them with `visibleEffectsWHERE` (see [access-control.md](docs/context/access-control.md)), counts included. What decides an effect's visibility is the sharing and status on **both** sides, so such a reader needs `goal`, `action`, `roadmap` and `roadmapIteration`; all of them already declared these, and `getCachedOrgCounts` (whose "goals with actions" is filtered too) as well.
 
 ## Mutation → revalidation matrix
 ✓ = revalidated, always `{ expire: 0 }`. Groups (except DELETE), memberships and auth routes revalidate nothing by design (they only change the per-request access context, i.e. the key).
