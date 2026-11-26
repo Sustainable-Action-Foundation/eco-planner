@@ -274,7 +274,8 @@ test.describe("Hidden", () => {
         goalIds.push(await createGoal(admin, iterationId, { name: `Goal ${sandbox.label}` }));
       }
       const publicList = "/?org=public";
-      const orgLanding = `/?org=${sandbox.orgId}`;
+      // Both anita (a read-write grant) and admin get the working view, whose roadmaps are a tab
+      const orgLanding = `/?org=${sandbox.orgId}&tab=roadmaps`;
       const showHidden = (url: string) => `${url}&showHidden=true`;
 
       // Listed to begin with, so the checks below aren't vacuous

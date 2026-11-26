@@ -98,6 +98,9 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  // The org landing caches who the org's managers are
+  revalidateTag('org', { expire: 0 });
+
   return Response.json({ message: t('api:orgMembership.updated') },
     { status: 200 },
   );

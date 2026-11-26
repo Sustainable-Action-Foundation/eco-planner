@@ -14,7 +14,10 @@ import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import { areaSorter } from "@/lib/sorters";
 import type { Option } from "@/components/types";
 import type { OrgManagement } from "@/fetchers/getOrgManagement";
-import { OrgRole } from "@/lib/prisma/generated";
+import { OrgRole, OrgType } from "@/lib/prisma/generated";
+import { orgTypeLabel } from "@/functions/orgTypeLabel";
+import { orgContactMaxLength, orgDescriptionMaxLength } from "@/functions/orgProfile";
+import { focusPeriodMaxLength, ProcessStep } from "@/functions/orgProcess";
 import type { TFunction } from "i18next";
 import HydratedForm from "@/components/form/hydratedForm";
 import { useIsClient } from "@/functions/useClientState";
@@ -65,12 +68,14 @@ export default function GroupManager({ management, memberAdmin }: {
     <>
       <section className="margin-bottom-300">
         <h2 className={headingClass} style={headingStyle}>{t("pages:org_groups.org_heading")}</h2>
-        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
-        <RenameOrg key={management.org.name} org={management.org} />
+        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data; prefixed, since an org without area and banner would give two siblings the same key */}
+        <RenameOrg key={`name:${management.org.name}`} org={management.org} />
         {/* Keyed on the area for the same reason */}
-        <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
+        <OrgArea key={`area:${management.org.geoAreaCode ?? ""}`} org={management.org} />
+        {/* And on the stored profile */}
+        <OrgProfileForm key={["profile", management.org.description, management.org.orgType, management.org.contactEmail, management.org.website, management.org.focusStep, management.org.focusPeriod].join("\u0000")} org={management.org} />
         {/* And on the banner's versioned URL */}
-        <OrgBanner key={management.org.bannerUrl ?? "none"} org={management.org} />
+        <OrgBanner key={`banner:${management.org.bannerUrl ?? ""}`} org={management.org} />
       </section>
 
       <section className="margin-bottom-300">
@@ -201,6 +206,147 @@ function OrgArea({ org }: { org: OrgManagement["org"] }) {
           {t("common:tsx.save")}
         </button>
       </div>
+    </HydratedForm>
+  );
+}
+
+/**
+ * The org's public profile: what kind of organisation it is, a few sentences about its
+ * climate work, how to reach it, and which step of the yearly process it works on now.
+ * Everything here shows on the org's landing page, to everyone; every field can be left empty.
+ */
+function OrgProfileForm({ org }: { org: OrgManagement["org"] }) {
+  const { t } = useTranslation(["pages", "common"]);
+  const { addToast } = useToast();
+  const router = useRouter();
+
+  const [orgType, setOrgType] = useState<string>(org.orgType ?? "");
+  const [description, setDescription] = useState(org.description ?? "");
+  const [contactEmail, setContactEmail] = useState(org.contactEmail ?? "");
+  const [website, setWebsite] = useState(org.website ?? "");
+  const [focusStep, setFocusStep] = useState<string>(org.focusStep ?? "");
+  const [focusPeriod, setFocusPeriod] = useState(org.focusPeriod ?? "");
+  const [isLoading, setIsLoading] = useState(false);
+  // Typing before hydration would be overwritten by the stored values
+  const isClient = useIsClient();
+
+  const unchanged = orgType === (org.orgType ?? "")
+    && description.trim() === (org.description ?? "")
+    && contactEmail.trim() === (org.contactEmail ?? "")
+    && website.trim() === (org.website ?? "")
+    && focusStep === (org.focusStep ?? "")
+    && focusPeriod.trim() === (org.focusPeriod ?? "");
+
+  const stepNames: Record<ProcessStep, string> = {
+    [ProcessStep.Indicators]: t("pages:org_landing.process.indicators"),
+    [ProcessStep.Goals]: t("pages:org_landing.process.goals"),
+    [ProcessStep.Baseline]: t("pages:org_landing.process.baseline"),
+    [ProcessStep.Actions]: t("pages:org_landing.process.actions"),
+    [ProcessStep.Decision]: t("pages:org_landing.process.decision"),
+  };
+
+  function save(event: React.SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formSubmitter('/api/org', JSON.stringify({
+      orgId: org.id,
+      orgType: orgType || null,
+      description: description.trim() || null,
+      contactEmail: contactEmail.trim() || null,
+      website: website.trim() || null,
+      focusStep: focusStep || null,
+      focusPeriod: focusPeriod.trim() || null,
+    }), 'PUT', t, setIsLoading, undefined, () => {
+      setIsLoading(false);
+      addToast(t("pages:org_groups.profile_saved_toast"), "success");
+      router.refresh();
+    }, (err) => {
+      setIsLoading(false);
+      addToast(errorMessage(err, t), "error");
+    }, addToast);
+  }
+
+  return (
+    <HydratedForm onSubmit={save} className="margin-top-200" style={{ maxWidth: '40rem' }} data-testid="org-profile-form">
+      <h3 className="margin-0 font-size-100 font-weight-600">{t("pages:org_groups.profile_heading")}</h3>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.profile_description")}</p>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_type_label")}
+        <select className="margin-top-25 block" value={orgType} data-testid="org-profile-type" disabled={!isClient} onChange={(event) => setOrgType(event.target.value)}>
+          <option value="">{t("pages:org_groups.profile_type_none")}</option>
+          {Object.values(OrgType).map(type => <option key={type} value={type}>{orgTypeLabel(t, type)}</option>)}
+        </select>
+      </label>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_about_label")}
+        <textarea
+          className="margin-top-25 block width-100"
+          rows={4}
+          maxLength={orgDescriptionMaxLength}
+          data-testid="org-profile-description"
+          readOnly={!isClient}
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+        />
+      </label>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.profile_about_hint")}</p>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_contact_label")}
+        <input
+          className="margin-top-25 block width-100"
+          type="email"
+          maxLength={orgContactMaxLength}
+          data-testid="org-profile-contact"
+          readOnly={!isClient}
+          value={contactEmail}
+          onChange={(event) => setContactEmail(event.target.value)}
+        />
+      </label>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_website_label")}
+        <input
+          className="margin-top-25 block width-100"
+          // Text, not url: "boden.se" is accepted and stored as https
+          type="text"
+          inputMode="url"
+          maxLength={orgContactMaxLength}
+          placeholder="https://"
+          data-testid="org-profile-website"
+          readOnly={!isClient}
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
+        />
+      </label>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_focus_label")}
+        <select className="margin-top-25 block" value={focusStep} data-testid="org-profile-focus-step" disabled={!isClient} onChange={(event) => setFocusStep(event.target.value)}>
+          <option value="">{t("pages:org_groups.profile_focus_auto")}</option>
+          {Object.values(ProcessStep).map((step, index) => <option key={step} value={step}>{`${index + 1}. ${stepNames[step]}`}</option>)}
+        </select>
+      </label>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.profile_focus_hint")}</p>
+
+      <label className="font-weight-500 block margin-top-100">
+        {t("pages:org_groups.profile_focus_period_label")}
+        <input
+          className="margin-top-25 block width-100"
+          type="text"
+          maxLength={focusPeriodMaxLength}
+          data-testid="org-profile-focus-period"
+          readOnly={!isClient}
+          value={focusPeriod}
+          onChange={(event) => setFocusPeriod(event.target.value)}
+        />
+      </label>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.profile_focus_period_hint")}</p>
+
+      <button type="submit" className="seagreen color-purewhite margin-top-100" disabled={isLoading || unchanged} data-testid="org-profile-save">
+        {t("common:tsx.save")}
+      </button>
     </HydratedForm>
   );
 }

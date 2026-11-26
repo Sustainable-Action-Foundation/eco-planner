@@ -50,7 +50,8 @@
     "visit_action": "Visit $t(common:action_definite_one)",
     "neighbour_badge_one": "+{{count}} organization",
     "neighbour_badge_other": "+{{count}} organizations",
-    "neighbour_badge_title": "The same action exists at other organizations"
+    "neighbour_badge_title": "The same action exists at other organizations",
+    "read_only": "Read only"
   },
   "common": {
     "external_resources": "External resources"
@@ -388,7 +389,21 @@
     "no_matches": "Nothing matches the search.",
     "no_group_members": "The group has no members yet.",
     "home_org": "from {{orgs}}",
-    "home_org_none": "no organization of their own"
+    "home_org_none": "no organization of their own",
+    "profile_heading": "Public presentation",
+    "profile_description": "Shown to everyone on the organisation's public page. Everything is optional.",
+    "profile_type_label": "Type of organisation",
+    "profile_type_none": "None chosen",
+    "profile_about_label": "About our climate work",
+    "profile_about_hint": "Two to four sentences about what the organisation wants to achieve and how the work is organised.",
+    "profile_contact_label": "Contact e-mail address",
+    "profile_website_label": "Website",
+    "profile_focus_label": "Focus now",
+    "profile_focus_auto": "Choose automatically",
+    "profile_focus_hint": "The step is marked as the focus in the process on the organisation's page. With no choice, the step with the least in place is marked.",
+    "profile_focus_period_label": "Period of the focus",
+    "profile_focus_period_hint": "Optional, for example \"autumn 2026\". Shown next to the focus.",
+    "profile_saved_toast": "The presentation was saved"
   },
   "invite": {
     "title": "Invitation",
@@ -427,5 +442,182 @@
     "related": "See also",
     "county_link": "All of {{area}}",
     "goals_title": "Most liked goals"
+  },
+  "org_landing": {
+    "organisation": "Organisation",
+    "area": "Area: {{area}}",
+    "area_municipality": "Area: {{area}} (municipality)",
+    "liked_by_one": "liked by {{count}} person",
+    "liked_by_other": "liked by {{count}} people",
+    "view": {
+      "label": "View",
+      "public": "Public view",
+      "working": "Working view",
+      "preview_note": "This is what the page looks like to a visitor who is not logged in."
+    },
+    "role": {
+      "manager": "You are a manager",
+      "super_admin": "You are a super admin",
+      "writer": "You can edit parts of the content"
+    },
+    "tabs": {
+      "label": "Sections",
+      "overview": "Overview",
+      "roadmaps": "$t(common:roadmap_other, titleCase)",
+      "actions": "Actions",
+      "liked": "Liked",
+      "data": "Data and suggestions",
+      "comments": "Comments",
+      "members": "Members"
+    },
+    "public": {
+      "liked_title": "This is what we want to affect",
+      "liked_description_area": "Most liked goals in {{area}}, all organisations",
+      "liked_description": "Most liked goals among the organisation's members",
+      "liked_empty": "No liked goals to show yet.",
+      "liked_all": "See all {{count}} liked goals in {{area}}",
+      "plans_title": "Roadmaps and actions",
+      "plans_empty_title": "No published roadmaps yet",
+      "plans_empty": "When {{org}} publishes a roadmap it is shown here, with its goals and actions.",
+      "about_title": "About our climate work",
+      "about_empty": "{{org}} has not written a presentation yet.",
+      "about_empty_manager": "The public presentation is empty.",
+      "about_fill_in": "Fill in"
+    },
+    "working": {
+      "liked_title": "Most liked",
+      "liked_scope_label": "Scope",
+      "liked_scope_org": "The organisation",
+      "liked_scope_area": "All of {{area}}",
+      "liked_goal": "Goal",
+      "liked_category": "Category",
+      "liked_count": "Liked by",
+      "liked_all": "Show all {{count}} with categories of influence",
+      "no_area_title": "The organisation has no area",
+      "no_area": "National goals to start from and statistics for the area are shown once the organisation has been placed in a municipality or county.",
+      "set_area": "Choose area"
+    },
+    "process": {
+      "title_public": "Where we are now",
+      "title_working": "Where we are now",
+      "focus_status": "Focus now: {{step}}",
+      "focus_status_period": "Focus now: {{step}} · {{period}}",
+      "focus_badge": "Focus now",
+      "indicators": "Indicators",
+      "goals": "Goals",
+      "baseline": "Baseline",
+      "actions": "Actions",
+      "decision": "Decision",
+      "indicators_description": "Which indicators can we affect?",
+      "goals_description_area": "What should each goal look like for {{area}}?",
+      "goals_description": "What should each goal look like for us?",
+      "baseline_description": "Worked out once the work has been going on for a while.",
+      "actions_description": "Cost, effect and responsibility per goal.",
+      "decision_description": "Actions are taken on to be carried out.",
+      "measure": {
+        "indicators_none": "No liked indicators yet",
+        "indicators_one": "{{count}} liked indicator",
+        "indicators_other": "{{count}} liked indicators",
+        "goals_none": "No goals yet",
+        "goals_one": "{{count}} goal",
+        "goals_other": "{{count}} goals",
+        "goals_against_liked": "{{goals}} against {{liked}}",
+        "baseline_one": "{{with}} of {{count}} goal has a baseline",
+        "baseline_other": "{{with}} of {{count}} goals have a baseline",
+        "actions_one": "{{with}} of {{count}} goal has a linked action",
+        "actions_other": "{{with}} of {{count}} goals have a linked action",
+        "no_goals": "No goals to count on yet",
+        "decision": "Not measured yet"
+      }
+    },
+    "next": {
+      "like_title": "Work on the indicators: like the ones you can affect",
+      "like_text": "Go through the national goals and like the ones the organisation can affect.",
+      "like_link": "Show goals to start from",
+      "compile_title": "Keep working on what you have liked",
+      "compile_text_area_one": "{{count}} goal has been liked in {{area}}. Go through what has been liked, choose what to include and move on to goals for {{area}}.",
+      "compile_text_area_other": "{{count}} goals have been liked in {{area}}. Go through them, choose which to include and move on to goals for {{area}}.",
+      "compile_text_one": "The organisation's members have liked {{count}} goal. Go through what has been liked, choose what to include and move on to goals of your own.",
+      "compile_text_other": "The organisation's members have liked {{count}} goals. Go through them, choose which to include and move on to goals of your own.",
+      "compile_link": "Compile liked goals",
+      "goals_title": "Keep working on the goals",
+      "goals_text": "Add goals to the roadmaps and adapt them to your conditions.",
+      "baseline_title": "Keep working on the baselines",
+      "baseline_text": "Add baselines to the goals, to show what happens without actions.",
+      "actions_title": "Keep working on the actions",
+      "actions_text": "Link actions to the goals, with cost, effect and responsibility.",
+      "decision_title": "Keep working towards a decision",
+      "decision_text": "Take the actions on for a decision and to be carried out.",
+      "open_roadmaps": "Open the roadmaps",
+      "open_actions": "Open the actions"
+    },
+    "facts": {
+      "label": "Facts about the organisation",
+      "managers": "Managers",
+      "contact": "Contact",
+      "website": "Website"
+    },
+    "gaps": {
+      "title": "Gaps and suggestions",
+      "empty": "No gaps right now.",
+      "no_roadmap_title": "No visible roadmap",
+      "no_roadmap": "The organisation has no roadmap that shows in listings. Create one, starting from what you have liked.",
+      "no_roadmap_hidden_one": "One roadmap is hidden. Show the hidden one, or create a new one from what you have liked.",
+      "no_roadmap_hidden_other": "{{count}} roadmaps are hidden. Show the hidden ones, or create a new one from what you have liked.",
+      "no_roadmap_show_hidden": "Show hidden",
+      "liked_title_one": "{{count}} liked goal has no goal of your own",
+      "liked_title_other": "{{count}} liked goals have no goal of your own",
+      "liked": "Copy them into one of the organisation's roadmaps; for several there is a scaled-down suggestion from the national goal.",
+      "liked_link": "Show liked",
+      "no_area": "Without an area, statistics and national goals can't be scaled to you, and you don't show among the area's organisations. Only shown to managers.",
+      "profile_title": "The public page is incomplete",
+      "profile": "Missing: {{fields}}. Only shown to managers.",
+      "field_description": "description",
+      "field_org_type": "type of organisation",
+      "field_contact": "contact",
+      "field_banner": "banner",
+      "members_title_one": "{{count}} of {{total}} members has not liked anything",
+      "members_title_other": "{{count}} of {{total}} members have not liked anything",
+      "members": "Remind them to go through the indicators for their area. Only shown to managers.",
+      "members_link": "Show members"
+    },
+    "numbers": {
+      "title": "The state of things",
+      "members": "Members",
+      "liked": "Liked goals",
+      "roadmaps": "Visible roadmaps",
+      "actions": "Actions"
+    },
+    "activity": {
+      "title": "Lately",
+      "empty": "Nothing has happened yet.",
+      "date": "{{date, datetime}}",
+      "roadmap": "The roadmap \"{{name}}\" was created",
+      "version": "Version {{version}} of \"{{name}}\" was created",
+      "draft": "A draft of version {{version}} of \"{{name}}\" was created",
+      "goal": "The goal \"{{name}}\" was added to \"{{roadmap}}\"",
+      "goals": "{{count}} goals were added to \"{{roadmap}}\"",
+      "action": "The action \"{{name}}\" was created",
+      "comment": "New comment. {{target}}",
+      "likes": "{{members}} liked {{goals}}",
+      "likes_members_one": "{{count}} member",
+      "likes_members_other": "{{count}} members",
+      "likes_goals_one": "{{count}} goal",
+      "likes_goals_other": "{{count}} goals",
+      "all_comments": "All comments"
+    },
+    "area_orgs": {
+      "title_working": "Others in {{area}}",
+      "title_public": "Organisations in {{area}}",
+      "liked": "{{count}} liked"
+    },
+    "comments": {
+      "empty": "No comments yet on the organisation's roadmaps, goals or actions."
+    },
+    "members": {
+      "manage": "Manage members and groups",
+      "name": "Name",
+      "role": "Role"
+    }
   }
 }

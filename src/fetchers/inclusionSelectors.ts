@@ -394,6 +394,9 @@ export const actionSummarySelection = {
   start_year: true,
   end_year: true,
   origin_action_id: true,
+  // What edit access hangs on: the roadmap version, or the owning org for roadmapless actions
+  org_id: true,
+  roadmap_iteration_id: true,
   author: { select: { username: true, first_name: true, last_name: true } },
   fields: { select: { header: true, value: true, type: true }, orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsSelect;

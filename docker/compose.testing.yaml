@@ -31,10 +31,6 @@ services:
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
-      cache_from:
-        - type=gha
-      cache_to:
-        - type=gha,mode=max
     restart: "no"
     depends_on:
       db:
@@ -68,10 +64,6 @@ services:
       dockerfile: docker/app.Dockerfile
       args:
         COMMIT_SHA: ${COMMIT_SHA}
-      cache_from:
-        - type=gha
-      cache_to:
-        - type=gha,mode=max
     restart: always
     depends_on:
       db:

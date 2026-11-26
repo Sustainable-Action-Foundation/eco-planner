@@ -23,3 +23,10 @@
 .featured {
   background-color: darkorange;
 }
+
+/* Not a state of the item but of the viewer's access: outlined rather than filled */
+.readOnly {
+  background-color: transparent;
+  color: var(--gray-30, #4d4d4d);
+  border: 1px solid var(--gray-60, #999);
+}

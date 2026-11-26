@@ -35,6 +35,7 @@
 - One project: `yarn playwright test -c tests/playwright.e2e.config.ts --project=setup`, then `--project=api` or `--project="chromium 1080p"`. For the budget spec add `--project=db-budget --no-deps`.
 - Local runs use two workers on purpose: the server shares the machine with the browsers and more workers only cause navigation timeouts that CI never sees.
 - WebKit depends on system libraries that newer distributions may lack. If it will not launch locally, leave it to CI.
+- `SAF_E2E_BROWSERS=chromium` leaves the firefox and webkit projects out. CI sets it for pull requests into `dev`; the push to `dev` after a merge, and anything aimed at `main`, runs every browser. A firefox- or webkit-only failure therefore shows up on `dev`, before a release, not on the pull request.
 - Long runs outlive a tool call's timeout. Run them detached and watch the log.
 
 ## The query-budget canary
