@@ -13,7 +13,7 @@ Rules:
 - Keep the landing light. It fetches org-scoped slim actions (`getActionSummaries`) and builds its roadmap tree from `getRoadmaps()`; see the payload rule in [`caching.md`](../../caching.md).
 
 ## Org management
-`/org/[orgId]/groups` is for managers: member roles, groups, the geo area and the banner. `getOrgManagement` returns null for anyone else. Super admins also add, remove and move members there; see [access-control.md](access-control.md). APIs: `/api/group`, `/api/org-membership`, `/api/org`. Guest invites are disabled; see [access-control.md](access-control.md).
+`/org/[orgId]/groups` is for managers: member roles, groups, the geo area and the banner. `getOrgManagement` returns null for anyone else. Managers also add and remove members there, and super admins move them anywhere; see [access-control.md](access-control.md#who-the-members-are). APIs: `/api/group`, `/api/org-membership`, `/api/org`. Guest invites are disabled; see [access-control.md](access-control.md).
 
 ## Banner
 - An org can have a landing banner. A manager uploads it; the server transcodes it with sharp (`src/lib/orgBannerImage.ts`, limits in `src/functions/orgBanner.ts`) and stores it in the same bucket as attachments.
