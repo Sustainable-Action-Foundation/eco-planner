@@ -19,6 +19,7 @@ import {
   visibleAttachmentsWHERE,
   visibleCommentsWHERE,
   visibleDataSeriesWHERE,
+  visibleEffectsWHERE,
   visibleRoadmapIterationsWHERE,
   writableAccessControlWHERE,
 } from "../../src/lib/accessFilters";
@@ -168,6 +169,7 @@ test.describe("readable / writable access controls agree with accessChecker", ()
         editableActionsWHERE: editableActionsWHERE(ctx),
         editableDataSeriesWHERE: editableDataSeriesWHERE(ctx),
         visibleDataSeriesWHERE: visibleDataSeriesWHERE(ctx),
+        visibleEffectsWHERE: visibleEffectsWHERE(ctx),
         visibleAttachmentsWHERE: visibleAttachmentsWHERE(ctx),
         editableAttachmentsWHERE: editableAttachmentsWHERE(ctx),
         ...Object.fromEntries(Object.values(HiddenRoadmaps).map(mode => [`listedRoadmapsWHERE(${mode})`, listedRoadmapsWHERE(ctx, mode)])),
@@ -335,6 +337,33 @@ test.describe("actions", () => {
     expect(matches(editableActionsWHERE(contexts.member), roadmapless)).toBe(false);
     expect(matches(editableActionsWHERE(null), roadmapless)).toBe(false);
     expect(editableActionsWHERE(null)).toEqual({ org_id: { in: [] } });
+  });
+});
+
+test.describe("effects are visible only with both their action and their goal", () => {
+  // The action and the goal of an effect can sit under different roadmaps (or the action under
+  // none): every pairing, against the checker's verdict on each side
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      const visible = visibleEffectsWHERE(contexts[contextName]);
+      for (const goalIteration of iterations) {
+        const seesGoal = hasViewAccess(accessChecker(goalIteration, contexts[contextName]));
+        for (const actionIteration of iterations) {
+          const seesAction = hasViewAccess(accessChecker(actionIteration, contexts[contextName]));
+          const effect = { action: { org_id: ORG, roadmap_iteration: actionIteration }, goal: { roadmap_iteration: goalIteration } };
+          expect(matches(visible, effect), `${contextName} sees the effect of an action in ${actionIteration.name} on a goal in ${goalIteration.name}`).toBe(seesAction && seesGoal);
+        }
+        // A roadmapless action is visible to everyone, so its effect follows the goal alone
+        const databaseEffect = { action: { org_id: ORG, roadmap_iteration: null }, goal: { roadmap_iteration: goalIteration } };
+        expect(matches(visible, databaseEffect), `${contextName} sees the effect of a roadmapless action on a goal in ${goalIteration.name}`).toBe(seesGoal);
+      }
+    });
+  }
+
+  test("the series of an effect follows the same rule as the effect", () => {
+    for (const contextName of contextNames) {
+      expect(visibleDataSeriesWHERE(contexts[contextName]).OR, contextName).toContainEqual({ dependent_effect: visibleEffectsWHERE(contexts[contextName]) });
+    }
   });
 });
 

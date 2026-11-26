@@ -171,6 +171,19 @@ export function editableActionsWHERE(ctx: UserAccessContext | null): Prisma.Acti
 }
 
 /**
+ * Matches effects the user may see: an effect joins one action to one goal, and both must be
+ * visible. Use it wherever effects are read through a goal or an action (`effects: { where }`,
+ * `_count`), so that seeing one side never gives the other: the action and the goal can sit
+ * under different roadmaps, or the action under none.
+ */
+export function visibleEffectsWHERE(ctx: UserAccessContext | null): Prisma.EffectsWhereInput {
+  return {
+    action: visibleActionsWHERE(ctx),
+    goal: { roadmap_iteration: visibleRoadmapIterationsWHERE(ctx) },
+  };
+}
+
+/**
  * Matches data series the user may edit (e.g. recalculate). Like visibility, edit
  * access is derived from the parent goal/effect context; effects require edit access
  * to both the action and the goal.
@@ -207,12 +220,7 @@ export function visibleDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.Da
       { dependent_baseline: { roadmap_iteration: visibleIterations } },
       { dependent_historical: { roadmap_iteration: visibleIterations } },
       // Effects require access to both the action and the goal
-      {
-        dependent_effect: {
-          action: visibleActionsWHERE(ctx),
-          goal: { roadmap_iteration: visibleIterations },
-        },
-      },
+      { dependent_effect: visibleEffectsWHERE(ctx) },
     ],
   };
 }
