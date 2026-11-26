@@ -23,7 +23,7 @@ export default async function Page(props: { params: Promise<{ orgId: string }> }
   const [t, management, memberAdmin] = await Promise.all([
     serveTea(["pages", "common"]),
     getOrgManagement(params.orgId),
-    // Null unless the requester administers memberships (super admins with their powers on)
+    // Who the members are: for the same people as the page, with the user list only for super admins
     getOrgMemberAdmin(params.orgId),
   ]);
 
