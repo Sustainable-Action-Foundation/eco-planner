@@ -1,6 +1,6 @@
 import type { APIRequestContext } from "playwright/test";
 import { expect, test } from "../lib/users";
-import { createAction, createEffect, createGoal, createIteration, createRoadmap, deleteAction, deleteEffect, deleteRoadmap, groupIdByName, pageEntity, pageStatus, Seed, yearlyDateValues } from "../lib/api";
+import { createAction, createEffect, createGoal, createIteration, createRoadmap, deleteAction, deleteEffect, deleteRoadmap, freshTimestamp, groupIdByName, pageEntity, pageStatus, putJson, Seed, yearlyDateValues } from "../lib/api";
 
 /*
  * An effect joins one action to one goal, and the two can sit under different roadmaps (or
@@ -163,6 +163,41 @@ test.describe("goal → effect → action", () => {
     finally {
       await deleteRoadmap(admin, editableRoadmapId);
       await deleteRoadmap(admin, closedRoadmapId);
+    }
+  });
+
+  test("what decides the action's visibility also refreshes the goal page: sharing of its roadmap, publishing its version", async ({ admin, anon, sandbox }) => {
+    const world = await buildWorld(admin, sandbox.orgId, sandbox.label);
+    try {
+      const goalId = await createGoal(admin, world.publicIterationId, { name: `Open goal ${sandbox.label}` });
+      const orgActionId = await createAction(admin, world.orgIterationId, { name: `Internal action ${sandbox.label}` });
+      const draftId = await createIteration(admin, world.publicRoadmapId, { status: "DRAFT" });
+      const draftActionId = await createAction(admin, draftId, { name: `Draft action ${sandbox.label}` });
+      await createEffect(admin, goalId, orgActionId);
+      await createEffect(admin, goalId, draftActionId);
+
+      /** The goal page as the anonymous visitor gets it: the actions with an effect on it, and how many effects are left out */
+      const seen = async () => {
+        const goal = await pageEntity(anon, `/goal/${goalId}`, goalId);
+        return { actions: (goal?.effects as { action_id: string }[]).map(effect => effect.action_id).sort(), hidden: goal?.hidden_effect_count };
+      };
+      // The visitor's entry is cached from here on: each change below has to expire it through its tags
+      expect(await seen()).toEqual({ actions: [], hidden: 2 });
+
+      // The action's roadmap opens up: nothing about the goal or its own roadmap changed
+      await putJson(admin, "/api/roadmap", { id: world.orgRoadmapId, access: { sharing: "PUBLIC", grants: [] }, timestamp: freshTimestamp() });
+      await expect.poll(seen, { message: "the effect appears once the action's roadmap is public", timeout: 60_000 }).toEqual({ actions: [orgActionId], hidden: 1 });
+
+      // The action's version is published
+      await putJson(admin, "/api/roadmap-iteration", { iterationId: draftId, timestamp: freshTimestamp(), goals: null, status: "PUBLISHED" });
+      await expect.poll(seen, { message: "the effect appears once the action's version is published", timeout: 60_000 }).toEqual({ actions: [orgActionId, draftActionId].sort(), hidden: 0 });
+
+      // And closing the roadmap again takes the effect back off the page
+      await putJson(admin, "/api/roadmap", { id: world.orgRoadmapId, access: { sharing: "ORG", grants: [] }, timestamp: freshTimestamp() });
+      await expect.poll(seen, { message: "the effect leaves once the action's roadmap is closed", timeout: 60_000 }).toEqual({ actions: [draftActionId], hidden: 1 });
+    }
+    finally {
+      await removeWorld(admin, world);
     }
   });
 
