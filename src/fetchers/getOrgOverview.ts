@@ -1,7 +1,8 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { listedGoalsWHERE, listedRoadmapsWHERE, readableAccessControlWHERE, visibleActionsWHERE, visibleCommentsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { listedActionsWHERE, listedGoalsWHERE, listedRoadmapsWHERE, readableAccessControlWHERE, visibleCommentsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { currentIteration } from "@/functions/orgReport";
 import { prisma } from "@/lib/prisma";
 import { GoalListing, IterationStatus, OrgRole } from "@/lib/prisma/generated";
 import type { OrgType } from "@/lib/prisma/generated";
@@ -53,22 +54,14 @@ async function getCachedOrgCounts(orgId: string, accessContext: UserAccessContex
       },
       select: { id: true, roadmap_id: true, version: true, status: true },
     });
-    // One version per roadmap, the one the roadmap lists show it as: its latest published
-    // version, or its newest draft when nothing is published. Older versions hold the same
-    // goals once more and would count them twice.
-    const current = new Map<string, typeof iterations[number]>();
-    for (const iteration of iterations) {
-      const chosen = current.get(iteration.roadmap_id);
-      const published = iteration.status === IterationStatus.PUBLISHED;
-      const chosenPublished = chosen?.status === IterationStatus.PUBLISHED;
-      if (!chosen || (published && !chosenPublished) || (published === chosenPublished && iteration.version > chosen.version)) {
-        current.set(iteration.roadmap_id, iteration);
-      }
-    }
+    // One version per roadmap, the one the roadmap lists show it as (see `currentIteration`).
+    // Older versions hold the same goals once more and would count them twice.
+    const current = Object.values(Object.groupBy(iterations, iteration => iteration.roadmap_id))
+      .flatMap(versions => currentIteration(versions ?? []) ?? []);
     const goals: Prisma.GoalsWhereInput = {
       // Displayed counts exclude unlisted goals (see roadmapInclusionSelection)
       listing: { not: GoalListing.UNLISTED },
-      roadmap_iteration_id: { in: [...current.values()].map(iteration => iteration.id) },
+      roadmap_iteration_id: { in: current.map(iteration => iteration.id) },
     };
 
     const [goalCount, goalsWithBaseline, goalsWithActions, actions] = await Promise.all([
@@ -76,15 +69,7 @@ async function getCachedOrgCounts(orgId: string, accessContext: UserAccessContex
       prisma.goals.count({ where: { ...goals, baseline_id: { not: null } } }),
       prisma.goals.count({ where: { ...goals, effects: { some: {} } } }),
       // Same filter as the org's action list (getActionSummaries)
-      prisma.actions.count({
-        where: {
-          AND: [
-            { org_id: orgId },
-            visibleActionsWHERE(accessContext),
-            { OR: [{ roadmap_iteration: null }, { roadmap_iteration: { roadmap: listedRoadmap } }] },
-          ],
-        },
-      }),
+      prisma.actions.count({ where: listedActionsWHERE(accessContext, orgId) }),
     ]);
 
     return { goals: goalCount, goalsWithBaseline, goalsWithActions, actions };
@@ -243,13 +228,7 @@ async function getCachedOrgActivity(orgId: string, accessContext: UserAccessCont
       }),
       // Same filter as the org's action list (getActionSummaries)
       prisma.actions.findMany({
-        where: {
-          AND: [
-            { org_id: orgId },
-            visibleActionsWHERE(accessContext),
-            { OR: [{ roadmap_iteration: null }, { roadmap_iteration: { roadmap: listedRoadmapsWHERE(accessContext, HiddenRoadmaps.Exclude) } }] },
-          ],
-        },
+        where: listedActionsWHERE(accessContext, orgId),
         select: { id: true, name: true, created_at: true },
         orderBy: newest,
         take: eventLimit,

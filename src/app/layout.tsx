@@ -44,7 +44,7 @@ export default async function RootLayout(
           <ToastContextProvider>
             <div className={`${styles.layout}`}>
               <Sidebar />
-              <div className='padding-100' style={{ minWidth: '0' }}>
+              <div className={`padding-100 ${styles.content}`} style={{ minWidth: '0' }}>
                 {/*
                   Note: We set minWidth 0 here to prevent unexpected issues with this grid item becoming to large.
                   Per the documentation (https://www.w3.org/TR/css3-grid-layout/#min-size-auto) grid items have a default

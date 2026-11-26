@@ -8,6 +8,17 @@
     display: initial;
   }
 }
+
+/* On paper there is no sidebar column, and the page margins are the padding */
+@media print {
+  .layout {
+    display: block;
+  }
+
+  .content {
+    padding: 0;
+  }
+}
  
 .layout-roadmaps {
   margin-top: 2rem;

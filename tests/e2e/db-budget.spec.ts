@@ -33,6 +33,11 @@ const QueryBudget = {
   GoalPage: 4,
   /** Bodens klimatfärdplan, latest iteration. Measured: 3 */
   RoadmapIteration: 4,
+  /**
+   * `/org/<Boden>/report`, the org's printable report. Measured: 4, like the other pages on the same run.
+   * (Cold, its own loader is a fixed ~20 statements whatever the number of goals; a warm load can't show that.)
+   */
+  OrgReport: 4,
 } as const;
 
 const REPEATS = 3;
@@ -138,5 +143,10 @@ test.describe("DB query budget", () => {
 
   test("Roadmap iteration", async ({ page }) => {
     await check(page, "Roadmap iteration", urls.roadmap, QueryBudget.RoadmapIteration);
+  });
+
+  test("Org report", async ({ page }) => {
+    const orgId = new URL(urls.orgLanding, "http://localhost").searchParams.get("org") ?? "";
+    await check(page, "Org report", `/org/${orgId}/report`, QueryBudget.OrgReport);
   });
 });

@@ -4,6 +4,7 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import { getActionSummaries } from "@/fetchers";
 import { orgBannerPath } from "@/functions/orgBanner";
 import { OrgView } from "@/functions/orgLanding";
+import { orgReportPath } from "@/functions/orgReport";
 import { orgWebsiteLabel } from "@/functions/orgProfile";
 import { orgTypeLabel } from "@/functions/orgTypeLabel";
 import { getOrgPeople } from "@/fetchers/getOrgPeople";
@@ -67,10 +68,16 @@ export default async function OrgPublicView({ org, accessContext, viewerContext,
               </ul>
               : null}
           </div>
-          { // Any member may start a roadmap in the org
-            isMember
-              ? <Link href="/roadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-              : null}
+          <div className="flex gap-50 flex-wrap-wrap align-items-center">
+            {/* The whole of what this view shows as one printable document; in a preview, the public version of it */}
+            <Link href={orgReportPath(org.id, { view: entitled ? OrgView.Public : undefined, print: true })} prefetch={false} className="button purewhite round block" data-testid="org-export-pdf">
+              {t("pages:org_report.export_button")}
+            </Link>
+            { // Any member may start a roadmap in the org
+              isMember
+                ? <Link href="/roadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+                : null}
+          </div>
         </div>
       </div>
     </section>
@@ -147,9 +154,9 @@ async function PublicPlans({ org, viewerContext, iterations }: Pick<OrgLandingPr
 /**
  * The facts box: who is responsible and how to reach the org. Contact and website are
  * what the managers chose to publish; their names are only for viewers with a login.
- * Renders nothing when there is nothing to tell.
+ * Renders nothing when there is nothing to tell. Also on the cover of the org's report.
  */
-async function OrgFacts({ org, asVisitor }: { org: OrgLandingProps["org"], asVisitor: boolean }) {
+export async function OrgFacts({ org, asVisitor }: { org: OrgLandingProps["org"], asVisitor: boolean }) {
   const [t, people] = await Promise.all([serveTea("pages"), getOrgPeople(org.id, { asVisitor })]);
   if (people.managers.length === 0 && !org.contactEmail && !org.website) return null;
 
