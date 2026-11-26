@@ -31,7 +31,7 @@ export async function getRoadmapIterationByVersion(roadmapId: string, version: n
  */
 async function getCachedRoadmapIterationByVersion(roadmapId: string, version: number | "latest", accessContext: UserAccessContext | null): Promise<RoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org', 'user');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org');
 
   return boundedFill("getCachedRoadmapIterationByVersion", async () => {
     let iteration: RoadmapIteration | null;

@@ -29,8 +29,8 @@ export async function getActionSummaries(orgId?: string, options: { asVisitor?: 
  */
 async function getCachedActionSummaries(accessContext: UserAccessContext | null, orgId: string | null): Promise<ActionSummary[]> {
   'use cache';
-  // Visibility comes from roadmap access and iteration status, so those tags too; `user` for the author's name
-  cacheTag('database', 'action', 'roadmap', 'roadmapIteration', 'user');
+  // Visibility comes from roadmap access and iteration status, so those tags too
+  cacheTag('database', 'action', 'roadmap', 'roadmapIteration');
 
   return boundedFill("getCachedActionSummaries", async () => {
     return await prisma.actions.findMany({

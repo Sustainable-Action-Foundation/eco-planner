@@ -28,7 +28,7 @@ export async function getOneRoadmapIteration(id: string): Promise<RoadmapIterati
  */
 async function getCachedRoadmapIteration(id: string, accessContext: UserAccessContext | null): Promise<RoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org', 'user');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org');
 
   return boundedFill("getCachedRoadmapIteration", async () => {
     const iteration: RoadmapIteration | null = await prisma.roadmapIterations.findUnique({

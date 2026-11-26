@@ -1,10 +1,10 @@
 import type { APIRequestContext } from "playwright/test";
 import { expect, test } from "../lib/users";
 import {
-  createAction, createComment, createEffect, createGoal, createIteration, createRoadmap, deleteRoadmap, flightPayload, freshTimestamp,
+  createAction, createEffect, createGoal, createIteration, createRoadmap, deleteRoadmap, flightPayload, freshTimestamp,
   groupIdByName, linkedScalarRecipe, orgIdByName, pageEntity, pageStatus, postJson, putJson, Seed, seriesValues, yearlyDateValues,
 } from "../lib/api";
-import { freshContext, linkLogin, linkPlace, onboard, testName, uniqueEmail } from "../lib/login-link";
+import { freshContext, linkLogin, uniqueEmail } from "../lib/login-link";
 
 /*
  * Cache tags, request-only: what a write must expire in the `'use cache'` readers
@@ -15,7 +15,7 @@ import { freshContext, linkLogin, linkPlace, onboard, testName, uniqueEmail } fr
  * after the write, without polling: a reader that misses a tag keeps serving its
  * entry for minutes, and so does one that is only marked stale. A poll would hide both.
  *
- * Each test builds its own roadmap. The org rename uses a seeded place org that no
+ * Each test that needs a roadmap builds its own. The org rename uses a seeded place org that no
  * other spec looks up by name and restores it in `finally`.
  */
 
@@ -143,43 +143,24 @@ test.describe("names shown from other tables", () => {
       await deleteRoadmap(admin, id);
     }
   });
+});
 
-  test("a new account's profile page exists on the next read, and a changed name reaches the bylines", async ({ admin, playwright, baseURL, sandbox }, testInfo) => {
-    // The link place's domain is owned by an org, so the new account joins it and reads its ORG-shared roadmaps
+test.describe("accounts", () => {
+  /*
+   * Only the account's existence is pinned. A changed name on bylines is not: the content readers are
+   * deliberately not tagged `user` (caching.md, "Author names (bylines) are not tagged").
+   */
+  test("a new account's profile page exists on the next read", async ({ admin, playwright, baseURL }, testInfo) => {
     const email = uniqueEmail("cached");
-    const username = email.split("@")[0];
-    const profile = `/user/${encodeURIComponent(username)}`;
+    const profile = `/user/${encodeURIComponent(email.split("@")[0])}`;
     const member = await freshContext(playwright, baseURL, testInfo.workerIndex);
-    const orgId = await orgIdByName(admin, linkPlace.orgName);
-    const id = await createRoadmap(admin, orgId, { name: `Cache byline ${sandbox.label}`, access: { sharing: "ORG", grants: [] } });
     try {
-      const iterationId = await createIteration(admin, id);
-      const goalId = await createGoal(admin, iterationId, { name: `Goal ${sandbox.label}` });
-      const actionId = await createAction(admin, iterationId, { name: `Action ${sandbox.label}` });
-
       // Nobody has that username yet, and admin's "not found" is warm
       await warm(async () => expect(await pageStatus(admin, profile), "before the account exists").toBe(404));
       await linkLogin(member, email);
       expect(await pageStatus(admin, profile), "right after the first login").toBe(200);
-
-      // Readers may comment; each comment carries its author's name on the commented page
-      const first = testName("cached");
-      await onboard(member, first);
-      const commented = [
-        { page: `/roadmap/${id}`, commentId: await createComment(member, id, "roadmap") },
-        { page: `/roadmap/${id}/v1`, commentId: await createComment(member, iterationId, "version") },
-        { page: `/goal/${goalId}`, commentId: await createComment(member, goalId, "goal") },
-        { page: `/action/${actionId}`, commentId: await createComment(member, actionId, "action") },
-      ];
-      const bylines = async () => Promise.all(commented.map(async ({ page, commentId }) =>
-        ((await pageEntity(admin, page, commentId))?.author as { last_name?: string } | undefined)?.last_name));
-
-      await warm(async () => expect(await bylines()).toEqual(commented.map(() => first.lastName)));
-      await onboard(member, { firstName: first.firstName, lastName: "Omdöpt" });
-      expect(await bylines(), "after the name change").toEqual(commented.map(() => "Omdöpt"));
     }
     finally {
-      await deleteRoadmap(admin, id);
       await member.dispose();
     }
   });

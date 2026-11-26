@@ -174,7 +174,8 @@ export async function PATCH(request: NextRequest) {
       },
       select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true, first_name: true, last_name: true },
     });
-    // A profile page looked up before the account existed is cached as "not found"
+    // A profile page looked up before the account existed is cached as "not found". `user` is only on the
+    // readers about people (profiles, org people, org comments), so this expires no content page
     revalidateTag('user', { expire: 0 });
   }
   else if (!user.is_verified) {

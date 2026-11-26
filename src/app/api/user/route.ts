@@ -31,7 +31,8 @@ export async function PATCH(request: NextRequest) {
     where: { id: session.user.id },
     data: { first_name: firstName, last_name: lastName },
   });
-  // Every reader that returns an author's name declares `user` (profile pages, bylines, comments)
+  // Reaches profiles and the org's people and comment lists. Bylines on content pages are untagged on
+  // purpose and catch up within the cache life (caching.md, "Author names (bylines) are not tagged")
   revalidateTag("user", { expire: 0 });
 
   return Response.json({ message: "Name updated", firstName, lastName }, { status: 200 });

@@ -23,7 +23,9 @@ const rules: Rule[] = [
   { tags: ["roadmap", "roadmapIteration"], why: "filters by visibility (roadmap access and version status)", pattern: /\b(visible\w+WHERE|readableAccessControlWHERE|listed\w+WHERE|publishedIterationsOfTypeWHERE)\(/ },
   { tags: ["goal", "action"], why: "series visibility is derived from the goal or effect (action + goal) the series belongs to", pattern: /\bvisibleDataSeriesWHERE\(/ },
   { tags: ["org"], why: "returns an org's name or area", pattern: /\borg:\s*\{\s*select:\s*\{[^}]*\bname:\s*true|\bprisma\.orgs\./ },
-  { tags: ["user"], why: "returns a person's name (author bylines, profiles)", pattern: /\bauthor:\s*\{\s*select:|\bprisma\.users\./ },
+  // Only readers that query users directly. A nested `author: { select: ... }` (a byline) is deliberately
+  // untagged: caching.md, "Author names (bylines) are not tagged"
+  { tags: ["user"], why: "reads users directly (a profile)", pattern: /\bprisma\.users\./ },
   { tags: ["dataSeries"], why: "returns series values or recipes", pattern: /\bvalues:\s|\brecipe:\s*true|\bsource_data_series\b|\bprisma\.(dataSeries|recipes)\./ },
   { tags: ["goal"], why: "returns goals, their ids or their count", pattern: /\bgoals?:\s*\{|\bprisma\.goals\./ },
   { tags: ["action"], why: "returns actions, their fields, ids or count", pattern: /\bactions?:\s*(\{|true)|\bprisma\.(actions|actionFields)\./ },
@@ -101,5 +103,7 @@ test("the rules notice a reader that leaves a tag out", () => {
   const required = (source: string) => [...new Set(rules.filter(rule => rule.pattern.test(source)).flatMap(rule => rule.tags))].sort();
   expect(required(filtered)).toEqual(["roadmap", "roadmapIteration"]);
   expect(required(named)).toEqual(["org"]);
-  expect(required("author: { select: { id: true, first_name: true } }, data_series: { select: { values: { orderBy: {} } } }")).toEqual(["dataSeries", "user"]);
+  // A byline does not ask for `user`; a direct read of users does
+  expect(required("author: { select: { id: true, first_name: true } }, data_series: { select: { values: { orderBy: {} } } }")).toEqual(["dataSeries"]);
+  expect(required("prisma.users.findUnique({ where: { username_lower } })")).toEqual(["user"]);
 });

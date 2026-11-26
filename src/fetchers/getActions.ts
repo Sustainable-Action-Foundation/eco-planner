@@ -24,7 +24,7 @@ export async function getActions(): Promise<Action[]> {
  */
 async function getCachedActions(accessContext: UserAccessContext | null): Promise<Action[]> {
   'use cache';
-  cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org', 'user');
+  cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
   return boundedFill("getCachedActions", async () => {
     // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
