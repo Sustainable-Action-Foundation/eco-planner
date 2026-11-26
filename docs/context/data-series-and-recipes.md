@@ -50,5 +50,11 @@ Why: the guarded fetchers pull in `server-only` and `next/headers`, which plain 
 - Keep both when touching evaluation. Tests: `tests/unit/recipe-percent.test.ts`.
 - When auditing stored data for this class of error, a 100× ratio alone does not prove a series is wrong: a recipe may contain a scalar that compensates. Check the recipe.
 
+## Renamed stored values
+- A recipe's JSON outlives the code that wrote it. When a stored value is renamed, old rows keep the old spelling: `RecipeDataTypes.DataSeries` was `dataSeries` until 2026-07-30 and the stored recipes were not rewritten (the levelling SQL that gave every recipe-less series a manual recipe also wrote it literally).
+- `Recipe.from` is the only place stored recipes are parsed. It maps the named old spellings to the current ones first (`legacyRecipeDataTypes` in `src/functions/recipe/legacyTypes.ts`); the type guards stay strict, and serializing writes the current value, so a re-saved recipe is current.
+- Renaming a stored value therefore takes two things: an entry in that map, and a rewrite of the stored rows (`scripts/maintenance/rewrite-legacy-recipe-types.ts`, a dry run unless `--apply`). Tests: `tests/unit/recipe-legacy-types.test.ts`.
+- The column holds either a JSON string with the serialized recipe (what the app writes) or a plain JSON object (hand-written SQL). Do not match stored recipes with `LIKE` on exact spacing or quoting; parse them.
+
 ## Recalculation
 `POST /api/recalculate` re-evaluates a stored series from its recipe. Stored values do not follow their sources automatically; the goal page offers a recalculation when a source series is newer than the result.

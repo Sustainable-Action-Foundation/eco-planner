@@ -46,6 +46,9 @@ const tags = new Map();
 /** Sets still being written, so a `get` for the same key waits instead of missing (handler contract) */
 /** @type {Map<string, Promise<void>>} */
 const pendingSets = new Map();
+/** Temporary files of writes in progress: the startup prune must leave them alone */
+/** @type {Set<string>} */
+const writing = new Set();
 
 const persistent = process.env.NODE_ENV !== "development" || !!process.env.SAF_CACHE_DIR;
 
@@ -75,12 +78,15 @@ function fileFor(cacheKey) {
 /** Write-then-rename, so a crash or a concurrent read never sees half a file */
 async function writeAtomic(/** @type {string} */ file, /** @type {string} */ content) {
   const tmp = `${file}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
+  writing.add(tmp);
   try {
     await writeFile(tmp, content);
     await rename(tmp, file);
   } catch (err) {
     await rm(tmp, { force: true });
     throw err;
+  } finally {
+    writing.delete(tmp);
   }
 }
 
@@ -99,7 +105,8 @@ async function prune() {
     const file = path.join(entriesDir, name);
     try {
       if (name.endsWith(".tmp")) {
-        await rm(file, { force: true });
+        // Left behind by a crashed process, unless it is one of our own writes in progress
+        if (!writing.has(file)) await rm(file, { force: true });
         continue;
       }
       /** @type {StoredEntry} */

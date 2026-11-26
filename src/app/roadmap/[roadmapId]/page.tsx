@@ -1,5 +1,5 @@
 import { getOneRoadmap, getUserAccessContext } from "@/fetchers";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess, isSuperAdminAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -61,7 +61,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       <Breadcrumb object={roadmap} />
 
       {hasEditAccess(accessLevel) &&
-        <AdminPanel accessLevel={accessLevel} object={roadmap} />
+        <AdminPanel accessLevel={accessLevel} superAdmin={isSuperAdminAccess(roadmap, accessContext)} object={roadmap} />
       }
  
       <main>

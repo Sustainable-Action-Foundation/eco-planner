@@ -34,6 +34,7 @@ Roadmap, version and goal forms send the description through a hidden `descripti
 - The editor is created with `immediatelyRender: false`. With immediate rendering, tiptap can destroy and recreate the editor when React's effects run late; a submit in between sends an empty description, and saving without changes wipes the text.
 - The editor's callbacks are the only writer of that hidden input. Never give it a `defaultValue`: a hidden input has no dirty value, so React re-applies the default on every render and erases what the editor wrote.
 - When a test sees an empty or doubled editor, suspect editor re-creation before suspecting the data.
+- Every `prosemirror-*` package must resolve to one version in `yarn.lock`. They recognise each other's objects with `instanceof`, so a second copy of `prosemirror-model` breaks whatever crosses between the copies (Enter, typing or paste, depending on how yarn hoists them) with "multiple versions of prosemirror-model were loaded" in the browser console. Yarn keeps the old resolution when a tiptap update raises a range, so after such an update run `yarn dedupe 'prosemirror-*' '@tiptap/*'`; `tests/unit/editor-dependencies.test.ts` fails until it is done.
 
 ## Direction, not yet in code
 - The standalone historical-data pages (`src/app/goal/[goalId]/historical-data/`, `src/components/form/forms/historical.tsx`) are to be removed once the goal form's history section fully replaces them.

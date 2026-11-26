@@ -74,6 +74,10 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+    env:
+      # Pull requests into dev run the browser specs on chromium only; the push to dev that
+      # follows a merge (and anything aimed at main) runs every browser
+      SAF_E2E_BROWSERS: ${{ github.event_name == 'pull_request' && github.base_ref == 'dev' && 'chromium' || '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -112,8 +116,9 @@ jobs:
           yarn install --immutable
           # Prisma client (src modules imported by tests reach the generated client)
           yarn prisma generate
-          # Playwright browsers and their system deps
-          yarn playwright install --with-deps
+          # Playwright browsers and their system deps: only the browsers this run uses, since
+          # webkit's packages are most of the download and the Ubuntu mirror is at times very slow
+          yarn playwright install --with-deps ${{ env.SAF_E2E_BROWSERS == 'chromium' && 'chromium' || '' }}
 
       - name: Run tests
         id: run-tests
@@ -179,7 +184,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Not on pull requests: nothing is pushed there, and the test stack has already built both
+      # images from the same Dockerfiles. No registry cache either: the layers the test stack
+      # built are still in this job's builder, and exporting a cache took longer than it saved.
       - name: Build and push
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -192,10 +201,9 @@ jobs:
             COMMIT_SHA=${{ github.sha }}
             BUILD_ID=${{ github.run_id }}
             COMMITS_AHEAD=${{ steps.commits-ahead.outputs.count }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Build and push seed image
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -203,8 +211,6 @@ jobs:
           push: ${{ steps.run-tests.outcome != 'failed' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
           tags: ${{ steps.seed-metadata.outputs.tags }}
           labels: ${{ steps.seed-metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   deploy-staging:
     needs: build-and-publish
