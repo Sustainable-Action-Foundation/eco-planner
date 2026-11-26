@@ -1,5 +1,6 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
@@ -33,6 +34,6 @@ async function getCachedActions(accessContext: UserAccessContext | null): Promis
       include: actionInclusionSelection(accessContext),
     });
 
-    return actions;
+    return withoutHiddenSources(actions);
   });
 }

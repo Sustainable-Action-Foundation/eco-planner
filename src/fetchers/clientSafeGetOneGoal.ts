@@ -1,6 +1,7 @@
 'use server';
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
@@ -33,6 +34,6 @@ async function clientSafeGetCachedGoal(id: string, accessContext: UserAccessCont
       select: clientSafeGoalSelection(accessContext),
     }) satisfies ClientGoal | null;
 
-    return goal;
+    return withoutHiddenSources(goal);
   });
 }

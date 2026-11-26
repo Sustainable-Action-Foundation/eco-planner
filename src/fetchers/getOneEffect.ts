@@ -1,5 +1,6 @@
 import "server-only";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleEffectsWHERE } from "@/lib/accessFilters";
@@ -36,9 +37,9 @@ async function getCachedEffect(actionId: string, goalId: string, accessContext: 
         // Requires access to both the action and the goal
         AND: [visibleEffectsWHERE(accessContext)],
       },
-      include: effectInclusionSelection,
+      include: effectInclusionSelection(accessContext),
     }) satisfies Effect | null;
 
-    return effect;
+    return withoutHiddenSources(effect);
   });
 };

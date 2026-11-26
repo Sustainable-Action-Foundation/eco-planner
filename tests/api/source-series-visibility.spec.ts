@@ -1,6 +1,6 @@
 import type { APIRequestContext } from "playwright/test";
 import { expect, test } from "../lib/users";
-import { createGoal, createIteration, createRoadmap, deleteRoadmap, freshTimestamp, groupIdByName, pageEntity, pageStatus, postJson, putJson, Seed, seriesValues, yearlyDateValues } from "../lib/api";
+import { createGoal, createIteration, createRoadmap, deleteGoal, deleteRoadmap, expectPageStatus, freshTimestamp, groupIdByName, pageEntity, pageStatus, postJson, putJson, Seed, seriesValues, yearlyDateValues } from "../lib/api";
 import type { PageEntity } from "../lib/api";
 
 /*
@@ -228,6 +228,35 @@ test.describe("a copy's page and the series it was computed from", () => {
       // And opening it again brings it back
       await putJson(admin, "/api/roadmap", { id: world.closedRoadmapId, access: { sharing: "PUBLIC", grants: [] }, timestamp: freshTimestamp() });
       await expect.poll(seen, { message: "the original returns once its roadmap is public", timeout: 60_000 }).toEqual({ sources: [original.dataSeriesId], named: true, values: true });
+    }
+    finally {
+      await removeWorld(admin, world);
+    }
+  });
+
+  test("what a deleted original leaves behind goes only to those who may edit the copy", async ({ admin, anita, orgless, anon, sandbox }) => {
+    const world = await buildWorld(admin, sandbox.orgId, sandbox.label);
+    try {
+      const original = await createOriginal(admin, world.closedIterationId, sandbox.label, world.closedRoadmapName);
+      const copyId = await createCopy(anita, world.openIterationId, sandbox.label, original);
+
+      // The goal goes, its series stays for the recipe that reads it: a series that belongs to nothing
+      await deleteGoal(admin, original.goalId);
+      await expectPageStatus(admin, `/goal/${original.goalId}`, 404);
+
+      // anita edits the copy: its form evaluates the recipe from that series, so she gets both
+      await expect.poll(async () => sourceIds(await pageEntity(anita, `/goal/${copyId}/edit`, copyId)), { message: "anita: the series the copy reads", timeout: 60_000 }).toEqual([original.dataSeriesId]);
+      const editBody = await pageBody(anita, `/goal/${copyId}/edit`);
+      expect(editBody.includes(String(SOURCE_SERIES[0])), "anita: the values the copy reads").toBe(true);
+      expect(editBody.includes(original.name), "anita: the recipe as stored").toBe(true);
+
+      // Whoever only reads the copy gets its own values and nothing of what is left of the original
+      for (const [who, request] of [["anonymous", anon], ["orgless", orgless]] as const) {
+        const body = await pageBody(request, `/goal/${copyId}`);
+        expect(body.includes(`Open copy ${sandbox.label}`), `${who}: the copy's page rendered`).toBe(true);
+        expect(tracesOfOriginal(body, original), `${who}: the copy's page`).toEqual(NO_TRACES);
+        expect(seriesValues((await pageEntity(request, `/goal/${copyId}`, copyId))?.data_series), `${who}: the copy's values`).toEqual(COPY_SERIES);
+      }
     }
     finally {
       await removeWorld(admin, world);

@@ -1,5 +1,6 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
@@ -39,6 +40,6 @@ async function getCachedAction(id: string, accessContext: UserAccessContext | nu
       include: actionInclusionSelection(accessContext),
     }) satisfies Action | null;
 
-    return action;
+    return withoutHiddenSources(action);
   });
 };
