@@ -83,10 +83,30 @@
     "action_count": "Antal $t(common:action_other)",
     "goal_name": "Målbannamn",
     "leap_parameter": "Indikatorparameter",
+    "like_count": "Gilla-markeringar",
     "no_goals": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
     "unit": "Enhet"
   },
   "goals": {
+    "liked_only_filter": "Visa bara gillade $t(common:goal_other)",
+    "likes": {
+      "branch_count_one": "{{count}} gillad $t(common:goal_one)",
+      "branch_count_other": "{{count}} gillade $t(common:goal_other)",
+      "empty": "Inga gillade $t(common:goal_other) i $t(common:roadmap_version_definite_one) än. Gilla $t(common:goal_other) på deras sidor så samlas de här.",
+      "like_count_one": "{{count}} gilla-markering",
+      "like_count_other": "{{count}} gilla-markeringar",
+      "scope_all": "Alla",
+      "scope_all_title": "Gilla-markeringar från alla, även andra organisationer",
+      "scope_area": "Alla organisationer i {{area}}",
+      "scope_area_title": "Gilla-markeringar från medlemmar i organisationerna i {{area}}",
+      "scope_label": "Vems gilla-markeringar som visas",
+      "scope_mine": "Mina egna",
+      "scope_mine_title": "Bara dina egna gilla-markeringar",
+      "scope_org": "Vår organisation",
+      "scope_org_title": "Gilla-markeringar från organisationens medlemmar",
+      "summary_one": "{{count}} gillad $t(common:goal_one) av {{total}}",
+      "summary_other": "{{count}} gillade $t(common:goal_other) av {{total}}"
+    },
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Laddar",
     "localizable_only_filter": "$t(common:goal_other, titleCase) med anpassad skalning",
@@ -497,7 +517,8 @@
     "draft": "Utkast",
     "unlisted": "Dold",
     "featured": "Framlyft",
-    "hidden": "Dold"
+    "hidden": "Dold",
+    "read_only": "Endast läsning"
   },
   "sharing_line": {
     "public": "Synlig för alla",

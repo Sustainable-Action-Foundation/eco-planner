@@ -66,13 +66,33 @@
     "banner_missing": "The banner is no longer in storage. A manager can remove it.",
     "banner_too_large": "The image is larger than the {{maxSize}} MB limit",
     "banner_type_not_allowed": "That file type cannot be used as a banner",
-    "banner_unreadable": "The file could not be read as an image"
+    "banner_unreadable": "The file could not be read as an image",
+    "profile_updated": "The organisation's details saved",
+    "invalid_description": "The description is too long or holds characters that aren't allowed",
+    "invalid_org_type": "Unknown organisation type",
+    "invalid_contact_email": "The contact address is not a valid e-mail address",
+    "invalid_website": "The website must be an ordinary web address (http or https)",
+    "invalid_focus_step": "Unknown step of the process",
+    "invalid_focus_period": "The period may be at most 60 characters on one line"
   },
   "orgMembership": {
     "not_found": "Membership not found",
     "own_role": "You cannot change your own role",
     "guest_locked": "Guest roles cannot be changed here",
-    "updated": "Role updated"
+    "updated": "Role updated",
+    "manager_only": "Only the organization's managers can add members",
+    "super_admin_only": "Only super admins can add from the list of all users. Give an email address instead.",
+    "invalid_email": "Invalid email address",
+    "no_account": "There is no account with that address. The person needs to log in to the tool once first.",
+    "rate_limited": "Too many attempts in a short time, wait a minute",
+    "user_not_found": "User not found",
+    "already_member": "The person is already a member of the organization",
+    "own_membership": "You cannot remove or move your own membership",
+    "same_org": "The member already belongs to that organization",
+    "move_managed_only": "You can only move members to organizations that you also manage",
+    "added": "Member added",
+    "removed": "Member removed",
+    "moved": "Member moved"
   },
   "guestInvite": {
     "invalid_email": "That does not look like an email address",

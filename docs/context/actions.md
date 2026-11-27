@@ -3,6 +3,7 @@
 ## Ownership and visibility
 - An action belongs to an org (`Actions.org_id`). With a roadmap version it follows that roadmap's access; without one it is part of the shared action database: world-readable, edited by the owning org's managers. The action page says so in a note.
 - Filters: `visibleActionsWHERE` and `editableActionsWHERE` in `src/lib/accessFilters.ts`.
+- The action page lists only the effects on goals the viewer may see, and a goal page only the effects of actions the viewer may see; see [access-control.md](access-control.md#where-access-lives).
 - `/actions` and the org landing list slim summaries (`getActionSummaries`), not full actions.
 
 ## Fields

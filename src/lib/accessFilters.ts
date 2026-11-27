@@ -151,6 +151,21 @@ export function visibleActionsWHERE(ctx: UserAccessContext | null): Prisma.Actio
 }
 
 /**
+ * Matches the actions an action list shows the user: the visible ones, without those of
+ * hidden roadmaps, which stay out of listings like the roadmaps themselves.
+ * @param orgId Only actions owned by this org; every org's when omitted
+ */
+export function listedActionsWHERE(ctx: UserAccessContext | null, orgId?: string | null): Prisma.ActionsWhereInput {
+  return {
+    AND: [
+      ...(orgId ? [{ org_id: orgId }] : []),
+      visibleActionsWHERE(ctx),
+      { OR: [{ roadmap_iteration: null }, { roadmap_iteration: { roadmap: listedRoadmapsWHERE(ctx, HiddenRoadmaps.Exclude) } }] },
+    ],
+  };
+}
+
+/**
  * Matches actions the user may edit: those under a writable roadmap, plus
  * roadmapless actions (the public action database) for managers of the owning org.
  */
@@ -167,6 +182,19 @@ export function editableActionsWHERE(ctx: UserAccessContext | null): Prisma.Acti
       { roadmap_iteration: { roadmap: { access_control: writableAccessControlWHERE(ctx) } } },
       { roadmap_iteration: null, org_id: { in: managedOrgIds(ctx) } },
     ],
+  };
+}
+
+/**
+ * Matches effects the user may see: an effect joins one action to one goal, and both must be
+ * visible. Use it wherever effects are read through a goal or an action (`effects: { where }`,
+ * `_count`), so that seeing one side never gives the other: the action and the goal can sit
+ * under different roadmaps, or the action under none.
+ */
+export function visibleEffectsWHERE(ctx: UserAccessContext | null): Prisma.EffectsWhereInput {
+  return {
+    action: visibleActionsWHERE(ctx),
+    goal: { roadmap_iteration: visibleRoadmapIterationsWHERE(ctx) },
   };
 }
 
@@ -207,11 +235,37 @@ export function visibleDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.Da
       { dependent_baseline: { roadmap_iteration: visibleIterations } },
       { dependent_historical: { roadmap_iteration: visibleIterations } },
       // Effects require access to both the action and the goal
+      { dependent_effect: visibleEffectsWHERE(ctx) },
+    ],
+  };
+}
+
+/**
+ * Matches the data series a recipe reads (`Recipes.source_data_series`) that the user may get
+ * along with the series computed from them. Use it wherever sources are read through a series
+ * (`source_data_series: { where }`): seeing a goal says nothing about the goals it was computed from.
+ *
+ * - A source that fills a slot follows that goal or effect, like any series (`visibleDataSeriesWHERE`).
+ * - A source that fills no slot (statistics fetched for a recipe, or what a deleted goal or effect
+ *   left behind for the recipes still reading it) has no visibility of its own. It is an input and
+ *   nothing else, so it goes only to those who may edit a series computed from it: the edit forms
+ *   evaluate the recipe from it.
+ */
+export function visibleSourceSeriesWHERE(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
+  const visible = visibleDataSeriesWHERE(ctx);
+  // Nobody edits anonymously, nor without a managed org or a group to get a grant through
+  if (!ctx || (!ctx.isSuperAdmin && managedOrgIds(ctx).length === 0 && allGroupIds(ctx).length === 0)) {
+    return visible;
+  }
+  return {
+    OR: [
+      visible,
       {
-        dependent_effect: {
-          action: visibleActionsWHERE(ctx),
-          goal: { roadmap_iteration: visibleIterations },
-        },
+        dependent_goal: null,
+        dependent_baseline: null,
+        dependent_historical: null,
+        dependent_effect: null,
+        dependent_recipes: { some: { derived_data_series: editableDataSeriesWHERE(ctx) } },
       },
     ],
   };

@@ -75,7 +75,7 @@ test.describe("Tree views", () => {
       const parentNode = tree.locator("li").filter({ has: page.locator("> details > summary", { hasText: `Sandbox ${sandbox.label}` }) }).first();
       // Another worker's delete may leave the landing stale for one render (deletes revalidate with `max`)
       await expect(async () => {
-        await page.goto(`/?org=${sandbox.orgId}`);
+        await page.goto(`/?org=${sandbox.orgId}&tab=roadmaps`);
         await expect(parentNode).toBeVisible({ timeout: 20_000 });
       }).toPass({ timeout: 120_000 });
       const childLink = parentNode.getByTestId("roadmap-tree-version").filter({ hasText: childName });

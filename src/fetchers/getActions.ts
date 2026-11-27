@@ -1,5 +1,6 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
@@ -30,9 +31,9 @@ async function getCachedActions(accessContext: UserAccessContext | null): Promis
     // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
     const actions: Action[] = await prisma.actions.findMany({
       where: visibleActionsWHERE(accessContext),
-      include: actionInclusionSelection,
+      include: actionInclusionSelection(accessContext),
     });
 
-    return actions;
+    return withoutHiddenSources(actions);
   });
 }

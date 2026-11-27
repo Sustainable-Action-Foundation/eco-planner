@@ -49,7 +49,7 @@ async function getCachedGoalByIndicator(iterationId: string, indicatorParameter:
           ...visibleRoadmapIterationsWHERE(accessContext),
         },
       },
-      select: relatedGoalSelection,
+      select: relatedGoalSelection(accessContext),
     });
 
     goal?.effects.sort(effectSorter);

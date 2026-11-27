@@ -83,10 +83,30 @@
     "action_count": "$t(common:action_other, titleCase)",
     "goal_name": "$t(common:goal_one, titleCase) name",
     "leap_parameter": "indicator parameter",
+    "like_count": "Likes",
     "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
     "unit": "Unit"
   },
   "goals": {
+    "liked_only_filter": "Show only liked $t(common:goal_other)",
+    "likes": {
+      "branch_count_one": "{{count}} liked $t(common:goal_one)",
+      "branch_count_other": "{{count}} liked $t(common:goal_other)",
+      "empty": "No liked $t(common:goal_other) in $t(common:roadmap_version_definite_one) yet. Like $t(common:goal_other) on their pages and they gather here.",
+      "like_count_one": "{{count}} like",
+      "like_count_other": "{{count}} likes",
+      "scope_all": "Everyone",
+      "scope_all_title": "Likes from everyone, including other organizations",
+      "scope_area": "All organizations in {{area}}",
+      "scope_area_title": "Likes from members of the organizations in {{area}}",
+      "scope_label": "Whose likes to show",
+      "scope_mine": "My own",
+      "scope_mine_title": "Only your own likes",
+      "scope_org": "Our organization",
+      "scope_org_title": "Likes from the organization's members",
+      "summary_one": "{{count}} liked $t(common:goal_one) of {{total}}",
+      "summary_other": "{{count}} liked $t(common:goal_other) of {{total}}"
+    },
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Loading",
     "localizable_only_filter": "$t(common:goal_other, titleCase) with tailored scaling",
@@ -497,7 +517,8 @@
     "draft": "Draft",
     "unlisted": "Unlisted",
     "featured": "Featured",
-    "hidden": "Hidden"
+    "hidden": "Hidden",
+    "read_only": "Read only"
   },
   "sharing_line": {
     "public": "Visible to everyone",

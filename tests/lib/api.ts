@@ -507,9 +507,9 @@ export async function deleteEffect(request: APIRequestContext, goalId: string, a
 }
 
 /**
- * Waits for a page's effective status. Deletes revalidate their tags with
- * `max` (stale-while-revalidate), so the first fetch after one may still serve
- * the cached page; creates and updates expire immediately.
+ * Waits for a page's effective status. Every write expires its tags immediately
+ * (`{ expire: 0 }`), so the next read is fresh; tests/api/caching.spec.ts pins
+ * that with single reads. The poll here only absorbs a loaded shared server.
  */
 export async function expectPageStatus(request: APIRequestContext, url: string, status: number): Promise<void> {
   await expect.poll(() => pageStatus(request, url), { message: `${url} to answer ${status}`, timeout: 60_000 }).toBe(status);
@@ -554,4 +554,30 @@ export async function publicGoalId(request: APIRequestContext, roadmapName: stri
   const id = roadmap.slice(roadmap.lastIndexOf('{"id":"', goalAt)).match(/^\{"id":"([0-9a-f-]{36})"/)?.[1];
   expect(id, `id of goal "${leaf}"`).toBeTruthy();
   return id ?? "";
+}
+
+/** A user as the super-admin membership administration of an org lists them (see `getOrgMemberAdmin`) */
+export type MemberAdminEntry = {
+  name: string;
+  email: string;
+  otherOrgs: string[];
+  /** Set for users outside the org: the id `POST /api/org-membership` takes */
+  userId?: string;
+  /** Set for the org's members: the id `DELETE` and `PATCH /api/org-membership` take */
+  membershipId?: string;
+  role?: string;
+};
+
+/**
+ * How the membership administration on `/org/<orgId>/groups` lists the user with this
+ * address: as a member of the org (`membershipId`) or as someone who can be added
+ * (`userId`). Null when the page carries no such user, which is also what everyone but
+ * a super admin with their powers on gets.
+ */
+export async function memberAdminEntry(request: APIRequestContext, orgId: string, email: string): Promise<MemberAdminEntry | null> {
+  const text = await flightPayload(request, `/org/${orgId}/groups`);
+  const at = text.indexOf(`"email":${JSON.stringify(email)}`);
+  if (at === -1) return null;
+  const raw = flightObjectAt(text, text.lastIndexOf('{"name":', at));
+  return raw ? JSON.parse(raw) as MemberAdminEntry : null;
 }

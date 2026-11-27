@@ -1,6 +1,7 @@
 "use server";
 
 import { clientSafeRoadmapIterationSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
@@ -32,11 +33,11 @@ async function getCachedClientSafeRoadmapIteration(id: string, accessContext: Us
         ...visibleRoadmapIterationsWHERE(accessContext),
         id,
       },
-      select: clientSafeRoadmapIterationSelection,
+      select: clientSafeRoadmapIterationSelection(accessContext),
     }) satisfies ClientRoadmapIteration | null;
 
     iteration?.goals.sort(goalSorter);
 
-    return iteration;
+    return withoutHiddenSources(iteration);
   });
 }

@@ -9,6 +9,7 @@ import {
   editableAttachmentsWHERE,
   editableDataSeriesWHERE,
   everythingWHERE,
+  listedActionsWHERE,
   listedGoalsWHERE,
   listedRoadmapsWHERE,
   managedOrgIds,
@@ -19,7 +20,9 @@ import {
   visibleAttachmentsWHERE,
   visibleCommentsWHERE,
   visibleDataSeriesWHERE,
+  visibleEffectsWHERE,
   visibleRoadmapIterationsWHERE,
+  visibleSourceSeriesWHERE,
   writableAccessControlWHERE,
 } from "../../src/lib/accessFilters";
 import { isGoalListed, isRoadmapListed } from "../../src/lib/listing";
@@ -168,6 +171,8 @@ test.describe("readable / writable access controls agree with accessChecker", ()
         editableActionsWHERE: editableActionsWHERE(ctx),
         editableDataSeriesWHERE: editableDataSeriesWHERE(ctx),
         visibleDataSeriesWHERE: visibleDataSeriesWHERE(ctx),
+        visibleSourceSeriesWHERE: visibleSourceSeriesWHERE(ctx),
+        visibleEffectsWHERE: visibleEffectsWHERE(ctx),
         visibleAttachmentsWHERE: visibleAttachmentsWHERE(ctx),
         editableAttachmentsWHERE: editableAttachmentsWHERE(ctx),
         ...Object.fromEntries(Object.values(HiddenRoadmaps).map(mode => [`listedRoadmapsWHERE(${mode})`, listedRoadmapsWHERE(ctx, mode)])),
@@ -335,6 +340,122 @@ test.describe("actions", () => {
     expect(matches(editableActionsWHERE(contexts.member), roadmapless)).toBe(false);
     expect(matches(editableActionsWHERE(null), roadmapless)).toBe(false);
     expect(editableActionsWHERE(null)).toEqual({ org_id: { in: [] } });
+  });
+
+  test("action lists show the visible actions, without those of hidden roadmaps, optionally of one org", () => {
+    for (const contextName of contextNames) {
+      const listed = listedActionsWHERE(contexts[contextName]);
+      const listedInOrg = listedActionsWHERE(contexts[contextName], ORG);
+      for (const iteration of iterations) {
+        const visible = hasViewAccess(accessChecker(iteration, contexts[contextName]));
+        const action = (hidden: boolean) => ({ org_id: ORG, roadmap_iteration: { ...iteration, roadmap: { ...iteration.roadmap, hidden } } });
+        expect(matches(listed, action(false)), `${contextName} lists action in ${iteration.name}`).toBe(visible);
+        expect(matches(listedInOrg, action(false)), `${contextName} lists the org's action in ${iteration.name}`).toBe(visible);
+        // Not even for those who can write to the hidden roadmap: lists leave it out for everyone
+        expect(matches(listed, action(true)), `${contextName} lists action of a hidden ${iteration.name}`).toBe(false);
+      }
+      expect(matches(listed, { org_id: ORG, roadmap_iteration: null }), `${contextName} lists a roadmapless action`).toBe(true);
+      expect(matches(listedInOrg, { org_id: ORG, roadmap_iteration: null })).toBe(true);
+      expect(matches(listedInOrg, { org_id: OTHER_ORG, roadmap_iteration: null }), `${contextName} lists another org's action as the org's`).toBe(false);
+    }
+  });
+});
+
+test.describe("effects are visible only with both their action and their goal", () => {
+  // The action and the goal of an effect can sit under different roadmaps (or the action under
+  // none): every pairing, against the checker's verdict on each side
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      const visible = visibleEffectsWHERE(contexts[contextName]);
+      for (const goalIteration of iterations) {
+        const seesGoal = hasViewAccess(accessChecker(goalIteration, contexts[contextName]));
+        for (const actionIteration of iterations) {
+          const seesAction = hasViewAccess(accessChecker(actionIteration, contexts[contextName]));
+          const effect = { action: { org_id: ORG, roadmap_iteration: actionIteration }, goal: { roadmap_iteration: goalIteration } };
+          expect(matches(visible, effect), `${contextName} sees the effect of an action in ${actionIteration.name} on a goal in ${goalIteration.name}`).toBe(seesAction && seesGoal);
+        }
+        // A roadmapless action is visible to everyone, so its effect follows the goal alone
+        const databaseEffect = { action: { org_id: ORG, roadmap_iteration: null }, goal: { roadmap_iteration: goalIteration } };
+        expect(matches(visible, databaseEffect), `${contextName} sees the effect of a roadmapless action on a goal in ${goalIteration.name}`).toBe(seesGoal);
+      }
+    });
+  }
+
+  test("the series of an effect follows the same rule as the effect", () => {
+    for (const contextName of contextNames) {
+      expect(visibleDataSeriesWHERE(contexts[contextName]).OR, contextName).toContainEqual({ dependent_effect: visibleEffectsWHERE(contexts[contextName]) });
+    }
+  });
+});
+
+test.describe("the series a recipe reads follow their own owner, not the series computed from them", () => {
+  const noSlot = { dependent_goal: null, dependent_baseline: null, dependent_historical: null, dependent_effect: null };
+
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      const ctx = contexts[contextName];
+      const sources = visibleSourceSeriesWHERE(ctx);
+      for (const iteration of iterations) {
+        const level = accessChecker(iteration, ctx);
+        const goal = { roadmap_iteration: iteration };
+
+        // A source that is a goal's series, baseline or history: visible with that goal, whatever reads it.
+        // Here it is read by a series of the same goal, so edit access to the reader gives nothing extra
+        for (const slot of ["dependent_goal", "dependent_baseline", "dependent_historical"] as const) {
+          const owned = { ...noSlot, [slot]: goal, dependent_recipes: [{ derived_data_series: { ...noSlot, dependent_goal: goal } }] };
+          expect(matches(sources, owned), `${contextName} gets a source that is the ${slot} of a goal in ${iteration.name}`).toBe(hasViewAccess(level));
+        }
+
+        // A source that fills no slot (fetched statistics, or what a deleted goal left behind):
+        // only for those who may edit a series computed from it
+        const ownerless = { ...noSlot, dependent_recipes: [{ derived_data_series: { ...noSlot, dependent_goal: goal } }] };
+        expect(matches(sources, ownerless), `${contextName} gets a slotless source read by a goal in ${iteration.name}`).toBe(hasEditAccess(level));
+        for (const other of iterations) {
+          // Read by two goals: editing either one is enough
+          const shared = { ...noSlot, dependent_recipes: [{ derived_data_series: { ...noSlot, dependent_historical: goal } }, { derived_data_series: { ...noSlot, dependent_goal: { roadmap_iteration: other } } }] };
+          expect(matches(sources, shared), `${contextName} gets a slotless source read in ${iteration.name} and ${other.name}`)
+            .toBe(hasEditAccess(level) || hasEditAccess(accessChecker(other, ctx)));
+        }
+      }
+
+      // Read by nothing that fills a slot (a suggestion template's input, a dangling recipe): nobody's
+      expect(matches(sources, { ...noSlot, dependent_recipes: [] }), `${contextName} gets a slotless source nothing reads`).toBe(false);
+      expect(matches(sources, { ...noSlot, dependent_recipes: [{ derived_data_series: null }] }), `${contextName} gets a slotless source only a template reads`).toBe(false);
+    });
+  }
+
+  test("a source hidden from the viewer stays hidden however visible its reader is", () => {
+    const open = iterations.find(it => it.name === "publicNoGrants/PUBLISHED");
+    const closed = iterations.find(it => it.name === "groupsNoGrants/PUBLISHED");
+    const draft = iterations.find(it => it.name === "publicWithGrants/DRAFT");
+    const reader = [{ derived_data_series: { ...noSlot, dependent_goal: { roadmap_iteration: open } } }];
+    const closedSource = { ...noSlot, dependent_goal: { roadmap_iteration: closed }, dependent_recipes: reader };
+    const draftSource = { ...noSlot, dependent_goal: { roadmap_iteration: draft }, dependent_recipes: reader };
+    for (const contextName of ["anonymous", "orgless", "foreignManager", "member", "memberRO"] as const) {
+      expect(matches(visibleSourceSeriesWHERE(contexts[contextName]), closedSource), `${contextName}: a source under a closed roadmap`).toBe(false);
+      expect(matches(visibleSourceSeriesWHERE(contexts[contextName]), draftSource), `${contextName}: a source in a draft`).toBe(false);
+    }
+    // Edit access to the reader gives nothing on a source that has an owner
+    const editableReader = [{ derived_data_series: { ...noSlot, dependent_goal: { roadmap_iteration: iterations.find(it => it.name === "orgWithGrants/PUBLISHED") } } }];
+    expect(matches(visibleSourceSeriesWHERE(contexts.memberRW), { ...closedSource, dependent_recipes: editableReader })).toBe(false);
+    expect(matches(visibleSourceSeriesWHERE(contexts.memberRW), draftSource), "an editor of the draft's roadmap").toBe(true);
+    expect(matches(visibleSourceSeriesWHERE(contexts.manager), closedSource)).toBe(true);
+    expect(matches(visibleSourceSeriesWHERE(contexts.superAdmin), closedSource)).toBe(true);
+  });
+
+  test("who cannot edit anything gets the plain visibility clause: no slotless branch to evaluate", () => {
+    for (const contextName of ["anonymous", "orgless", "foreignMember", "member", "guest"] as const) {
+      expect(visibleSourceSeriesWHERE(contexts[contextName]), contextName).toEqual(visibleDataSeriesWHERE(contexts[contextName]));
+    }
+    for (const contextName of ["memberRW", "memberIdleGroup", "manager", "foreignManager", "superAdmin"] as const) {
+      const ctx = contexts[contextName];
+      expect(visibleSourceSeriesWHERE(ctx), contextName).toEqual({
+        OR: [
+          visibleDataSeriesWHERE(ctx),
+          { ...noSlot, dependent_recipes: { some: { derived_data_series: editableDataSeriesWHERE(ctx) } } },
+        ],
+      });
+    }
   });
 });
 

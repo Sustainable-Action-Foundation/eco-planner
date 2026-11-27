@@ -11,6 +11,7 @@
 
 ## Guards in the route
 - `authorizeGoalWrite` and `createFullGoal` call `assertReadableLinkedSeries`: a recipe may only link data series the user can read (403 `IllegalSource`).
+- An editor of a goal computed from a series they cannot see (see [access-control.md](access-control.md#where-access-lives)) gets the goal form with an empty recipe: the formula editor opens blank with "equation is empty", and saving stops there with the recipe-error toast. Nothing is written. They can replace the calculation (the hand-entered mode starts from the stored values) but not keep it and change something else. Known gap, no UI yet: the form does not say why, and it always sends the series, although a `Full` update without the series fields is accepted by the API and leaves the series alone. `tests/e2e/goal-hidden-source.spec.ts` pins the current behaviour.
 - A declared copy that already exists in the target version is refused with 409; see [scaling-and-leap.md](scaling-and-leap.md).
 - A blank name is stored as `null` (`normalizeGoalName`).
 

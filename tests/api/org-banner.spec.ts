@@ -8,8 +8,8 @@ import { MaxOrgBannerBytes, OrgBannerMaxSide } from "../../src/functions/orgBann
 /*
  * Contract of /api/org/[orgId]/banner: the org's landing banner, one WebP per org in
  * the bucket. Setting (POST, multipart) and removing (DELETE) take the org's manager
- * or a super admin; fetching (GET) takes a membership. Everyone else gets a 404 (or a
- * 401 when anonymous on a write), the org's existence not leaked.
+ * or a super admin; anyone may fetch it (GET), since the org's public view is open to
+ * everyone. Writes by anyone else get a 404 (or a 401 when anonymous).
  *
  * Mutations target the seeded place org "Bodens kommun" (manager Maja Sandberg, member
  * Nils Forsberg, admin a plain member) and are undone in `finally`. No other spec changes
@@ -93,10 +93,10 @@ test("a manager sets the banner, members see it on the landing and fetch it as W
     expect([meta.format, meta.width, meta.height]).toEqual(["webp", OrgBannerMaxSide, OrgBannerMaxSide / 3]);
     // Without the current version it is still served, but must be revalidated
     expect((await actors.manager.get(bannerPath)).headers()["cache-control"]).toContain("no-cache");
-    // The super admin sees every org; strangers and anonymous visitors get a 404
+    // The org's public view shows it to everyone, signed in or not
     expect((await admin.get(result.url)).status()).toBe(200);
-    expect((await actors.orgless.get(result.url)).status()).toBe(404);
-    expect((await actors.anonymous.get(result.url)).status()).toBe(404);
+    expect((await actors.orgless.get(result.url)).status()).toBe(200);
+    expect((await actors.anonymous.get(result.url)).status()).toBe(200);
 
     // The landing page renders it in the hero
     await expect.poll(() => landingBannerUrl(actors.member, orgId), { timeout: 60_000 }).toBe(result.url);

@@ -2,10 +2,9 @@ import "server-only";
 import { actionSummarySelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { listedRoadmapsWHERE, visibleActionsWHERE } from "@/lib/accessFilters";
+import { listedActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { ActionSummary, UserAccessContext } from "@/types";
-import { HiddenRoadmaps } from "@/types/enums";
 import { cacheTag } from "next/cache";
 
 /**
@@ -16,9 +15,10 @@ import { cacheTag } from "next/cache";
  *
  * Returns an empty array if none are found or on error.
  * @param orgId Only actions owned by this org; all visible actions when omitted
+ * @param options.asVisitor What a visitor without a login gets, whoever asks (the public view's preview)
  */
-export async function getActionSummaries(orgId?: string): Promise<ActionSummary[]> {
-  const accessContext = await getUserAccessContext();
+export async function getActionSummaries(orgId?: string, options: { asVisitor?: boolean } = {}): Promise<ActionSummary[]> {
+  const accessContext = options.asVisitor ? null : await getUserAccessContext();
   return uncachedFallback(() => getCachedActionSummaries(accessContext, orgId ?? null), [], "Error fetching action summaries", { orgId });
 }
 
@@ -33,14 +33,7 @@ async function getCachedActionSummaries(accessContext: UserAccessContext | null,
 
   return boundedFill("getCachedActionSummaries", async () => {
     return await prisma.actions.findMany({
-      where: {
-        AND: [
-          orgId ? { org_id: orgId } : {},
-          visibleActionsWHERE(accessContext),
-          // Actions of hidden roadmaps stay out of the lists, like the roadmaps themselves
-          { OR: [{ roadmap_iteration: null }, { roadmap_iteration: { roadmap: listedRoadmapsWHERE(accessContext, HiddenRoadmaps.Exclude) } }] },
-        ],
-      },
+      where: listedActionsWHERE(accessContext, orgId),
       select: actionSummarySelection,
     });
   });

@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { getRoadmapIterationByVersion, getUserAccessContext } from "@/fetchers";
+import { getGoalListLikes } from "@/fetchers/getGoalListLikes";
+import { likeFilterHref, likeFilterParam, parseLikeFilter, wantsLikeFilter } from "@/functions/likeFilter";
 import { parseVersionSlug } from "@/functions/versionSlug";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
@@ -8,12 +10,12 @@ import Goals from "@/components/tables/goals";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import Attachments from "@/components/attachments/attachments";
 import Comments from "@/components/comments/comments";
-import { AccessLevel } from "@/types/enums";
+import { AccessLevel, LikeFilter } from "@/types/enums";
 import { GoalListing, RoadmapType } from "@/lib/prisma/generated";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconArrowNarrowRight, IconBuildings, IconCircleFilled } from "@tabler/icons-react";
+import { IconArrowNarrowRight, IconBuildings, IconCircleFilled, IconInfoCircle } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
@@ -53,16 +55,20 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   });
 }
 
-export default async function Page(props: { params: Promise<{ roadmapId: string, version: string }> }) {
+export default async function Page(props: {
+  params: Promise<{ roadmapId: string, version: string }>,
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
+}) {
   const params = await props.params;
   const version = parseVersionSlug(params.version);
   if (version == null) {
     return notFound();
   }
-  const [t, accessContext, iteration] = await Promise.all([
+  const [t, accessContext, iteration, searchParams] = await Promise.all([
     serveTea(["pages", "common"]),
     getUserAccessContext(),
     getRoadmapIterationByVersion(params.roadmapId, version),
+    props.searchParams,
   ]);
 
   // Unlisted goals stay out of the featured strip and the public count; they
@@ -86,6 +92,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
   if (!iteration || !accessLevel) {
     return notFound();
   }
+
+  // `?likes=` narrows the goal list to liked goals; the links between its states keep the slug the page was opened with
+  const path = `/roadmap/${params.roadmapId}/${params.version}`;
+  const likes = await getGoalListLikes(iteration, path, searchParams);
 
   return <>
 
@@ -209,9 +219,22 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
 
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_iteration.all_goals")}</h2>
+        {/* Likes are for signed-in users; a link to the liked goals says so instead of quietly showing every goal */}
+        {!likes && wantsLikeFilter(searchParams[likeFilterParam]) ?
+          <p className="flex gap-50 align-items-center margin-top-0 margin-bottom-100 padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="liked-goals-login">
+            <IconInfoCircle aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+            <span>
+              {t("pages:roadmap_iteration.liked_goals_need_login")}{" "}
+              <Link href={`/login?from=${encodeURIComponent(likeFilterHref(path, searchParams, parseLikeFilter(searchParams[likeFilterParam]) ?? LikeFilter.Org))}`}>
+                {t("common:tsx.login")}
+              </Link>
+            </span>
+          </p>
+          : null}
         <Goals
           iteration={iteration}
           accessLevel={accessLevel}
+          likes={likes}
           localizableIndicators={iteration.roadmap.type === RoadmapType.NATIONAL ? getNationalGoalMappings().map(mapping => mapping.indicatorParameter) : undefined}
         />
       </section>

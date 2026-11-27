@@ -1,8 +1,9 @@
 import "server-only";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
-import { visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { visibleEffectsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Effect, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -34,12 +35,11 @@ async function getCachedEffect(actionId: string, goalId: string, accessContext: 
       where: {
         id: { action_id: actionId, goal_id: goalId },
         // Requires access to both the action and the goal
-        action: visibleActionsWHERE(accessContext),
-        goal: { roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
+        AND: [visibleEffectsWHERE(accessContext)],
       },
-      include: effectInclusionSelection,
+      include: effectInclusionSelection(accessContext),
     }) satisfies Effect | null;
 
-    return effect;
+    return withoutHiddenSources(effect);
   });
 };

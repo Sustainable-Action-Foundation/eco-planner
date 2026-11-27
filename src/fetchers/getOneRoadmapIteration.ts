@@ -1,5 +1,6 @@
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
@@ -37,11 +38,11 @@ async function getCachedRoadmapIteration(id: string, accessContext: UserAccessCo
         ...visibleRoadmapIterationsWHERE(accessContext),
         id,
       },
-      include: roadmapIterationInclusionSelection,
+      include: roadmapIterationInclusionSelection(accessContext),
     }) satisfies RoadmapIteration | null;
 
     iteration?.goals.sort(goalSorter);
 
-    return iteration;
+    return withoutHiddenSources(iteration);
   });
 };

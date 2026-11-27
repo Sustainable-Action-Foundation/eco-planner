@@ -25,12 +25,21 @@ import { orgLandingHref } from "../lib/org-switcher";
 const QueryBudget = {
   /** `/`, admin's default org landing. Measured: 3 */
   Startpage: 4,
-  /** `/?org=<Boden>`. Measured: 3 */
+  /** `/?org=<Boden>`, the working view's overview. Measured: 3 */
   OrgLanding: 4,
+  /** `/?org=<Boden>&view=public`, the public view (admin's preview of it). Measured: 3 */
+  OrgLandingPublic: 4,
   /** First (unlisted, LEAP-copied) goal in table view of Bodens klimatfärdplan. Measured: 3 */
   GoalPage: 4,
   /** Bodens klimatfärdplan, latest iteration. Measured: 3 */
   RoadmapIteration: 4,
+  /** The same page narrowed to the goals admin's org liked (`?likes=org`): the likes are one cached grouped read. Measured: the same as the whole list */
+  RoadmapIterationLiked: 4,
+  /**
+   * `/org/<Boden>/report`, the org's printable report. Measured: 4, like the other pages on the same run.
+   * (Cold, its own loader is a fixed ~20 statements whatever the number of goals; a warm load can't show that.)
+   */
+  OrgReport: 4,
 } as const;
 
 const REPEATS = 3;
@@ -93,15 +102,17 @@ test.describe("DB query budget", () => {
     await page.goto("/");
     urls.orgLanding = await orgLandingHref(page, orgName);
 
-    await page.goto(urls.orgLanding);
+    // Admin gets the org's working view, whose roadmaps are a tab
+    await page.goto(`${urls.orgLanding}&tab=roadmaps`);
     const roadmapHref = await page.locator('main a[href^="/roadmap/"]').filter({ hasText: roadmapName }).first().getAttribute("href");
     expect(roadmapHref).toBeTruthy();
     urls.roadmap = roadmapHref ?? "";
 
     await page.goto(urls.roadmap);
+    // The view radios are disabled until hydration, so checking one first keeps the tab click from landing before it
+    await page.locator('input[name="table"][value="TABLE"]').first().check({ timeout: 30_000 });
     // Boden's goals are LEAP copies, all unlisted; admin (who can edit) gets them in a separate tab
     await page.getByTestId("unlisted-goals-tab").click({ timeout: 30_000 });
-    await page.locator('input[name="table"][value="TABLE"]').first().check();
     await expect(page.locator("#goalTable")).toBeVisible({ timeout: 30_000 });
     const goalHref = await page.locator('#goalTable a[href^="/goal/"]').first().getAttribute("href");
     expect(goalHref).toBeTruthy();
@@ -125,11 +136,24 @@ test.describe("DB query budget", () => {
     await check(page, "Org landing", urls.orgLanding, QueryBudget.OrgLanding);
   });
 
+  test("Org landing, public view", async ({ page }) => {
+    await check(page, "Org landing (public view)", `${urls.orgLanding}&view=public`, QueryBudget.OrgLandingPublic);
+  });
+
   test("Goal page", async ({ page }) => {
     await check(page, "Goal page", urls.goal, QueryBudget.GoalPage);
   });
 
   test("Roadmap iteration", async ({ page }) => {
     await check(page, "Roadmap iteration", urls.roadmap, QueryBudget.RoadmapIteration);
+  });
+
+  test("Roadmap iteration, liked goals", async ({ page }) => {
+    await check(page, "Roadmap iteration (liked goals)", `${urls.roadmap}?likes=org`, QueryBudget.RoadmapIterationLiked);
+  });
+
+  test("Org report", async ({ page }) => {
+    const orgId = new URL(urls.orgLanding, "http://localhost").searchParams.get("org") ?? "";
+    await check(page, "Org report", `/org/${orgId}/report`, QueryBudget.OrgReport);
   });
 });

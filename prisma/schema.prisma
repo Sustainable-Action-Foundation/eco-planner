@@ -41,6 +41,25 @@ enum OrgRole {
   MANAGER
 }
 
+// What kind of organisation an org is, shown on its landing page
+enum OrgType {
+  MUNICIPAL_ADMINISTRATION
+  MUNICIPAL_COMPANY
+  ASSOCIATION
+  AUTHORITY
+  TRADE_ORGANISATION
+  LIMITED_COMPANY
+}
+
+// The five steps of an org's yearly climate work, in order (see functions/orgProcess.ts)
+enum ProcessStep {
+  INDICATORS
+  GOALS
+  BASELINE
+  ACTIONS
+  DECISION
+}
+
 // How an ActionFields value should be interpreted and rendered. The value itself
 // is always stored as a string; this only informs the UI (input widget, display).
 // List-ness is structural, not typed: multiple fields sharing a header collapse
@@ -498,6 +517,17 @@ model Orgs {
   /// When the org's landing banner was last uploaded; null means none. The image itself
   /// lives in the bucket under a key derived from the id (see functions/orgBanner.ts)
   banner_updated_at DateTime?
+
+  // The org's public profile, written by its managers and shown on its landing page to everyone
+  description   String?  @db.Text
+  org_type      OrgType?
+  contact_email String?
+  website       String?
+
+  /// The step of the yearly process the org's managers say it works on now; null means derived from its data (see functions/orgProcess.ts)
+  focus_step   ProcessStep?
+  /// When that is, in the managers' own words ("hösten 2026")
+  focus_period String?      @db.VarChar(60)
 
   memberships     OrgMemberships[]
   groups          Groups[]         @relation("org_groups")

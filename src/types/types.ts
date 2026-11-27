@@ -58,11 +58,11 @@ export type Roadmap = Prisma.RoadmapsGetPayload<{
 }>;
 
 export type RoadmapIteration = Prisma.RoadmapIterationsGetPayload<{
-  include: typeof roadmapIterationInclusionSelection
+  include: ReturnType<typeof roadmapIterationInclusionSelection>
 }>;
 
 export type ClientRoadmapIteration = Prisma.RoadmapIterationsGetPayload<{
-  select: typeof clientSafeRoadmapIterationSelection
+  select: ReturnType<typeof clientSafeRoadmapIterationSelection>
 }>;
 
 // Will usually be part of an array with the type MultiRoadmapInstance[]
@@ -76,12 +76,21 @@ export type ClientMultiRoadmapInstance = Prisma.RoadmapIterationsGetPayload<{
 }>;
 
 export type Goal = Prisma.GoalsGetPayload<{
-  include: typeof goalInclusionSelection
+  include: ReturnType<typeof goalInclusionSelection>
 }>;
+
+/** A goal as `getOneGoal` returns it */
+export type GoalWithHiddenEffects = Goal & {
+  /**
+   * How many effects on the goal are left out of `effects` (and of `_count.effects`) because
+   * the viewer may not see their action. Only the number is known.
+   */
+  hidden_effect_count: number,
+};
 
 /** A parent or child goal on the goal page, see `relatedGoalSelection`. */
 export type RelatedGoal = Prisma.GoalsGetPayload<{
-  select: typeof relatedGoalSelection
+  select: ReturnType<typeof relatedGoalSelection>
 }>;
 
 /** A sibling candidate on the goal page, see `siblingGoalSelection`. */
@@ -96,11 +105,11 @@ export type PlottedSeries = {
 };
 
 export type ClientGoal = Prisma.GoalsGetPayload<{
-  select: typeof clientSafeGoalSelection
+  select: ReturnType<typeof clientSafeGoalSelection>
 }>;
 
 export type Action = Prisma.ActionsGetPayload<{
-  include: typeof actionInclusionSelection
+  include: ReturnType<typeof actionInclusionSelection>
 }>;
 
 /** An action as the action list shows it */
@@ -109,7 +118,7 @@ export type ActionSummary = Prisma.ActionsGetPayload<{
 }>;
 
 export type Effect = Prisma.EffectsGetPayload<{
-  include: typeof effectInclusionSelection
+  include: ReturnType<typeof effectInclusionSelection>
 }>;
 
 export type UserInfo = Prisma.UsersGetPayload<{

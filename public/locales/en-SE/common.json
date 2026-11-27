@@ -149,5 +149,13 @@
     "influence_upward": "Upward influence",
     "influence_upward_description": "Influencing the framework set by the state, region, EU, grid owners and the transmission operator, such as grid capacity, permitting and regulation.",
     "legend_summary": "What do the categories mean?"
+  },
+  "org_type": {
+    "municipal_administration": "Municipal administration",
+    "municipal_company": "Municipal company",
+    "association": "Association",
+    "authority": "Public authority",
+    "trade_organisation": "Trade organisation",
+    "limited_company": "Limited company"
   }
 }

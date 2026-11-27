@@ -7,7 +7,7 @@ import { memberSlug } from "../../scripts/prisma/seed/places";
  * /api/goal-like: POST likes, DELETE unlikes, both `{ goalId }`, both idempotent,
  * both for signed-in users who can see the goal. POST may carry `aspects` (the
  * kinds of rådighet, `LikeAspect`), which replace the like's set; DELETE drops them. The likes rank goals on the org
- * landing (`/?org=<id>&likes=ORG|AREA|COUNTY`), checked here with one landing read
+ * landing's liked tab (`/?org=<id>&tab=liked&likes=ORG|AREA|COUNTY`), checked here with one landing read
  * (county scope) on a goal of our own; the ranking logic itself is a page concern.
  */
 
@@ -83,7 +83,7 @@ test("the org landing counts likes in the org's county", async ({ admin, sandbox
     await like(maja, goalId, "post");
     // Both likes come from orgs placed in Norrbotten, so the county list counts both.
     // Polled: the first landing read after the likes was observed to still serve the cached list
-    await expect.poll(() => landingLikeCount(maja, `/?org=${bodenId}&likes=county`, goalId), { message: "county like count on Boden's landing", timeout: 30_000 }).toBe(2);
+    await expect.poll(() => landingLikeCount(maja, `/?org=${bodenId}&tab=liked&likes=county`, goalId), { message: "county like count on Boden's landing", timeout: 30_000 }).toBe(2);
   }
   finally {
     await Promise.all([maja.dispose(), lars.dispose()]);
@@ -121,7 +121,7 @@ test("the landing counts aspects per goal and filters on one", async ({ admin, s
   try {
     await like(admin, goalId, "post", 200, ["OWN_OPERATIONS", "ENABLING"]);
     await like(anita, goalId, "post", 200, ["ENABLING"]);
-    const landing = `/?org=${sandbox.orgId}`;
+    const landing = `/?org=${sandbox.orgId}&tab=liked`;
     const counts = async (url: string) => {
       const payload = await flightPayload(admin, url);
       const index = payload.indexOf(`data-goal-id":"${goalId}"`);

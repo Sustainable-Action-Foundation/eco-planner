@@ -10,6 +10,8 @@ import type { ReactNode } from "react";
 
 type GoalTableCommonProps = {
   sortBy?: GoalSortBy;
+  /** Likes per goal id; given, the table gets a column for them */
+  likeCounts?: Record<string, number>;
 };
 
 type GoalTableWithGoals = {
@@ -28,6 +30,7 @@ export default function GoalTable({
   goals,
   iteration,
   sortBy,
+  likeCounts,
 }: GoalTableProps): ReactNode {
   const { t } = useTranslation("components");
 
@@ -103,6 +106,7 @@ export default function GoalTable({
           <th>{t("components:goal_table.leap_parameter")}</th>
           <th>{t("components:goal_table.unit")}</th>
           <th>{t("components:goal_table.action_count")}</th>
+          {likeCounts ? <th>{t("components:goal_table.like_count")}</th> : null}
         </tr>
       </thead>
       <tbody>
@@ -112,6 +116,7 @@ export default function GoalTable({
             <td>{goal.indicator_parameter}</td>
             <td>{goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")}</td>
             <td>{goal._count.effects}</td>
+            {likeCounts ? <td data-testid="goal-like-count">{likeCounts[goal.id] ?? 0}</td> : null}
           </tr>
         ))}
       </tbody>

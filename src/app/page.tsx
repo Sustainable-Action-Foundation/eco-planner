@@ -2,26 +2,23 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { IterationStatus, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { HiddenRoadmaps, LikeScope, RoadmapSortBy } from "@/types/enums";
-import { showHiddenParam } from "@/lib/listing";
+import { isRoadmapListed, showHiddenParam } from "@/lib/listing";
 import ShowHiddenToggle from "@/components/form/filters/showHiddenToggle";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree, { type TreeIteration } from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { orgBannerPath } from "@/functions/orgBanner";
-import { getActionSummaries, getRoadmaps, getUserOrgs } from "@/fetchers";
+import { OrgView, availableOrgTabs, resolveOrgTab, resolveOrgView } from "@/functions/orgLanding";
+import { getOrgProfile, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import Actions from "@/components/pages/sections/actions";
-import CuratedHistoricalData from "@/components/pages/sections/historicalData";
-import NationalGoals from "@/components/pages/sections/nationalGoals";
-import LikedGoals, { likeScopeParam } from "@/components/pages/sections/likedGoals";
-import Image from "next/image";
-import { Suspense } from "react";
+import accessChecker, { hasEditAccess, hasViewAccess, managesOrg, writesInOrg } from "@/lib/accessChecker";
+import { likeScopeParam } from "@/components/pages/sections/likedGoals";
+import OrgPublicView from "@/components/pages/orgLanding/publicView";
+import OrgWorkingView from "@/components/pages/orgLanding/workingView";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
 import OrgSelect from "@/components/form/filters/orgSelect";
@@ -43,30 +40,46 @@ const maxOrgChips = 4;
 export default async function Page(
   props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> },
 ) {
-  const [t, searchParams, session, accessContext, roadmaps, userOrgs] = await Promise.all([
+  const [t, searchParams, session, accessContext, allRoadmaps, userOrgs] = await Promise.all([
     serveTea("pages"),
     props.searchParams,
     getSession(await cookies()),
     getUserAccessContext(),
-    // Hidden roadmaps stay out unless the "show hidden" toggle asks for the writable ones
-    props.searchParams.then(params => getRoadmaps(params[showHiddenParam] === "true" ? HiddenRoadmaps.Writable : HiddenRoadmaps.Exclude)),
+    // Everything listed plus the hidden roadmaps the user can write to: who may work in an
+    // org is decided from these, and the listings below drop the hidden ones again
+    getRoadmaps(HiddenRoadmaps.Writable),
     getUserOrgs(),
   ]);
 
   // Org members land on their org's landing page; ?org= switches between the
-  // user's orgs (guest ones included) and the public view. The default is the
-  // first proper membership: org-less users and pure guests get the public view
+  // user's orgs (guest ones included) and the public listing. The default is the
+  // first proper membership: org-less users and pure guests get the public listing
   // and reach their org through its tab, since a guest's org landing only holds
   // what their groups are explicitly granted. Super admins get every org in the
   // switcher (memberships first), so one without a membership lands on the
-  // first org instead of the public view.
+  // first org instead of the public listing. Any other org's id opens that org's
+  // public view, for anyone.
   const orgParam = searchParams['org'] ? (Array.isArray(searchParams['org']) ? searchParams['org'][0] : searchParams['org']) : '';
+  const defaultOrg = userOrgs.find(org => org.isMember && !org.isGuest) ?? (accessContext?.isSuperAdmin ? userOrgs[0] : null) ?? null;
   const selectedOrg = orgParam === 'public'
     ? null
-    : userOrgs.find(org => org.id === orgParam)
-      ?? userOrgs.find(org => org.isMember && !org.isGuest)
-      ?? (accessContext?.isSuperAdmin ? userOrgs[0] : null)
-      ?? null;
+    : (orgParam ? await getOrgProfile(orgParam) : null)
+      ?? (defaultOrg ? await getOrgProfile(defaultOrg.id) : null);
+
+  // The working view is for those who can write something in the org; they land on it
+  // and can look at the public view, which then shows what a visitor without a login gets
+  const entitled = !!selectedOrg && writesInOrg(accessContext, selectedOrg.id, allRoadmaps);
+  const orgView = selectedOrg ? resolveOrgView(searchParams, entitled) : null;
+  const viewerContext = entitled && orgView === OrgView.Public ? null : accessContext;
+  const orgTabs = availableOrgTabs(!!selectedOrg && managesOrg(accessContext, selectedOrg.id));
+  const orgTab = resolveOrgTab(searchParams, orgTabs);
+
+  // Hidden roadmaps stay out unless the "show hidden" toggle asks for the writable ones (never in a public view)
+  const hiddenRoadmaps = searchParams[showHiddenParam] === "true" && orgView !== OrgView.Public ? HiddenRoadmaps.Writable : HiddenRoadmaps.Exclude;
+  const roadmaps = allRoadmaps.filter(roadmap => {
+    const accessLevel = accessChecker(roadmap, viewerContext);
+    return hasViewAccess(accessLevel) && isRoadmapListed(roadmap, accessLevel, hiddenRoadmaps);
+  });
 
   // Whose likes the liked-goals list counts: the org's own members unless the link says otherwise
   const likeScopeValue = Array.isArray(searchParams[likeScopeParam]) ? searchParams[likeScopeParam][0] : searchParams[likeScopeParam];
@@ -80,7 +93,7 @@ export default async function Page(
   // drafts nest under it (drafts only reach editors via the existing access filter).
   // Built from the roadmaps already fetched above rather than a second iteration query.
   let iterations: TreeIteration[] = roadmaps.flatMap(roadmap => {
-    const accessLevel = accessChecker(roadmap, accessContext);
+    const accessLevel = accessChecker(roadmap, viewerContext);
     const published = roadmap.iterations.filter(iteration => iteration.status === IterationStatus.PUBLISHED);
     const drafts = hasEditAccess(accessLevel) ? roadmap.iterations.filter(iteration => iteration.status === IterationStatus.DRAFT) : [];
 
@@ -170,7 +183,7 @@ export default async function Page(
   // Where a copied national goal can go: the versions of the org's roadmaps the user can edit
   // (hidden ones stay out even while the toggle shows them, like in the other pickers)
   const copyTargets = selectedOrg
-    ? roadmaps
+    ? allRoadmaps
       .filter(roadmap => roadmap.access_control.org_id === selectedOrg.id && !roadmap.hidden)
       .flatMap(roadmap => roadmap.iterations
         .filter(iteration => hasEditAccess(accessChecker({ access_control: roadmap.access_control, status: iteration.status }, accessContext)))
@@ -205,78 +218,32 @@ export default async function Page(
         </nav>
         : null}
 
-      {selectedOrg ? <>
-        {/* The org's banner over the brand colour, which also stands in while the org has none (and shows through a transparent one) */}
-        <div className="rounded width-100 margin-bottom-100 margin-top-100 flex align-items-flex-end position-relative overflow-hidden" style={{ height: '350px', backgroundColor: 'var(--seagreen)' }} data-testid="org-hero">
-          {selectedOrg.bannerUpdatedAt ? <>
-            {/* Unoptimized: the image route takes the viewer's session, which the optimizer wouldn't pass along */}
-            <Image src={orgBannerPath(selectedOrg.id, selectedOrg.bannerUpdatedAt)} alt="" fill={true} unoptimized={true} priority={true} style={{ objectFit: 'cover' }} data-testid="org-banner" />
-            {/* Keeps the heading readable over a light picture */}
-            <div className="position-absolute width-100" style={{ inset: 0, background: 'linear-gradient(transparent 45%, rgba(0, 0, 0, .6))' }} aria-hidden="true" />
-          </> : null}
-          <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100 position-relative">
-            <h1 className="margin-block-25 color-purewhite" data-testid="home-title">{selectedOrg.name}</h1>
-            <div className="flex gap-50 flex-wrap-wrap">
-              { // Managers also administer the org's groups
-                accessContext?.isSuperAdmin || accessContext?.memberships.some(membership => membership.orgId === selectedOrg.id && membership.role === OrgRole.MANAGER)
-                  ? <Link href={`/org/${selectedOrg.id}/groups`} className="button purewhite round block">{t("pages:org_groups.manage_groups")}</Link>
-                  : null
-              }
-              { // Link to create roadmap form if logged in
-                session.user
-                  ? <Link href="/roadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-                  : null
-              }
-            </div>
-          </div>
-        </div>
-
-        <section className="margin-top-200">
-          <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between margin-bottom-100">
-            <h2 className="margin-0 font-weight-600">{t("pages:home.title")}</h2>
-            { // Writers can bring back the hidden roadmaps they can edit
-              accessContext ? <ShowHiddenToggle /> : null}
-          </div>
-          <RoadmapTree
+      {selectedOrg && orgView === OrgView.Working ?
+        <OrgWorkingView
+          org={selectedOrg}
+          accessContext={accessContext}
+          viewerContext={viewerContext}
+          entitled={entitled}
+          iterations={orgIterations}
+          roadmaps={roadmaps.filter(roadmap => roadmap.access_control.org_id === selectedOrg.id)}
+          searchParams={searchParams}
+          tab={orgTab}
+          tabs={orgTabs}
+          likeScope={likeScope}
+          copyTargets={copyTargets}
+          allRoadmaps={allRoadmaps.filter(roadmap => roadmap.access_control.org_id === selectedOrg.id)}
+        />
+        : selectedOrg ?
+          <OrgPublicView
+            org={selectedOrg}
             accessContext={accessContext}
+            viewerContext={viewerContext}
+            entitled={entitled}
             iterations={orgIterations}
+            roadmaps={roadmaps.filter(roadmap => roadmap.access_control.org_id === selectedOrg.id)}
+            searchParams={searchParams}
           />
-        </section>
-
-        <section className="margin-block-300">
-          <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-            <OrgActions orgId={selectedOrg.id} />
-          </Suspense>
-        </section>
-
-        {/* The streamed sections below are keyed by org: a switch then shows their fallbacks at once
-            instead of the navigation (a transition) holding the whole page until the new org's data is in */}
-        {/* The goals the org's members have liked, ranked; copies from the list go into the org's roadmaps */}
-        <section className="margin-block-300">
-          <Suspense key={`${selectedOrg.id}:${likeScope}`} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-            <LikedGoals orgId={selectedOrg.id} scope={likeScope} searchParams={searchParams} canCreateGoals={copyTargets.length > 0} />
-          </Suspense>
-        </section>
-
-        { // National goals the org can copy with its own historical data; needs a geo area to localize to
-          selectedOrg.geoArea ?
-            <section className="margin-block-300">
-              {/* The sections fetch from external statistics APIs; don't block the rest of the page on a cold cache */}
-              <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} iterations={copyTargets} />
-              </Suspense>
-            </section>
-            : null}
-
-        { // The curated statistics themselves, same localization
-          selectedOrg.geoArea ?
-            <section className="margin-block-300">
-              <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
-              </Suspense>
-            </section>
-            : null}
-      </> : <>
+          : <>
       <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
         <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
           <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
@@ -340,9 +307,4 @@ export default async function Page(
       </section>  */}
     </main>
   </>;
-}
-
-/** The org's actions, streamed in their own boundary so the shell never waits on them */
-async function OrgActions({ orgId }: { orgId: string }) {
-  return <Actions actions={await getActionSummaries(orgId)} />;
 }
