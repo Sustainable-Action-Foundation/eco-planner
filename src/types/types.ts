@@ -118,7 +118,7 @@ export type ActionSummary = Prisma.ActionsGetPayload<{
 }>;
 
 export type Effect = Prisma.EffectsGetPayload<{
-  include: typeof effectInclusionSelection
+  include: ReturnType<typeof effectInclusionSelection>
 }>;
 
 export type UserInfo = Prisma.UsersGetPayload<{

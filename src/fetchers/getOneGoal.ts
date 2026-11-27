@@ -1,5 +1,6 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
@@ -50,10 +51,10 @@ async function getCachedGoal(id: string, accessContext: UserAccessContext | null
     // `effects` holds only what the viewer may see; of the rest nothing but the number leaves
     // this function. Clamped: the count and the rows are not one snapshot, and an effect can land in between.
     const visibleEffects = goal.effects.length;
-    return {
+    return withoutHiddenSources({
       ...goal,
       _count: { effects: visibleEffects },
       hidden_effect_count: Math.max(0, goal._count.effects - visibleEffects),
-    } satisfies GoalWithHiddenEffects;
+    } satisfies GoalWithHiddenEffects);
   });
 };

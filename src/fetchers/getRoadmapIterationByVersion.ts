@@ -1,6 +1,7 @@
 import { IterationStatus } from "@/lib/prisma/generated";
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { withoutHiddenSources } from "@/fetchers/hiddenSources";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
@@ -60,6 +61,6 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
 
     iteration?.goals.sort(goalSorter);
 
-    return iteration;
+    return withoutHiddenSources(iteration);
   });
 };

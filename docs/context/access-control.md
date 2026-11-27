@@ -18,6 +18,11 @@ Commenting needs view access and a signed-in user; no grant is needed on public 
 - `AccessControls.org_id` is the owning org. `AccessGrants` pairs an access control with a group at level `RO` or `RW`.
 - Actions are org-owned (`Actions.org_id`). Without a version they are the shared, world-readable action database.
 - Data series have no access control. Their visibility is derived from the goal or effect they belong to (`visibleDataSeriesWHERE`). A series derived from another org's series belongs to the deriving org; if access to the source is later revoked, the stored copy stays.
+- What a series was computed from does not come with it. A recipe's source series (`Recipes.source_data_series`: a copied goal's series, an inherited baseline) follow their own goal or effect, so a public copy of a goal under a closed roadmap or in a draft shows its own values and nothing of the original (`visibleSourceSeriesWHERE`).
+  - Filtered in the query: every selection in `src/fetchers/inclusionSelectors.ts` that carries a series' recipe narrows `source_data_series` with it.
+  - The recipe itself names what it reads (the source's series id, and the copied goal's name as the variable's label and in the equation) and is one JSON value, so the readers finish the job: `withoutHiddenSources` (`src/fetchers/hiddenSources.ts`) replaces a recipe that reads a series the viewer did not get with an empty one before the cached reader returns. `tests/unit/source-selections.test.ts` fails on a selection or a reader that skips either step.
+  - A source that fills no slot (statistics fetched for a recipe, or what a deleted goal left behind for the recipes still reading it) has no visibility of its own. It goes only to those who may edit a series computed from it, because the edit forms evaluate from it; a recipe that only reads fetched statistics is not emptied for the others, since the source line under the graph reads it.
+  - Edit access to the computed goal gives nothing on a source the editor cannot see: no values, an empty recipe in the form, and no recalculation. The gap this leaves in the form is described in [goal-api-and-forms.md](goal-api-and-forms.md#guards-in-the-route).
 - An effect is visible only to those who may see **both** its action and its goal (`visibleEffectsWHERE`). The two can sit under different roadmaps or versions (a draft's action on a published goal, a shared-database action on a goal of a closed roadmap), and creating an effect takes edit access to both, so the state is ordinary.
   - Whoever sees only one side does not get the effect at all: no row, no series, nothing of the other side. It is filtered in the query, never in the page. Every selection in `src/fetchers/inclusionSelectors.ts` that reaches effects through a goal or an action is a function of the access context for that reason; `tests/unit/effect-selections.test.ts` fails on an `effects` without the filter.
   - Counts follow the same filter (`_count.effects` in lists, the org landing's "goals with actions").
@@ -66,6 +71,7 @@ Changed on the same page through `/api/org-membership` (POST add, DELETE remove,
 
 ## Writes that link to other content
 - `/api/goal` refuses a recipe that reads a data series the user cannot read (`assertReadableLinkedSeries`, 403 `IllegalSource`).
+- `/api/recalculate` refuses the same way when the stored recipe reads a series the user cannot read, before anything is evaluated: a series is recomputed from all of its sources or not at all.
 - A data series fills at most one slot (a goal's series, baseline or historical, or an effect's series). The unique keys only cover the same column; cross-slot reuse is prevented in code by `src/lib/seriesInvariants.ts`.
 
 ## Deletion

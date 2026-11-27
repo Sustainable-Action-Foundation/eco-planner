@@ -1,4 +1,4 @@
-import { visibleEffectsWHERE } from "@/lib/accessFilters";
+import { visibleEffectsWHERE, visibleSourceSeriesWHERE } from "@/lib/accessFilters";
 import { GoalListing, type Prisma } from "@/lib/prisma/generated";
 import type { UserAccessContext } from "@/types";
 
@@ -10,6 +10,17 @@ import type { UserAccessContext } from "@/types";
  * `_count.effects`) with `visibleEffectsWHERE`: such an effect never leaves the database, with
  * its series and whatever it would say about the hidden side. `tests/unit/effect-selections.test.ts`
  * walks the selections and fails on an `effects` without the filter.
+ */
+
+/*
+ * Sources and the viewer: a series can be computed by a recipe from other stored series (a goal
+ * copied and scaled from a goal of another roadmap reads that goal's series), and the two need
+ * not be visible to the same people. The computed values are the series' own. What it was
+ * computed from is not: every selection that carries a series' recipe narrows
+ * `source_data_series` with `visibleSourceSeriesWHERE`, and the readers pass their result through
+ * `withoutHiddenSources` (`./hiddenSources`), which takes out a recipe that reads a series the
+ * viewer did not get. `tests/unit/source-selections.test.ts` fails on a selection or a reader
+ * that skips either.
  */
 
 /**
@@ -61,22 +72,27 @@ export const nameSelector = {
   },
 } satisfies Prisma.RoadmapsSelect;
 
-const dataSeriesInclusionSelection = {
+const dataSeriesInclusionSelection = (ctx: UserAccessContext | null) => ({
   recipe_used: {
     select: {
       id: true,
+      // Replaced by an empty recipe when it reads a series left out below (see `withoutHiddenSources`)
       recipe: true,
       // The recipe's source data series (incl. materialized external data) so the
       // editor can read them as canon instead of re-fetching upstream APIs.
-      // updated_at feeds the goal page's "a source is newer than this series" check
-      source_data_series: { select: { id: true, unit: true, updated_at: true, values: { orderBy: { timestamp: "asc" } } } },
+      // updated_at feeds the goal page's "a source is newer than this series" check.
+      // Only the sources the viewer may get: seeing a series says nothing about its sources
+      source_data_series: {
+        where: visibleSourceSeriesWHERE(ctx),
+        select: { id: true, unit: true, updated_at: true, values: { orderBy: { timestamp: "asc" } } },
+      },
     },
   },
   values: {
     select: { timestamp: true, value: true },
     orderBy: { timestamp: "asc" },
   },
-} satisfies Prisma.DataSeriesSelect;
+}) satisfies Prisma.DataSeriesSelect;
 
 /** Full detail view of a top-level roadmap: its iterations, tree relations, comments, and access control. */
 export const roadmapInclusionSelection = {
@@ -119,8 +135,8 @@ export const roadmapIterationInclusionSelection = (ctx: UserAccessContext | null
     include: {
       // Counts follow what the viewer may see, like the lists they stand next to
       _count: { select: { effects: { where: visibleEffectsWHERE(ctx) } } },
-      data_series: { include: dataSeriesInclusionSelection },
-      historical: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection(ctx) },
+      historical: { include: dataSeriesInclusionSelection(ctx) },
       author: { select: { id: true, username: true, first_name: true, last_name: true } },
       recipe_suggestions: true,
     },
@@ -171,15 +187,15 @@ export const clientSafeRoadmapIterationSelection = (ctx: UserAccessContext | nul
       indicator_parameter: true,
       listing: true,
       _count: { select: { effects: { where: visibleEffectsWHERE(ctx) } } },
-      data_series: { include: dataSeriesInclusionSelection },
-      baseline: { include: dataSeriesInclusionSelection },
-      historical: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection(ctx) },
+      baseline: { include: dataSeriesInclusionSelection(ctx) },
+      historical: { include: dataSeriesInclusionSelection(ctx) },
       effects: {
         where: visibleEffectsWHERE(ctx),
         select: {
           action_id: true,
           goal_id: true,
-          data_series: { include: dataSeriesInclusionSelection },
+          data_series: { include: dataSeriesInclusionSelection(ctx) },
           action: {
             select: {
               id: true,
@@ -264,14 +280,14 @@ export const clientSafeMultiRoadmapSelection = {
 export const goalInclusionSelection = (ctx: UserAccessContext | null) => ({
   _count: { select: { effects: { where: visibleEffectsWHERE(ctx) } } },
   recipe_suggestions: true,
-  data_series: { include: dataSeriesInclusionSelection },
-  baseline: { include: dataSeriesInclusionSelection },
-  historical: { include: dataSeriesInclusionSelection },
+  data_series: { include: dataSeriesInclusionSelection(ctx) },
+  baseline: { include: dataSeriesInclusionSelection(ctx) },
+  historical: { include: dataSeriesInclusionSelection(ctx) },
   effects: {
     // Only the effects of actions the viewer may see
     where: visibleEffectsWHERE(ctx),
     include: {
-      data_series: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection(ctx) },
       action: {
         include: {
           roadmap_iteration: { select: { id: true } },
@@ -357,9 +373,9 @@ export const clientSafeGoalSelection = (ctx: UserAccessContext | null) => ({
   indicator_parameter: true,
   listing: true,
   roadmap_iteration_id: true,
-  data_series: { include: dataSeriesInclusionSelection },
-  baseline: { include: dataSeriesInclusionSelection },
-  historical: { include: dataSeriesInclusionSelection },
+  data_series: { include: dataSeriesInclusionSelection(ctx) },
+  baseline: { include: dataSeriesInclusionSelection(ctx) },
+  historical: { include: dataSeriesInclusionSelection(ctx) },
   _count: { select: { effects: { where: visibleEffectsWHERE(ctx) } } },
 }) satisfies Prisma.GoalsSelect;
 
@@ -374,7 +390,7 @@ export const actionInclusionSelection = (ctx: UserAccessContext | null) => ({
     // Only the effects on goals the viewer may see
     where: visibleEffectsWHERE(ctx),
     include: {
-      data_series: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection(ctx) },
       goal: {
         include: {
           roadmap_iteration: { select: { id: true } },
@@ -420,8 +436,8 @@ export const actionSummarySelection = {
   fields: { select: { header: true, value: true, type: true }, orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsSelect;
 
-export const effectInclusionSelection = {
-  data_series: { include: dataSeriesInclusionSelection },
+export const effectInclusionSelection = (ctx: UserAccessContext | null) => ({
+  data_series: { include: dataSeriesInclusionSelection(ctx) },
   // `select` (not `include`) on action/goal: the effect edit flow only needs their
   // identity (for the selectors + breadcrumb) and their roadmap's access control
   // (for accessChecker). This keeps links, comments, nested effects, authors,
@@ -468,7 +484,7 @@ export const effectInclusionSelection = {
       },
     },
   },
-} satisfies Prisma.EffectsInclude;
+}) satisfies Prisma.EffectsInclude;
 
 export const userInfoSelector = {
   id: true,

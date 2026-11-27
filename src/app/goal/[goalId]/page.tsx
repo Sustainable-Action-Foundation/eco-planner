@@ -161,7 +161,9 @@ export default async function Page(
     childGoals = goals.filter(child => child !== null);
   }
 
-  // If using a recipe, check whether any of its source data series was updated after this data series
+  // If using a recipe, check whether any of its source data series was updated after this data series.
+  // Only the sources the viewer may get are here (see `visibleSourceSeriesWHERE`), so a source they
+  // cannot see raises no notice: they could not recalculate from it either
   const goalSeries = goal.data_series;
   const shouldUpdate = !!goalSeries?.recipe_used?.source_data_series
     .some(source => source.updated_at > goalSeries.updated_at);

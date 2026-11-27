@@ -241,6 +241,37 @@ export function visibleDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.Da
 }
 
 /**
+ * Matches the data series a recipe reads (`Recipes.source_data_series`) that the user may get
+ * along with the series computed from them. Use it wherever sources are read through a series
+ * (`source_data_series: { where }`): seeing a goal says nothing about the goals it was computed from.
+ *
+ * - A source that fills a slot follows that goal or effect, like any series (`visibleDataSeriesWHERE`).
+ * - A source that fills no slot (statistics fetched for a recipe, or what a deleted goal or effect
+ *   left behind for the recipes still reading it) has no visibility of its own. It is an input and
+ *   nothing else, so it goes only to those who may edit a series computed from it: the edit forms
+ *   evaluate the recipe from it.
+ */
+export function visibleSourceSeriesWHERE(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
+  const visible = visibleDataSeriesWHERE(ctx);
+  // Nobody edits anonymously, nor without a managed org or a group to get a grant through
+  if (!ctx || (!ctx.isSuperAdmin && managedOrgIds(ctx).length === 0 && allGroupIds(ctx).length === 0)) {
+    return visible;
+  }
+  return {
+    OR: [
+      visible,
+      {
+        dependent_goal: null,
+        dependent_baseline: null,
+        dependent_historical: null,
+        dependent_effect: null,
+        dependent_recipes: { some: { derived_data_series: editableDataSeriesWHERE(ctx) } },
+      },
+    ],
+  };
+}
+
+/**
  * Matches attachments the user may see: those hanging off a visible action, goal
  * or iteration. Attachments have no access control of their own.
  */

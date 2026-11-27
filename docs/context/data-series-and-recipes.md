@@ -4,6 +4,7 @@
 - Every `DataSeries` is produced by exactly one recipe (`recipe_used_id` is required and unique). The recipe is the provenance; the `DateRecords` are its evaluated result.
 - A recipe is JSON: variables (scalars, linked data series, external statistics, inline series) and an equation that references them as `${id}`. The class is `Recipe` in `src/functions/recipe/recipe.ts`.
 - `Recipes.source_data_series` records which stored series a recipe reads. "This goal is a copy of that one" is derived from it; there is no goal-origin column.
+- Readers hand out a series' sources, and a recipe that names them, only to viewers who may get those sources; everyone else gets the series' own values with an empty recipe. The rule is in [access-control.md](access-control.md#where-access-lives). Code that reads `recipe_used.recipe` from a reader's result must cope with an empty recipe (`Recipe.isEmpty()`); the stored one is read server-side with `getOneRecipe`.
 - External statistics used by a stored recipe are materialized as data series of their own (`materializeRecipeExternals` in `src/functions/recipe/persistence.ts`).
 
 ## Every input goes through the recipe context
@@ -58,3 +59,8 @@ Why: the guarded fetchers pull in `server-only` and `next/headers`, which plain 
 
 ## Recalculation
 `POST /api/recalculate` re-evaluates a stored series from its recipe. Stored values do not follow their sources automatically; the goal page offers a recalculation when a source series is newer than the result.
+
+A series is recomputed from all of its sources or not at all, and nothing recomputes from what a page was sent:
+- The route reads the stored recipe (`getOneRecipe`) and refuses with 403 `IllegalSource` when the user may not read one of the series it links (`visibleSourceSeriesWHERE`). The evaluator would fail on the missing series anyway (`extractDataSeries` throws when the getter answers null), but its error names the variable, and a variable is labelled with the goal it reads.
+- The forms evaluate in the browser from the sources the page carried, then from `clientSafeGetOneDataSeries`. Someone who may not see a source gets an empty recipe instead, which evaluates to an error, and the form does not save a series whose recipe has one.
+- The "a source is newer" notice only looks at the sources the viewer got.
